@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS stationEntity(
+    id Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    address Text NOT NULL,
+    ltd Real NOT NULL,
+    lng Real NOT NULL,
+    operator Text NOT NULL,
+    capacity Text NOT NULL
+);
+
+getAllStations:
+SELECT * FROM stationEntity;
+
+insertStation:
+INSERT OR REPLACE
+INTO stationEntity(
+    id,
+    address,
+    ltd,
+    lng,
+    operator,
+    capacity
+) VALUES (?, ?, ?, ?, ?, ?);

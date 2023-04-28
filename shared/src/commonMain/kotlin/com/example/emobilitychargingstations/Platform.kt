@@ -1,0 +1,7 @@
+package com.comsystoreply.emobilitychargingstations
+
+interface Platform {
+    val name: String
+}
+
+expect fun getPlatform(): Platform
