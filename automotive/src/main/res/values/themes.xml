@@ -1,0 +1,4 @@
+<resources>
+
+    <style name="Theme.EMobility_Charging_Stations" parent="android:Theme.Material.Light.DarkActionBar" />
+</resources>
