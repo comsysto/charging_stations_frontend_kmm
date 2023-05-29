@@ -15,8 +15,8 @@ class StationsViewModel @Inject constructor(
     private val stationsDataSource: StationsDataSourceImpl
 ): ViewModel() {
 
-    private val stationsData: MutableLiveData<Station> = MutableLiveData()
-    val _stationsData: LiveData<Station> = stationsData
+    private val stationsData: MutableLiveData<List<Station>> = MutableLiveData()
+    val _stationsData: LiveData<List<Station>> = stationsData
 
     init {
         viewModelScope.launch {
@@ -26,7 +26,7 @@ class StationsViewModel @Inject constructor(
 
     fun getTestStations() {
         viewModelScope.launch {
-           stationsData.value = stationsDataSource.getAllStations()[0]
+           stationsData.value = stationsDataSource.getAllStations()
         }
     }
 }
