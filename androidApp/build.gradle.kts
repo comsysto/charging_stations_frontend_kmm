@@ -67,7 +67,10 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
     implementation("org.osmdroid:osmdroid-android:6.1.16")
+    implementation ("com.github.MKergall:osmbonuspack:6.9.0")
 
     implementation("androidx.car.app:app:1.2.0")
     implementation("androidx.car.app:app-projected:1.2.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 }

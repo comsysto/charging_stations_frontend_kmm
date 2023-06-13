@@ -1,15 +1,11 @@
 package com.example.emobilitychargingstations.data.stations
 
-import com.example.emobilitychargingstations.domain.stations.Station
+import com.example.emobilitychargingstations.domain.stations.Stations
 import database.StationEntity
 
-fun StationEntity.toStations(): Station {
-    return Station(
-        id = id,
-        address = address,
-        ltd = ltd,
-        lng = lng,
-        operator = operator_,
-        capacity = capacity
+fun StationEntity.toStations(): Stations {
+    return Stations(
+        type = this.type,
+        features = this.features
     )
 }

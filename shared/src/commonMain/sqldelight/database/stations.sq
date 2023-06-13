@@ -1,22 +1,17 @@
+import com.example.emobilitychargingstations.domain.stations.Station;
+import kotlin.collections.List;
+
 CREATE TABLE IF NOT EXISTS stationEntity(
-    id Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-    address Text NOT NULL,
-    ltd Real NOT NULL,
-    lng Real NOT NULL,
-    operator Text NOT NULL,
-    capacity Text NOT NULL
+    type Text NOT NULL PRIMARY KEY,
+    features TEXT AS List<Station>
 );
 
 getAllStations:
-SELECT * FROM stationEntity;
+SELECT * FROM stationEntity WHERE features;
 
 insertStation:
 INSERT OR REPLACE
 INTO stationEntity(
-    id,
-    address,
-    ltd,
-    lng,
-    operator,
-    capacity
-) VALUES (?, ?, ?, ?, ?, ?);
+    type,
+    features
+) VALUES (?, ?);

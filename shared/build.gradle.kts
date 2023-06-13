@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     id("com.squareup.sqldelight")
+    id("kotlinx-serialization")
 }
 
 kotlin {
@@ -31,6 +32,8 @@ kotlin {
                 implementation(kotlin("stdlib-common"))
                 implementation("com.squareup.sqldelight:runtime:1.5.5")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+                implementation("com.squareup.okio:okio:3.3.0")
 
             }
         }

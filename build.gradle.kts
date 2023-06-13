@@ -2,12 +2,15 @@ plugins {
     kotlin("android").version("1.8.0").apply(false)
     kotlin("multiplatform").version("1.8.0").apply(false)
     id("com.google.dagger.hilt.android").version("2.44").apply(false)
+    kotlin("jvm") version "1.8.0"
+    kotlin("plugin.serialization") version "1.8.0"
 }
 buildscript {
     repositories {
         gradlePluginPortal()
         google()
         mavenCentral()
+        maven {setUrl("https://jitpack.io")}
     }
     dependencies {
         classpath("com.android.application:com.android.application.gradle.plugin:7.4.0")
@@ -23,6 +26,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {setUrl("https://jitpack.io") }
     }
 }
 
@@ -34,6 +38,6 @@ allprojects {
 //    kotlin("multiplatform").version("1.8.0").apply(false)
 //}
 
-tasks.register("clean", Delete::class) {
-    delete(rootProject.buildDir)
-}
+//tasks.register("clean", Delete::class) {
+//    delete(rootProject.buildDir)
+//}

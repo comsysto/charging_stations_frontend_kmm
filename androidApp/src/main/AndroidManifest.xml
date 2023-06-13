@@ -3,6 +3,7 @@
 
     <application
         android:name="com.example.emobilitychargingstations.android.EMobilityApp"
+        android:label="eCharm"
         android:allowBackup="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
