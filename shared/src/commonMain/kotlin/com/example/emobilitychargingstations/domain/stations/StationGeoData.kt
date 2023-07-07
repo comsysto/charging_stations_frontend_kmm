@@ -3,6 +3,7 @@ package com.example.emobilitychargingstations.domain.stations
 @kotlinx.serialization.Serializable
 data class StationGeoData(
     val type: String,
+    // First double value is longitude, second is latitude
     val coordinates: Array<Double>
 ) {
     override fun equals(other: Any?): Boolean {

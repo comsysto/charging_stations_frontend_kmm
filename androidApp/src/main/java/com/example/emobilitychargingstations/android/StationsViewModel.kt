@@ -1,5 +1,7 @@
 package com.example.emobilitychargingstations.android
 
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,12 +22,15 @@ class StationsViewModel @Inject constructor(
     private val stationsData: MutableLiveData<Stations> = MutableLiveData()
     val _stationsData: LiveData<Stations> = stationsData
 
-    fun getTestStations(jsonString: String) {
+    fun getTestStations(context: Context) {
         viewModelScope.launch {
             val currentStations = stationsDataSource.getAllStations()
-            if (currentStations?.features != null) stationsData.value = currentStations
+            if (currentStations?.features != null) {
+                stationsData.value = currentStations
+            }
             else {
-                val stationObject = Json.decodeFromString<Stations>(jsonString)
+                val stationsJsonString = context.assets.open("stationsData.json").bufferedReader().use { it.readText() }
+                val stationObject = Json.decodeFromString<Stations>(stationsJsonString)
                 stationsDataSource.insertStations(stationObject)
                 stationsData.value = stationObject
             }
