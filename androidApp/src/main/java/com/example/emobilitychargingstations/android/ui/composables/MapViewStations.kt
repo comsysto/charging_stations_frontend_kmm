@@ -25,7 +25,7 @@ import org.osmdroid.views.overlay.Marker
 @Composable
 fun mapView(stationsViewModel: StationsViewModel) {
     val testStations = stationsViewModel._stationsData.observeAsState()
-    stationsViewModel.getTestStations(LocalContext.current.assets.open("stationsData.json").bufferedReader().use { it.readText() })
+    stationsViewModel.getTestStations(LocalContext.current)
     val mapViewState = mapViewWithLifecycle(testStations.value)
     AndroidView({ mapViewState }, Modifier.fillMaxSize()) {}
 }

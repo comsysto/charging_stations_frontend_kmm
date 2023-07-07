@@ -6,9 +6,4 @@ data class Station(
     val type: String?,
     val properties: StationProperties,
     val geometry: StationGeoData
-//    val address: String,
-//    val ltd: Double,
-//    val lng: Double,
-//    val operator: String?,
-//    val capacity: String
 )
