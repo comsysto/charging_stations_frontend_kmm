@@ -5,3 +5,4 @@ data class Stations(
     val type: String,
     val features: List<Station>?
 )
+

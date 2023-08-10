@@ -13,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.StationsViewModel
+import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
 import com.example.emobilitychargingstations.domain.stations.Stations
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.bonuspack.utils.BonusPackHelper
@@ -23,7 +24,7 @@ import org.osmdroid.views.overlay.FolderOverlay
 import org.osmdroid.views.overlay.Marker
 
 @Composable
-fun mapView(stationsViewModel: StationsViewModel) {
+fun ComposableMapView(stationsViewModel: StationsViewModel) {
     val testStations = stationsViewModel._stationsData.observeAsState()
     stationsViewModel.getTestStations(LocalContext.current)
     val mapViewState = mapViewWithLifecycle(testStations.value)
@@ -51,8 +52,7 @@ fun mapViewWithLifecycle(stations: Stations?): MapView {
         val markerCluster = RadiusMarkerClusterer(context)
         markerCluster.setIcon(BonusPackHelper.getBitmapFromVectorDrawable(context, org.osmdroid.bonuspack.R.drawable.marker_cluster))
         mapView.overlays.add(folderOverlay)
-        stations.features?.forEach {
-            if (userLocation.latitude in it.geometry.coordinates[1] -1 .. it.geometry.coordinates[1] + 1 && userLocation.longitude in it.geometry.coordinates[0] -1 .. it.geometry.coordinates[0] + 1) {
+        stations.getStationsClosestToUserLocation(userLocation.latitude, userLocation.longitude).forEach {
                 val stationGeoPoint = GeoPoint(it.geometry.coordinates[1], it.geometry.coordinates[0])
                 val stationMarker = Marker(mapView)
                 stationMarker.position = stationGeoPoint
@@ -60,7 +60,6 @@ fun mapViewWithLifecycle(stations: Stations?): MapView {
                 stationMarker.icon = context.getDrawable(R.drawable.electric_car_icon)
                 stationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                 markerCluster.add(stationMarker)
-            }
         }
         if (markerCluster.items.size > 0) folderOverlay.add(markerCluster)
         mapView.zoomToBoundingBox(BoundingBox.fromGeoPoints(listOf(userLocation)), false)
