@@ -9,7 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.ui.Modifier
 import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.MyApplicationTheme
-import com.example.emobilitychargingstations.android.ui.composables.mapView
+import com.example.emobilitychargingstations.android.ui.composables.ComposableMapView
 import dagger.hilt.android.AndroidEntryPoint
 import org.osmdroid.config.Configuration
 
@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    mapView(stationsViewModel)
+                    ComposableMapView(stationsViewModel)
                 }
             }
         }
