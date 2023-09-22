@@ -22,22 +22,7 @@ class StationsMapService (): CarAppService() {
     }
 
     override fun onCreateSession(): Session {
-//        startForeground(84317481378.toInt(), getNotification())
-//        val session = ChargingMapSession(stationsDataSourceImpl)
-//        session.lifecycle.addObserver(object: DefaultLifecycleObserver {
-//            override fun onDestroy(owner: LifecycleOwner) {
-//                stopForeground(true)
-//            }
-//        })
         return ChargingMapSession(stationsDataSourceImpl)
     }
-
-    private fun getNotification(): Notification? {
-        val builder: NotificationCompat.Builder = NotificationCompat.Builder(this, "WHATEVER")
-            .setContentTitle("Navigation App")
-            .setContentText("App is running")
-        return builder.build()
-    }
-
 
 }
