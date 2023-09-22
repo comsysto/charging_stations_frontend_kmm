@@ -1,6 +1,11 @@
 package com.example.emobilitychargingstations.android.ui.auto
 
+import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.location.LocationManager
+import android.util.Log
+import androidx.car.app.CarAppPermission
 import androidx.car.app.Screen
 import androidx.car.app.Session
 import com.example.emobilitychargingstations.android.ui.auto.screen.ChargingMapScreen
@@ -15,11 +20,28 @@ import kotlinx.serialization.json.Json
 import org.osmdroid.util.GeoPoint
 
 class ChargingMapSession(private val stationsRepo: StationsDataSourceImpl): Session() {
-    private val userLocation = GeoPoint(51.3397, 12.3731)
+
+    private var userLocation = GeoPoint(51.3397, 12.3731)
     override fun onCreateScreen(intent: Intent): Screen {
         var stations: Stations?
         var stationList: List<Station>
         runBlocking {
+
+            try {
+                CarAppPermission.checkHasPermission(
+                    carContext,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+                CarAppPermission.checkHasPermission(
+                    carContext,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+                val locationManager: LocationManager = carContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                if (location != null) userLocation = GeoPoint(location.latitude, location.longitude)
+            } catch (exception: SecurityException) {
+                Log.v("TEST LOCATION Exception", exception.toString())
+            }
             stations = stationsRepo.getAllStations()
             if (stations == null) {
                 val stationsJsonString = carContext.assets.open("stationsData.json").bufferedReader().use { it.readText() }
@@ -29,6 +51,6 @@ class ChargingMapSession(private val stationsRepo: StationsDataSourceImpl): Sess
             }
             stationList = stations!!.getStationsClosestToUserLocation(userLocation.latitude, userLocation.longitude)
         }
-        return stations?.let { ChargingMapScreen(carContext, stationList) } ?: EmptyScreen(carContext)
+        return stations?.let { ChargingMapScreen(carContext, stationList, userLocation) } ?: EmptyScreen(carContext)
     }
 }

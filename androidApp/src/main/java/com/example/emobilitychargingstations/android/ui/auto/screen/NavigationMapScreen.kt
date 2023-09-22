@@ -52,8 +52,8 @@ class NavigationMapScreen(carContext: CarContext, val station: Station): Screen(
     }
     override fun onGetTemplate(): Template {
         val action = Action.BACK
-//        val customAction = Action.Builder().setTitle("Find Nearest").build()
-        val actionStrip = ActionStrip.Builder().addAction(action).build()
+        val customAction = Action.Builder().setTitle("Find Nearest").build()
+        val actionStrip = ActionStrip.Builder().addAction(action).addAction(customAction).build()
         val distanceResult: FloatArray = floatArrayOf(0.0f)
         Location.distanceBetween(
             userLocation.latitude,

@@ -27,12 +27,16 @@ private fun markerWithoutIcon(carColor: CarColor) = PlaceMarker.Builder().setCol
     .build()
 
 
-fun buildRow(title: SpannableString, place: Place, onClickFunction: () -> Unit): Row =
+fun buildRowWithPlace(title: SpannableString, place: Place, onClickFunction: () -> Unit): Row =
     Row.Builder().setBrowsable(false).setTitle(title).setMetadata(
         buildMetadata(place)
     ).setOnClickListener {
         onClickFunction()
     }.build()
+
+fun buildRowWithText(title: SpannableString, text: String): Row =
+    Row.Builder().setBrowsable(false).setTitle(title).addText(text)
+        .build()
 
 fun buildMetadata(place: Place): Metadata =
     Metadata.Builder().setPlace(

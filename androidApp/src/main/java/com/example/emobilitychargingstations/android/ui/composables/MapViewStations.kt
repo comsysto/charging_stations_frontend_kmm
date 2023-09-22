@@ -27,15 +27,12 @@ import org.osmdroid.views.overlay.Marker
 fun ComposableMapView(stationsViewModel: StationsViewModel) {
     val testStations = stationsViewModel._stationsData.observeAsState()
     stationsViewModel.getTestStations(LocalContext.current)
-    val mapViewState = mapViewWithLifecycle(testStations.value)
+    val mapViewState = mapViewWithLifecycle(testStations.value, stationsViewModel.getUserLocation())
     AndroidView({ mapViewState }, Modifier.fillMaxSize()) {}
 }
 
-//LEIPZIG COORDINATES
-private val userLocation = GeoPoint(51.3397, 12.3731)
-
 @Composable
-fun mapViewWithLifecycle(stations: Stations?): MapView {
+fun mapViewWithLifecycle(stations: Stations?, userLocation: GeoPoint): MapView {
     val context = LocalContext.current
     val mapView = remember {
         MapView(context).apply {

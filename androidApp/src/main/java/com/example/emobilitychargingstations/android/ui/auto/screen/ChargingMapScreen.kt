@@ -12,23 +12,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.toBitmap
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getPlaceWithMarker
-import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRow
+import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithPlace
 import com.example.emobilitychargingstations.data.extensions.getTwoStationsClosestToUser
 import com.example.emobilitychargingstations.domain.stations.Station
 import org.osmdroid.util.GeoPoint
 
-class ChargingMapScreen(carContext: CarContext, stationsList: List<Station>) : Screen(carContext) {
+class ChargingMapScreen(carContext: CarContext, stationsList: List<Station>, val userLocation: GeoPoint) : Screen(carContext) {
 
-    private val userLocation = GeoPoint(51.3397, 12.3731)
-    private val closestStations = stationsList.getTwoStationsClosestToUser(userLocation.latitude, userLocation.longitude)
+    private val closestStations =
+        stationsList.getTwoStationsClosestToUser(userLocation.latitude, userLocation.longitude)
+
     override fun onGetTemplate(): Template {
         val action = Action.BACK
-//        val customAction = Action.Builder().setTitle("Find Nearest").build()
         val actionStrip = ActionStrip.Builder().addAction(action).build()
-        val firstStationStreet = closestStations[0].properties.operator
-        val secondStationStreet = closestStations[1].properties.operator
-        val firstItemTitle = SpannableString("  $firstStationStreet")
-        val secondItemTitle = SpannableString("  $secondStationStreet")
+        val firstItemTitle = SpannableString(" ")
+        val secondItemTitle = SpannableString(" ")
         calculateDistanceAndAddToItemTitles(firstItemTitle, secondItemTitle, closestStations)
         val mapTemplate = PlaceListMapTemplate.Builder()
             .setTitle("Closest Stations")
@@ -42,22 +40,28 @@ class ChargingMapScreen(carContext: CarContext, stationsList: List<Station>) : S
             .setItemList(
                 ItemList.Builder()
                     .addItem(
-                        buildRow(
+                        buildRowWithPlace(
                             firstItemTitle, getPlaceWithMarker(
                                 closestStations[0].geometry.coordinates[1],
                                 closestStations[0].geometry.coordinates[0],
-                                CarColor.createCustom(Color.Transparent.hashCode(), Color.Transparent.hashCode()),
+                                CarColor.createCustom(
+                                    Color.Transparent.hashCode(),
+                                    Color.Transparent.hashCode()
+                                ),
                                 carContext.getDrawable(R.drawable.electric_car_icon)?.toBitmap()
                             )
                         ) {
                             onItemClick(true)
                         })
                     .addItem(
-                        buildRow(
+                        buildRowWithPlace(
                             secondItemTitle, getPlaceWithMarker(
                                 closestStations[1].geometry.coordinates[1],
                                 closestStations[1].geometry.coordinates[0],
-                                CarColor.createCustom(Color.Transparent.hashCode(), Color.Transparent.hashCode()),
+                                CarColor.createCustom(
+                                    Color.Transparent.hashCode(),
+                                    Color.Transparent.hashCode()
+                                ),
                                 carContext.getDrawable(R.drawable.electric_car_icon)?.toBitmap()
                             )
                         ) {
@@ -70,7 +74,11 @@ class ChargingMapScreen(carContext: CarContext, stationsList: List<Station>) : S
         return mapTemplate
     }
 
-    private fun calculateDistanceAndAddToItemTitles(firstItemTitle: SpannableString, secondItemTitle: SpannableString, closestStations: List<Station>) {
+    private fun calculateDistanceAndAddToItemTitles(
+        firstItemTitle: SpannableString,
+        secondItemTitle: SpannableString,
+        closestStations: List<Station>
+    ) {
         val distanceResult: FloatArray = floatArrayOf(0.0f)
         Location.distanceBetween(
             userLocation.latitude,
@@ -100,11 +108,11 @@ class ChargingMapScreen(carContext: CarContext, stationsList: List<Station>) : S
         )
     }
 
-    private fun onItemClick(isClosestClick: Boolean) = screenManager.push(
-        NavigationMapScreen(
-            carContext,
-            if (isClosestClick) closestStations[0] else closestStations[1]
+    private fun onItemClick(isClosestClick: Boolean) {
+        val station = if (isClosestClick) closestStations[0] else closestStations[1]
+        screenManager.push(
+            StationDetailsScreen(carContext, station = station)
         )
-    )
+    }
 }
 
