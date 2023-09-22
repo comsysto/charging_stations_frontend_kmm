@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     id("com.android.application")
     kotlin("android")
@@ -7,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.comsystoreply.emobilitychargingstations.android"
-    compileSdk = 33
+    compileSdk = 34
     defaultConfig {
         applicationId = "com.comsystoreply.emobilitychargingstations.android"
         minSdk = 27
@@ -19,7 +21,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.0"
+        kotlinCompilerExtensionVersion = "1.5.2"
     }
     packagingOptions {
         resources {
@@ -46,7 +48,7 @@ android {
     }
 }
 
-val composeVersion = "1.4.3"
+val composeVersion = "1.5.1"
 
 dependencies {
     implementation(project(":shared"))
@@ -61,8 +63,9 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
-    implementation("com.google.dagger:hilt-android:2.44")
-    kapt("com.google.dagger:hilt-android-compiler:2.44")
+    implementation("com.google.dagger:hilt-android:2.48")
+//    kapt("groupId:artifactId:version")
+    kapt("com.google.dagger:hilt-android-compiler:2.48")
     kapt("androidx.hilt:hilt-compiler:1.0.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
@@ -73,4 +76,6 @@ dependencies {
     implementation("androidx.car.app:app-projected:1.2.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 }
