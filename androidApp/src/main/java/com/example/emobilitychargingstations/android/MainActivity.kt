@@ -33,21 +33,21 @@ class MainActivity : ComponentActivity() {
                 permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true -> {
                     fusedLocationClient.lastLocation.addOnCompleteListener {
                         stationsViewModel.setUserLocation(GeoPoint(it.result.latitude, it.result.longitude))
+                        setContent {
+                            MyApplicationTheme {
+                                Surface(
+                                    modifier = Modifier.fillMaxSize(),
+                                    color = MaterialTheme.colors.background
+                                ) {
+                                    ComposableMapView(stationsViewModel)
+                                }
+                            }
+                        }
                     }
                 }
             }
-        }
+        }.launch(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION))
         Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
-        setContent {
-            MyApplicationTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    ComposableMapView(stationsViewModel)
-                }
-            }
-        }
         super.onCreate(savedInstanceState)
     }
 }

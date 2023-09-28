@@ -36,7 +36,7 @@ class StationsViewModel @Inject constructor(
                 stationsData.value = currentStations
             }
             else {
-                val stationsJsonString = context.assets.open("stationsData.json").bufferedReader().use { it.readText() }
+                val stationsJsonString = context.assets.open("munichStations.json").bufferedReader().use { it.readText() }
                 val stationObject = Json.decodeFromString<Stations>(stationsJsonString)
                 stationsDataSource.insertStations(stationObject)
                 stationsData.value = stationObject

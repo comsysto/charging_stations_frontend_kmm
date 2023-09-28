@@ -40,27 +40,30 @@ fun mapViewWithLifecycle(stations: Stations?, userLocation: GeoPoint): MapView {
             clipToOutline = true
         }
     }
-    mapView.minZoomLevel = 4.00
-    mapView.maxZoomLevel = 17.00
+    mapView.minZoomLevel = 9.00
+    mapView.maxZoomLevel = 16.00
     mapView.isHorizontalMapRepetitionEnabled = false
     mapView.isVerticalMapRepetitionEnabled = false
+    val folderOverlay = FolderOverlay()
+    val markerCluster = RadiusMarkerClusterer(context)
+    markerCluster.setIcon(BonusPackHelper.getBitmapFromVectorDrawable(context, org.osmdroid.bonuspack.R.drawable.marker_cluster))
+    mapView.overlays.add(folderOverlay)
     if (stations != null) {
-        val folderOverlay = FolderOverlay()
-        val markerCluster = RadiusMarkerClusterer(context)
-        markerCluster.setIcon(BonusPackHelper.getBitmapFromVectorDrawable(context, org.osmdroid.bonuspack.R.drawable.marker_cluster))
-        mapView.overlays.add(folderOverlay)
         stations.getStationsClosestToUserLocation(userLocation.latitude, userLocation.longitude).forEach {
                 val stationGeoPoint = GeoPoint(it.geometry.coordinates[1], it.geometry.coordinates[0])
                 val stationMarker = Marker(mapView)
                 stationMarker.position = stationGeoPoint
-                stationMarker.snippet = it.properties.operator
+                stationMarker.snippet = it.properties.street ?: it.properties.operator
                 stationMarker.icon = context.getDrawable(R.drawable.electric_car_icon)
                 stationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                 markerCluster.add(stationMarker)
         }
         if (markerCluster.items.size > 0) folderOverlay.add(markerCluster)
-        mapView.zoomToBoundingBox(BoundingBox.fromGeoPoints(listOf(userLocation)), false)
     }
+    val userMarker = Marker(mapView)
+    userMarker.position = userLocation
+    folderOverlay.add(userMarker)
+    mapView.zoomToBoundingBox(BoundingBox.fromGeoPoints(listOf(userLocation)), false)
     val lifecycleObserver = rememberMapObserver(mapView)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(lifecycle) {

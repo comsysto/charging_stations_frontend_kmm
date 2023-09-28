@@ -2,6 +2,7 @@ package com.example.emobilitychargingstations.android.ui.auto.extensions
 
 import android.graphics.Bitmap
 import android.text.SpannableString
+import androidx.car.app.Screen
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarIcon
 import androidx.car.app.model.CarLocation
@@ -28,7 +29,7 @@ private fun markerWithoutIcon(carColor: CarColor) = PlaceMarker.Builder().setCol
 
 
 fun buildRowWithPlace(title: SpannableString, place: Place, onClickFunction: () -> Unit): Row =
-    Row.Builder().setBrowsable(false).setTitle(title).setMetadata(
+    Row.Builder().setBrowsable(true).setTitle(title).setMetadata(
         buildMetadata(place)
     ).setOnClickListener {
         onClickFunction()
@@ -43,3 +44,4 @@ fun buildMetadata(place: Place): Metadata =
         place
     ).build()
 
+fun Screen.getString(stringId: Int): String = this.carContext.getString(stringId)

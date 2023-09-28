@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto_map_title">Closest Stations</string>
+    <string name="auto_map_empty_list_message">There are no stations in our database nearby</string>
+    <string name="auto_station_details_button_text">Start navigation</string>
+</resources>

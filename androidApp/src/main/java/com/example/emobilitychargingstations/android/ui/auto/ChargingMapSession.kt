@@ -44,7 +44,7 @@ class ChargingMapSession(private val stationsRepo: StationsDataSourceImpl): Sess
             }
             stations = stationsRepo.getAllStations()
             if (stations == null) {
-                val stationsJsonString = carContext.assets.open("stationsData.json").bufferedReader().use { it.readText() }
+                val stationsJsonString = carContext.assets.open("munichStations.json").bufferedReader().use { it.readText() }
                 val stationsFromJson = Json.decodeFromString<Stations>(stationsJsonString)
                 stationsRepo.insertStations(stationsFromJson)
                 stations = stationsFromJson
