@@ -1,12 +1,10 @@
 package com.example.emobilitychargingstations.android.ui.auto
 
 
-import android.app.Notification
 import androidx.car.app.CarAppService
 import androidx.car.app.Session
 import androidx.car.app.validation.HostValidator
-import androidx.core.app.NotificationCompat
-import com.example.emobilitychargingstations.domain.stations.StationsDataSourceImpl
+import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -14,7 +12,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class StationsMapService (): CarAppService() {
     @Inject
-    lateinit var stationsDataSourceImpl: StationsDataSourceImpl
+    lateinit var stationsRepositoryImpl: StationsRepositoryImpl
 
 
     override fun createHostValidator(): HostValidator {
@@ -22,7 +20,7 @@ class StationsMapService (): CarAppService() {
     }
 
     override fun onCreateSession(): Session {
-        return ChargingMapSession(stationsDataSourceImpl)
+        return ChargingMapSession(stationsRepositoryImpl)
     }
 
 }

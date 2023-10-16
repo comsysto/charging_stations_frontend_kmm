@@ -1,18 +1,19 @@
 package com.example.emobilitychargingstations.android.di
 
 import android.app.Application
-import com.comsystoreply.chargingstations.database.StationsDatabase
+import app.cash.sqldelight.ColumnAdapter
+import app.cash.sqldelight.db.SqlDriver
+import com.emobilitychargingstations.database.StationEntity
+import com.emobilitychargingstations.database.StationsDatabase
 import com.example.emobilitychargingstations.data.local.DatabaseDriverFactory
-import com.example.emobilitychargingstations.data.stations.StationsDataSource
-import com.example.emobilitychargingstations.domain.stations.Station
-import com.example.emobilitychargingstations.domain.stations.StationsDataSourceImpl
-import com.squareup.sqldelight.ColumnAdapter
-import com.squareup.sqldelight.db.SqlDriver
+import com.example.emobilitychargingstations.data.stations.StationsRepository
+import com.example.emobilitychargingstations.data.stations.api.StationsApi
+import com.example.emobilitychargingstations.models.Station
+import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import database.StationEntity
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
@@ -28,8 +29,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDataSource(driver: SqlDriver): StationsDataSourceImpl {
-        return StationsDataSource(StationsDatabase(driver, StationEntity.Adapter(
+    fun provideApi(): StationsApi {
+        return StationsApi()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDataSource(driver: SqlDriver, stationsApi: StationsApi): StationsRepositoryImpl {
+        return StationsRepository(StationsDatabase(driver, StationEntity.Adapter(
             featuresAdapter = object : ColumnAdapter<List<Station>, String> {
                 override fun decode(databaseValue: String): List<Station> {
                    return if (databaseValue.isEmpty()){
@@ -45,6 +52,6 @@ object AppModule {
 
                 override fun encode(value: List<Station>): String = value.joinToString(separator = ",")
             }
-        )))
+        )), stationsApi)
     }
 }

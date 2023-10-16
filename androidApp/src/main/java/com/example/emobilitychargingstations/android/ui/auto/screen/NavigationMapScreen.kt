@@ -15,7 +15,7 @@ import androidx.car.app.model.Template
 import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.car.app.navigation.model.RoutingInfo
 import androidx.car.app.navigation.model.Step
-import com.example.emobilitychargingstations.domain.stations.Station
+import com.example.emobilitychargingstations.models.Station
 import org.osmdroid.util.GeoPoint
 
 class NavigationMapScreen(carContext: CarContext, val station: Station): Screen(carContext), SurfaceCallback {

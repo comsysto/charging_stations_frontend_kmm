@@ -1,17 +1,12 @@
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
-    id("com.squareup.sqldelight")
     id("kotlinx-serialization")
+    id("app.cash.sqldelight") version "2.0.0"
 }
 
 kotlin {
     android {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
     }
     
     listOf(
@@ -26,14 +21,17 @@ kotlin {
     }
 
     sourceSets {
+        val ktorVersion = "2.3.4"
+        val sqlDelightVersion = "2.0.0"
+
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
                 implementation(kotlin("stdlib-common"))
-                implementation("com.squareup.sqldelight:runtime:1.5.5")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
                 implementation("com.squareup.okio:okio:3.3.0")
+                implementation("io.ktor:ktor-client-core:$ktorVersion")
 
             }
         }
@@ -45,7 +43,8 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
-                implementation("com.squareup.sqldelight:android-driver:1.5.5")
+                implementation("app.cash.sqldelight:android-driver:$sqlDelightVersion")
+                implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
             }
         }
 //        val androidUnitTest by getting
@@ -53,13 +52,14 @@ kotlin {
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
         val iosMain by creating {
-            dependencies{
-                implementation("com.squareup.sqldelight:native-driver:1.5.5")
-            }
             dependsOn(commonMain)
             iosX64Main.dependsOn(this)
             iosArm64Main.dependsOn(this)
             iosSimulatorArm64Main.dependsOn(this)
+            dependencies{
+                implementation("app.cash.sqldelight:native-driver:$sqlDelightVersion")
+                implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+            }
         }
         val iosX64Test by getting
         val iosArm64Test by getting
@@ -74,15 +74,23 @@ kotlin {
 }
 
 sqldelight {
-    database ("StationsDatabase") {
-        packageName = "com.comsystoreply.chargingstations.database"
-        sourceFolders = listOf("sqldelight")
+    databases {
+        create("StationsDatabase") {
+            packageName.set("com.emobilitychargingstations.database")
+        }
     }
 }
 
 android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlin {
+        jvmToolchain(17)
+    }
     namespace = "com.comsystoreply.emobilitychargingstations"
-    compileSdk = 33
+    compileSdk = 34
     defaultConfig {
         minSdk = 27
         targetSdk = 33

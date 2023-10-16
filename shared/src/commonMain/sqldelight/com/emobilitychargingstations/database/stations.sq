@@ -1,4 +1,4 @@
-import com.example.emobilitychargingstations.domain.stations.Station;
+import com.example.emobilitychargingstations.models.Station;
 import kotlin.collections.List;
 
 CREATE TABLE IF NOT EXISTS stationEntity(

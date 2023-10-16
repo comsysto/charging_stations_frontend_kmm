@@ -13,7 +13,7 @@ import androidx.car.app.model.Template
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithText
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
-import com.example.emobilitychargingstations.domain.stations.Station
+import com.example.emobilitychargingstations.models.Station
 
 class StationDetailsScreen(carContext: CarContext, val station: Station) : Screen(carContext) {
     override fun onGetTemplate(): Template {

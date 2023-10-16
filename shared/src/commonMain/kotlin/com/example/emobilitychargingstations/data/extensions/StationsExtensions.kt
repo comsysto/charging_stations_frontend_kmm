@@ -1,7 +1,7 @@
 package com.example.emobilitychargingstations.data.extensions
 
-import com.example.emobilitychargingstations.domain.stations.Station
-import com.example.emobilitychargingstations.domain.stations.Stations
+import com.example.emobilitychargingstations.models.Station
+import com.example.emobilitychargingstations.models.Stations
 import kotlin.math.abs
 
 fun Stations.getStationsClosestToUserLocation(userLat: Double, userLng: Double): List<Station> {
