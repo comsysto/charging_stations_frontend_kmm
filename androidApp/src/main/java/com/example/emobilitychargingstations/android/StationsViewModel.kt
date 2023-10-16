@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.emobilitychargingstations.domain.stations.Stations
-import com.example.emobilitychargingstations.domain.stations.StationsDataSourceImpl
+import com.example.emobilitychargingstations.models.Stations
+import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StationsViewModel @Inject constructor(
-    private val stationsDataSource: StationsDataSourceImpl
+    private val stationsDataSource: StationsRepositoryImpl
 ) : ViewModel() {
 
     private val stationsData: MutableLiveData<Stations> = MutableLiveData()
@@ -31,7 +31,7 @@ class StationsViewModel @Inject constructor(
     fun getUserLocation(): GeoPoint = userLocation
     fun getTestStations(context: Context) {
         viewModelScope.launch {
-            val currentStations = stationsDataSource.getAllStations()
+            val currentStations = stationsDataSource.getStationsLocal()
             if (currentStations?.features != null) {
                 stationsData.value = currentStations
             }

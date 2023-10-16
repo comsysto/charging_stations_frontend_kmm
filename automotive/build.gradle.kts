@@ -37,7 +37,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     implementation("androidx.car.app:app:1.2.0")
-    implementation("androidx.car.app:app-projected:1.2.0")
-    implementation("androidx.car.app:app-automotive:1.2.0")
+//    implementation("androidx.car.app:app-projected:1.2.0")
+//    implementation("androidx.car.app:app-automotive:1.2.0")
     implementation("androidx.car.app:app-testing:1.2.0")
 }

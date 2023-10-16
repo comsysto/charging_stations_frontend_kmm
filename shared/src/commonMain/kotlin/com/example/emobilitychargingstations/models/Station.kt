@@ -1,4 +1,4 @@
-package com.example.emobilitychargingstations.domain.stations
+package com.example.emobilitychargingstations.models
 
 @kotlinx.serialization.Serializable
 data class Station(

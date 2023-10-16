@@ -14,7 +14,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.StationsViewModel
 import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
-import com.example.emobilitychargingstations.domain.stations.Stations
+import com.example.emobilitychargingstations.models.Stations
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.bonuspack.utils.BonusPackHelper
 import org.osmdroid.util.BoundingBox

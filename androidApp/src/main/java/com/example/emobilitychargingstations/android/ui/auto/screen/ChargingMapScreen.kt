@@ -15,7 +15,7 @@ import com.example.emobilitychargingstations.android.ui.auto.extensions.getPlace
 import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithPlace
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
 import com.example.emobilitychargingstations.data.extensions.getTwoStationsClosestToUser
-import com.example.emobilitychargingstations.domain.stations.Station
+import com.example.emobilitychargingstations.models.Station
 import org.osmdroid.util.GeoPoint
 
 class ChargingMapScreen(carContext: CarContext, stationsList: List<Station>, val userLocation: GeoPoint) : Screen(carContext) {
