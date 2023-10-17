@@ -3,8 +3,10 @@ package com.example.emobilitychargingstations.data.stations
 import com.emobilitychargingstations.database.StationsDatabase
 import com.example.emobilitychargingstations.data.stations.api.StationsApi
 import com.example.emobilitychargingstations.data.stations.database.toStations
+import com.example.emobilitychargingstations.data.stations.database.toUserInfo
 import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
+import com.example.emobilitychargingstations.models.UserInfo
 import com.example.emobilitychargingstations.models.UserLocation
 
 class StationsRepository(stationsDatabase: StationsDatabase, val stationsApi: StationsApi) : StationsRepositoryImpl {
@@ -24,5 +26,13 @@ class StationsRepository(stationsDatabase: StationsDatabase, val stationsApi: St
     override suspend fun getStationsRemote(userLocation: UserLocation): Stations? {
         TODO("Finalize this once API is finished")
 //        return stationsApi.requestStationsWithLocation(userLocation)
+    }
+
+    override fun getUserInfo(): UserInfo? {
+        return queries.getUserInfo().executeAsOneOrNull()?.toUserInfo()
+    }
+
+    override suspend fun setUserInfo(userInfo: UserInfo) {
+        queries.insertUserInfo(userInfo.chargerType)
     }
 }

@@ -26,7 +26,6 @@ class ChargingMapSession(private val stationsRepo: StationsRepositoryImpl): Sess
         var stations: Stations?
         var stationList: List<Station>
         runBlocking {
-
             try {
                 CarAppPermission.checkHasPermission(
                     carContext,
@@ -51,6 +50,6 @@ class ChargingMapSession(private val stationsRepo: StationsRepositoryImpl): Sess
             }
             stationList = stations!!.getStationsClosestToUserLocation(userLocation.latitude, userLocation.longitude)
         }
-        return stations?.let { ChargingMapScreen(carContext, stationList, userLocation) } ?: EmptyScreen(carContext)
+        return stations?.let { ChargingMapScreen(carContext, stationList, userLocation, stationsRepo.getUserInfo()) } ?: EmptyScreen(carContext)
     }
 }

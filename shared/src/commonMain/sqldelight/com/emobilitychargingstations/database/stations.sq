@@ -6,6 +6,17 @@ CREATE TABLE IF NOT EXISTS stationEntity(
     features TEXT AS List<Station>
 );
 
+CREATE TABLE IF NOT EXISTS userInfoEntity(
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ chargerType TEXT
+);
+
+insertUserInfo:
+INSERT OR REPLACE INTO userInfoEntity(id, chargerType) VALUES (1, ?);
+
+getUserInfo:
+SELECT * FROM userInfoEntity;
+
 getAllStations:
 SELECT * FROM stationEntity WHERE features;
 

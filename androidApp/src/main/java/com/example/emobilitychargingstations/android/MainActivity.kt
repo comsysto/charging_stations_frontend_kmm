@@ -6,12 +6,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.MyApplicationTheme
 import com.example.emobilitychargingstations.android.ui.composables.ComposableMapView
+import com.example.emobilitychargingstations.android.ui.composables.ChargerTypeSelectionScreen
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,19 +32,49 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        var startDestination = NAVIGATE_TO_CHARGER_SELECTION
+        val userInfo = stationsViewModel.getUserInfo()
+        if (userInfo != null) startDestination = NAVIGATE_TO_MAP_SCREEN
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            permissions -> when {
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            when {
                 permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true -> {
                     fusedLocationClient.lastLocation.addOnCompleteListener {
-                        stationsViewModel.setUserLocation(GeoPoint(it.result.latitude, it.result.longitude))
+                        stationsViewModel.setUserLocation(
+                            GeoPoint(
+                                it.result.latitude,
+                                it.result.longitude
+                            )
+                        )
                         setContent {
                             MyApplicationTheme {
+                                val navController = rememberNavController()
                                 Surface(
                                     modifier = Modifier.fillMaxSize(),
                                     color = MaterialTheme.colors.background
                                 ) {
-                                    ComposableMapView(stationsViewModel)
+                                    Column {
+                                        NavHost(
+                                            navController = navController,
+                                            startDestination = startDestination
+                                        ) {
+                                            composable(NAVIGATE_TO_CHARGER_SELECTION) {
+                                                ChargerTypeSelectionScreen(proceedToNextScreen = {
+                                                    navController.navigate(
+                                                        NAVIGATE_TO_MAP_SCREEN
+                                                    )
+                                                }, viewModel = stationsViewModel)
+                                            }
+                                            composable(NAVIGATE_TO_MAP_SCREEN) {
+                                                ComposableMapView(proceedToSocketSelection = {
+                                                    navController.navigate(
+                                                        NAVIGATE_TO_CHARGER_SELECTION
+                                                    )
+                                                }, stationsViewModel = stationsViewModel)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -48,6 +83,9 @@ class MainActivity : ComponentActivity() {
             }
         }.launch(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION))
         Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
-        super.onCreate(savedInstanceState)
+    }
+    companion object {
+        private const val NAVIGATE_TO_CHARGER_SELECTION = "chargerSelectionScreen"
+        private const val NAVIGATE_TO_MAP_SCREEN = "mapScreen"
     }
 }

@@ -3,6 +3,7 @@ package com.example.emobilitychargingstations.android.ui.auto.screen
 import android.location.Location
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
+import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.*
@@ -16,14 +17,16 @@ import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRow
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
 import com.example.emobilitychargingstations.data.extensions.getTwoStationsClosestToUser
 import com.example.emobilitychargingstations.models.Station
+import com.example.emobilitychargingstations.models.UserInfo
 import org.osmdroid.util.GeoPoint
 
-class ChargingMapScreen(carContext: CarContext, stationsList: List<Station>, val userLocation: GeoPoint) : Screen(carContext) {
+class ChargingMapScreen(carContext: CarContext, stationsList: List<Station>, val userLocation: GeoPoint, val userInfo: UserInfo?) : Screen(carContext) {
 
     private var closestStations: List<Station> = if (stationsList.isEmpty()) listOf()
-        else stationsList.getTwoStationsClosestToUser(userLocation.latitude, userLocation.longitude)
+        else stationsList.getTwoStationsClosestToUser(userLocation.latitude, userLocation.longitude, userInfo?.chargerType)
 
     override fun onGetTemplate(): Template {
+        Log.e("TESTINGUSERINFO", userInfo.toString())
         val action = Action.BACK
         val mapTitle = getString(R.string.auto_map_title)
         val actionStrip = ActionStrip.Builder().addAction(action).build()

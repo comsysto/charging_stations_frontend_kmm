@@ -1,5 +1,6 @@
 package com.example.emobilitychargingstations.data.extensions
 
+import com.example.emobilitychargingstations.models.ChargerTypesEnum
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.Stations
 import kotlin.math.abs
@@ -8,7 +9,8 @@ fun Stations.getStationsClosestToUserLocation(userLat: Double, userLng: Double):
     val filteredList = mutableListOf<Station>()
     features?.forEach {
         if (userLat in it.geometry.coordinates[1] - 1..it.geometry.coordinates[1] + 1
-            && userLng in it.geometry.coordinates[0] - 1..it.geometry.coordinates[0] + 1) {
+            && userLng in it.geometry.coordinates[0] - 1..it.geometry.coordinates[0] + 1
+        ) {
             filteredList.add(it)
         }
     }
@@ -31,12 +33,12 @@ fun List<Station>.getOneStationClosestToUser(userLat: Double, userLng: Double): 
     return currentClosestStation
 }
 
-fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double): List<Station> {
+fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double, filterByChargerType: String? = null): List<Station> {
     var closestTotalDifference = 180.00
     var currentClosestStation = getOneStationClosestToUser(userLat, userLng)
     var secondClosestStation = currentClosestStation
 
-    this.forEach {
+    this.filterByChargerType(filterByChargerType).forEach {
         val latDiff = abs(userLat - it.geometry.coordinates[1])
         val lngDiff = abs(userLng - it.geometry.coordinates[0])
         val totalDiff = latDiff + lngDiff
@@ -47,4 +49,39 @@ fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double):
         }
     }
     return listOf(currentClosestStation, secondClosestStation)
+}
+
+fun List<Station>.filterByChargerType(chargerType: String?): List<Station> {
+    var keywords = mutableListOf<String>()
+    when (chargerType) {
+        ChargerTypesEnum.AC_TYPE_2.displayName -> {
+            keywords.add("typ 2")
+            keywords.add("typ2")
+        }
+        ChargerTypesEnum.AC_TYPE_1.displayName -> {
+            keywords.add("Typ1")
+            keywords.add("Typ 1")
+        }
+        ChargerTypesEnum.DC_EU.displayName -> {
+            keywords.add("DC Kupplung Combo")
+        }
+        ChargerTypesEnum.DC_CHADEMO.displayName -> {
+            keywords.add("chademo")
+        }
+        ChargerTypesEnum.TESLA.displayName -> {
+            keywords.add("tesla")
+        }
+        else -> {}
+    }
+    return if (keywords.isEmpty()) this
+    else this.filter { station ->
+        var result = false
+        if (station.properties.socket_type_list == null) result = true
+        else keywords.forEach { keyword ->
+            station.properties.socket_type_list.forEach {
+                if (it.contains(keyword)) result = true
+            }
+        }
+        result
+    }
 }
