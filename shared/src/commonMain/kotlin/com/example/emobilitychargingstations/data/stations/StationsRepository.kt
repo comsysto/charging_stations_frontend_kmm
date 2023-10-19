@@ -1,6 +1,10 @@
 package com.example.emobilitychargingstations.data.stations
 
+import app.cash.sqldelight.Query
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToOne
 import com.emobilitychargingstations.database.StationsDatabase
+import com.emobilitychargingstations.database.UserInfoEntity
 import com.example.emobilitychargingstations.data.stations.api.StationsApi
 import com.example.emobilitychargingstations.data.stations.database.toStations
 import com.example.emobilitychargingstations.data.stations.database.toUserInfo
@@ -8,6 +12,8 @@ import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
 import com.example.emobilitychargingstations.models.UserInfo
 import com.example.emobilitychargingstations.models.UserLocation
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class StationsRepository(stationsDatabase: StationsDatabase, val stationsApi: StationsApi) : StationsRepositoryImpl {
 
@@ -30,6 +36,11 @@ class StationsRepository(stationsDatabase: StationsDatabase, val stationsApi: St
 
     override fun getUserInfo(): UserInfo? {
         return queries.getUserInfo().executeAsOneOrNull()?.toUserInfo()
+    }
+
+    override suspend fun getUserInfoAsFlow(): Flow<UserInfo?> {
+        return queries.getUserInfo().asFlow().map { value: Query<UserInfoEntity> ->
+            value.executeAsOneOrNull()?.toUserInfo() }
     }
 
     override suspend fun setUserInfo(userInfo: UserInfo) {

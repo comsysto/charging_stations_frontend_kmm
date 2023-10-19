@@ -50,6 +50,6 @@ class ChargingMapSession(private val stationsRepo: StationsRepositoryImpl): Sess
             }
             stationList = stations!!.getStationsClosestToUserLocation(userLocation.latitude, userLocation.longitude)
         }
-        return stations?.let { ChargingMapScreen(carContext, stationList, userLocation, stationsRepo.getUserInfo()) } ?: EmptyScreen(carContext)
+        return stations?.let { ChargingMapScreen(carContext, stationList, userLocation, stationsRepo) } ?: EmptyScreen(carContext)
     }
 }

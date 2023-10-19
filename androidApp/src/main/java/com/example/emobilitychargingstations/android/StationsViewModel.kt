@@ -45,7 +45,7 @@ class StationsViewModel @Inject constructor(
         }
     }
 
-    fun setUserInfo(chargerName: String) {
+    fun setUserInfo(chargerName: String?) {
         viewModelScope.launch {
             stationsDataSource.setUserInfo(UserInfo(chargerName))
         }

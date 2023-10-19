@@ -30,6 +30,7 @@ kotlin {
                 implementation(kotlin("stdlib-common"))
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+                implementation("app.cash.sqldelight:coroutines-extensions:2.0.0-alpha05")
                 implementation("com.squareup.okio:okio:3.3.0")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
 
@@ -86,9 +87,15 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
+    }
     kotlin {
         jvmToolchain(17)
     }
+
     namespace = "com.comsystoreply.emobilitychargingstations"
     compileSdk = 34
     defaultConfig {
