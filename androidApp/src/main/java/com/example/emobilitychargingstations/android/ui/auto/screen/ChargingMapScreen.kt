@@ -3,7 +3,6 @@ package com.example.emobilitychargingstations.android.ui.auto.screen
 import android.location.Location
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
-import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.*
@@ -17,10 +16,8 @@ import com.example.emobilitychargingstations.android.ui.auto.extensions.getPlace
 import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithPlace
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
 import com.example.emobilitychargingstations.data.extensions.getTwoStationsClosestToUser
-import com.example.emobilitychargingstations.data.stations.StationsRepository
 import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
 import com.example.emobilitychargingstations.models.Station
-import com.example.emobilitychargingstations.models.UserInfo
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -33,11 +30,8 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: List<Station>,
         else stationsList.getTwoStationsClosestToUser(userLocation.latitude, userLocation.longitude, userInfo?.chargerType)
 
     override fun onGetTemplate(): Template {
-        Log.v("TESTLOG", "WHATEVER")
         lifecycleScope.launch {
-            Log.v("TESTLOGSCOPE", "WHATEVER")
             stationsRepo.getUserInfoAsFlow().onEach {
-                Log.v("TESTLOGFLOW", it.toString())
                 if (it?.chargerType != userInfo?.chargerType || it == null) {
                     userInfo = it
                     closestStations = if (stationsList.isNullOrEmpty()) listOf()
