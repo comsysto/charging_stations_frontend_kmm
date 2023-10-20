@@ -31,7 +31,7 @@ class StationDetailsScreen(carContext: CarContext, val station: Station) : Scree
             )
             .addRow(
                 buildRowWithText(
-                    title = SpannableString("Capacity:"),
+                    title = SpannableString("Number of charging stations:"),
                     text = station.properties.capacity.toString()
                 )
             )

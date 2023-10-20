@@ -2,6 +2,7 @@ package com.example.emobilitychargingstations.android
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,7 +19,12 @@ import com.comsystoreply.emobilitychargingstations.android.MyApplicationTheme
 import com.example.emobilitychargingstations.android.ui.composables.ComposableMapView
 import com.example.emobilitychargingstations.android.ui.composables.ChargerTypeSelectionScreen
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Granularity
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import dagger.hilt.android.AndroidEntryPoint
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
@@ -29,6 +35,24 @@ class MainActivity : ComponentActivity() {
 
     private val stationsViewModel: StationsViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val locationRequest =
+        LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 20000).apply {
+            setMinUpdateDistanceMeters(1000f)
+            setGranularity(Granularity.GRANULARITY_PERMISSION_LEVEL)
+            setWaitForAccurateLocation(true)
+        }.build()
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            locationResult.locations.firstOrNull()?.let {
+                stationsViewModel.setUserLocation(
+                    GeoPoint(
+                        it.latitude,
+                        it.longitude
+                    )
+                )
+            }
+        }
+    }
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,44 +64,47 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             when {
                 permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true -> {
-                    fusedLocationClient.lastLocation.addOnCompleteListener {
-                        stationsViewModel.setUserLocation(
-                            GeoPoint(
-                                it.result.latitude,
-                                it.result.longitude
-                            )
-                        )
-                        setContent {
-                            MyApplicationTheme {
-                                val navController = rememberNavController()
-                                Surface(
-                                    modifier = Modifier.fillMaxSize(),
-                                    color = MaterialTheme.colors.background
-                                ) {
-                                    Column {
-                                        NavHost(
-                                            navController = navController,
-                                            startDestination = startDestination
-                                        ) {
-                                            composable(NAVIGATE_TO_CHARGER_SELECTION) {
-                                                ChargerTypeSelectionScreen(proceedToNextScreen = {
-                                                    navController.navigate(
-                                                        NAVIGATE_TO_MAP_SCREEN
-                                                    )
-                                                }, viewModel = stationsViewModel)
-                                            }
-                                            composable(NAVIGATE_TO_MAP_SCREEN) {
-                                                ComposableMapView(proceedToSocketSelection = {
-                                                    navController.navigate(
-                                                        NAVIGATE_TO_CHARGER_SELECTION
-                                                    )
-                                                }, stationsViewModel = stationsViewModel)
+                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+//                    fusedLocationClient.lastLocation.addOnCompleteListener {
+//                        it.result?.let {
+//                            stationsViewModel.setUserLocation(
+//                                GeoPoint(
+//                                    it.latitude,
+//                                    it.longitude
+//                                )
+//                            )
+                            setContent {
+                                MyApplicationTheme {
+                                    val navController = rememberNavController()
+                                    Surface(
+                                        modifier = Modifier.fillMaxSize(),
+                                        color = MaterialTheme.colors.background
+                                    ) {
+                                        Column {
+                                            NavHost(
+                                                navController = navController,
+                                                startDestination = startDestination
+                                            ) {
+                                                composable(NAVIGATE_TO_CHARGER_SELECTION) {
+                                                    ChargerTypeSelectionScreen(proceedToNextScreen = {
+                                                        navController.navigate(
+                                                            NAVIGATE_TO_MAP_SCREEN
+                                                        )
+                                                    }, viewModel = stationsViewModel)
+                                                }
+                                                composable(NAVIGATE_TO_MAP_SCREEN) {
+                                                    ComposableMapView(proceedToSocketSelection = {
+                                                        navController.navigate(
+                                                            NAVIGATE_TO_CHARGER_SELECTION
+                                                        )
+                                                    }, stationsViewModel = stationsViewModel)
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
-                        }
+//                            }
+//                        }
                     }
                 }
             }
