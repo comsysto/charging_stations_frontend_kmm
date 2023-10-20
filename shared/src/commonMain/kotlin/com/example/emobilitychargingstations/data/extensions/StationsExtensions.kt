@@ -35,20 +35,29 @@ fun List<Station>.getOneStationClosestToUser(userLat: Double, userLng: Double): 
 
 fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double, filterByChargerType: String? = null): List<Station> {
     var closestTotalDifference = 180.00
-    var currentClosestStation = getOneStationClosestToUser(userLat, userLng)
-    var secondClosestStation = currentClosestStation
+    val chargerTypeStations = this.filterByChargerType(filterByChargerType)
+    val resultList = mutableListOf<Station>()
+    if (chargerTypeStations.isNotEmpty()) {
+        var currentClosestStation = chargerTypeStations.getOneStationClosestToUser(userLat, userLng)
+        if (chargerTypeStations.size == 1) resultList.add(currentClosestStation) else {
+            var secondClosestStation = currentClosestStation
+            chargerTypeStations.forEach {
+                val latDiff = abs(userLat - it.geometry.coordinates[1])
+                val lngDiff = abs(userLng - it.geometry.coordinates[0])
+                val totalDiff = latDiff + lngDiff
+                if (totalDiff < closestTotalDifference) {
+                    closestTotalDifference = totalDiff
+                    secondClosestStation = currentClosestStation
+                    currentClosestStation = it
+                }
 
-    this.filterByChargerType(filterByChargerType).forEach {
-        val latDiff = abs(userLat - it.geometry.coordinates[1])
-        val lngDiff = abs(userLng - it.geometry.coordinates[0])
-        val totalDiff = latDiff + lngDiff
-        if (totalDiff < closestTotalDifference) {
-            closestTotalDifference = totalDiff
-            secondClosestStation = currentClosestStation
-            currentClosestStation = it
+            }
+            resultList.add(currentClosestStation)
+            resultList.add(secondClosestStation)
         }
     }
-    return listOf(currentClosestStation, secondClosestStation)
+
+    return resultList
 }
 
 fun List<Station>.filterByChargerType(chargerType: String?): List<Station> {
@@ -76,10 +85,9 @@ fun List<Station>.filterByChargerType(chargerType: String?): List<Station> {
     return if (keywords.isEmpty()) this
     else this.filter { station ->
         var result = false
-        if (station.properties.socket_type_list == null) result = true
-        else keywords.forEach { keyword ->
-            station.properties.socket_type_list.forEach {
-                if (it.contains(keyword)) result = true
+         keywords.forEach { keyword ->
+            station.properties.socket_type_list?.forEach {
+                if (it.contains(keyword, true)) result = true
             }
         }
         result

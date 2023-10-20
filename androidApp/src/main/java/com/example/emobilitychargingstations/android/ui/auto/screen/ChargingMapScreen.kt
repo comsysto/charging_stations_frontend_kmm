@@ -3,7 +3,6 @@ package com.example.emobilitychargingstations.android.ui.auto.screen
 import android.location.Location
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
-import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.*
@@ -11,22 +10,36 @@ import androidx.car.app.model.Distance.UNIT_KILOMETERS_P1
 import androidx.car.app.model.Distance.create
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.lifecycleScope
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getPlaceWithMarker
 import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithPlace
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
 import com.example.emobilitychargingstations.data.extensions.getTwoStationsClosestToUser
+import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
 import com.example.emobilitychargingstations.models.Station
-import com.example.emobilitychargingstations.models.UserInfo
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.osmdroid.util.GeoPoint
 
-class ChargingMapScreen(carContext: CarContext, stationsList: List<Station>, val userLocation: GeoPoint, val userInfo: UserInfo?) : Screen(carContext) {
+class ChargingMapScreen(carContext: CarContext, val stationsList: List<Station>, val userLocation: GeoPoint, val stationsRepo: StationsRepositoryImpl) : Screen(carContext) {
 
-    private var closestStations: List<Station> = if (stationsList.isEmpty()) listOf()
+    private var userInfo = stationsRepo.getUserInfo()
+    private var closestStations: List<Station> = if (stationsList.isNullOrEmpty()) listOf()
         else stationsList.getTwoStationsClosestToUser(userLocation.latitude, userLocation.longitude, userInfo?.chargerType)
 
     override fun onGetTemplate(): Template {
-        Log.e("TESTINGUSERINFO", userInfo.toString())
+        lifecycleScope.launch {
+            stationsRepo.getUserInfoAsFlow().onEach {
+                if (it?.chargerType != userInfo?.chargerType || it == null) {
+                    userInfo = it
+                    closestStations = if (stationsList.isNullOrEmpty()) listOf()
+                    else stationsList.getTwoStationsClosestToUser(userLocation.latitude, userLocation.longitude, userInfo?.chargerType)
+                    invalidate()
+                }
+            }.collect()
+        }
         val action = Action.BACK
         val mapTitle = getString(R.string.auto_map_title)
         val actionStrip = ActionStrip.Builder().addAction(action).build()

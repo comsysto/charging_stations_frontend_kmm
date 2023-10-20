@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
+import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.models.UserInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -45,7 +45,7 @@ class StationsViewModel @Inject constructor(
         }
     }
 
-    fun setUserInfo(chargerName: String) {
+    fun setUserInfo(chargerName: String?) {
         viewModelScope.launch {
             stationsDataSource.setUserInfo(UserInfo(chargerName))
         }
