@@ -85,9 +85,12 @@ fun List<Station>.filterByChargerType(chargerType: String?): List<Station> {
     return if (keywords.isEmpty()) this
     else this.filter { station ->
         var result = false
-         keywords.forEach { keyword ->
-            station.properties.socket_type_list?.forEach {
-                if (it.contains(keyword, true)) result = true
+        if (station.properties.socket_type_list == null) result = true
+        else {
+            keywords.forEach { keyword ->
+                station.properties.socket_type_list.forEach {
+                    if (it.contains(keyword, true)) result = true
+                }
             }
         }
         result

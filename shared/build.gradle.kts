@@ -99,7 +99,7 @@ android {
     namespace = "com.comsystoreply.emobilitychargingstations"
     compileSdk = 34
     defaultConfig {
-        minSdk = 27
+        minSdk = 31
         targetSdk = 33
     }
 }

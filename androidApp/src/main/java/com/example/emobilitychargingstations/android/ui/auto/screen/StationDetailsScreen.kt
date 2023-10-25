@@ -13,28 +13,40 @@ import androidx.car.app.model.Template
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithText
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
+import com.example.emobilitychargingstations.data.extensions.getChargingTypeFromMaxKW
 import com.example.emobilitychargingstations.models.Station
 
 class StationDetailsScreen(carContext: CarContext, val station: Station) : Screen(carContext) {
     override fun onGetTemplate(): Template {
-        val stationsPane = Pane.Builder()
-            .addAction(
+        val stationsPane = Pane.Builder().apply {
+            val socketTypeString = if (station.properties.socket_type_list == null) "Unknown charger type" else {
+                var resultingString = ""
+                station.properties.socket_type_list!!.groupingBy { it }.eachCount().filterValues { it >= 1 }.keys.forEach {
+                    resultingString = if (resultingString.isEmpty()) it
+                    else "$resultingString, $it"
+                }
+                resultingString
+            }
+            addAction(
                 Action.Builder().setTitle(getString(R.string.auto_station_details_button_text))
                     .setBackgroundColor(CarColor.GREEN)
-                    .setOnClickListener(this::startNavigation).build()
+                    .setOnClickListener(this@StationDetailsScreen::startNavigation).build()
             )
-            .addRow(
+            addRow(
                 buildRowWithText(
                     title = SpannableString("Operator:"),
                     text = station.properties.operator ?: "-"
                 )
             )
-            .addRow(
+            addRow(
                 buildRowWithText(
                     title = SpannableString("Number of charging stations:"),
                     text = station.properties.capacity.toString()
                 )
             )
+            addRow(buildRowWithText(SpannableString("Charger type list:"), socketTypeString))
+
+        }
             .build()
         return PaneTemplate.Builder(stationsPane).setTitle(getPaneTitle())
             .setHeaderAction(Action.BACK)
@@ -42,7 +54,7 @@ class StationDetailsScreen(carContext: CarContext, val station: Station) : Scree
     }
 
     fun getPaneTitle(): String {
-        return "${station.properties.street}" + " - max " + "${station.properties.max_kw}kW"
+        return "${station.properties.street}" + " - ${station.properties.max_kw.getChargingTypeFromMaxKW()}"
     }
 
     fun startNavigation() {

@@ -12,7 +12,7 @@ android {
     compileSdk = 34
     defaultConfig {
         applicationId = "com.comsystoreply.emobilitychargingstations.android"
-        minSdk = 27
+        minSdk = 31
         targetSdk = 33
         versionCode = 4
         versionName = "0.21"

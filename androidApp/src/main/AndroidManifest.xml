@@ -3,6 +3,7 @@
 
     <application
         android:name="com.example.emobilitychargingstations.android.EMobilityApp"
+        android:icon="@drawable/electric_vehicle_charging_station_icon"
         android:label="eCharm"
         android:allowBackup="true"
         android:supportsRtl="true"

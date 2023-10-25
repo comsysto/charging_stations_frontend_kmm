@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
     private val stationsViewModel: StationsViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val locationRequest =
-        LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 20000).apply {
+        LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000).apply {
             setMinUpdateDistanceMeters(1000f)
             setGranularity(Granularity.GRANULARITY_PERMISSION_LEVEL)
             setWaitForAccurateLocation(true)

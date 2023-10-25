@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
+import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.models.UserInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,13 +24,11 @@ class StationsViewModel @Inject constructor(
     private val stationsData: MutableLiveData<Stations> = MutableLiveData()
     val _stationsData: LiveData<Stations> = stationsData
 
-    private var userLocation = GeoPoint(51.3397, 12.3731)
-
+    private val userLocation : MutableLiveData<GeoPoint> = MutableLiveData(GeoPoint(51.3397, 12.3731))
+    val _userLocation: LiveData<GeoPoint> = userLocation
     fun setUserLocation(newUserLocation: GeoPoint) {
-        userLocation = newUserLocation
+        userLocation.postValue(newUserLocation)
     }
-
-    fun getUserLocation(): GeoPoint = userLocation
     fun getTestStations(context: Context) {
         viewModelScope.launch {
             val currentStations = stationsDataSource.getStationsLocal()
@@ -38,9 +37,15 @@ class StationsViewModel @Inject constructor(
             }
             else {
                 val stationsJsonString = context.assets.open("munichStations.json").bufferedReader().use { it.readText() }
-                val stationObject = Json.decodeFromString<Stations>(stationsJsonString)
-                stationsDataSource.insertStations(stationObject)
-                stationsData.value = stationObject
+                val regensburgStationsJsonString = context.assets.open("regensburgStations.json").bufferedReader().use { it.readText() }
+                var stationsFromJson = Json.decodeFromString<Stations>(stationsJsonString)
+                val regensburgStationsFromJson = Json.decodeFromString<Stations>(regensburgStationsJsonString)
+                val combinedStations = mutableListOf<Station>()
+                stationsFromJson.features?.let { combinedStations.addAll(it) }
+                regensburgStationsFromJson.features?.let { combinedStations.addAll(it) }
+                stationsFromJson = stationsFromJson.copy(features = combinedStations)
+                stationsDataSource.insertStations(stationsFromJson)
+                stationsData.value = stationsFromJson
             }
         }
     }
