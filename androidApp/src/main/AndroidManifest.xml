@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES" />
+    <uses-permission android:name="androidx.car.app.MAP_TEMPLATES"/>
+    <uses-permission android:name="androidx.car.app.ACCESS_SURFACE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"  />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"  />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"  />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"  />
+
     <application
         android:name="com.example.emobilitychargingstations.android.EMobilityApp"
         android:icon="@drawable/electric_vehicle_charging_station_icon"
         android:label="eCharm"
-        android:allowBackup="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
@@ -30,14 +38,4 @@
         <meta-data android:name="androidx.car.app.minCarApiLevel"
             android:value="1"/>
     </application>
-<!--    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>-->
-<!--    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>-->
-    <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES" />
-    <uses-permission android:name="androidx.car.app.MAP_TEMPLATES"/>
-    <uses-permission android:name="androidx.car.app.ACCESS_SURFACE"/>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"  />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"  />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"  />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"  />
 </manifest>

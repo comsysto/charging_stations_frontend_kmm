@@ -29,6 +29,7 @@ class ChargingMapSession(private val stationsRepo: StationsRepositoryImpl): Sess
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             } catch (exception: SecurityException) {
+            //  TODO: implement permission handling
                 Log.v("TEST LOCATION Exception", exception.toString())
             }
             stations = stationsRepo.getStationsLocal()

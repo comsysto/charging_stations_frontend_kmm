@@ -19,14 +19,6 @@ import com.example.emobilitychargingstations.models.Station
 class StationDetailsScreen(carContext: CarContext, val station: Station) : Screen(carContext) {
     override fun onGetTemplate(): Template {
         val stationsPane = Pane.Builder().apply {
-            val socketTypeString = if (station.properties.socket_type_list == null) "Unknown charger type" else {
-                var resultingString = ""
-                station.properties.socket_type_list!!.groupingBy { it }.eachCount().filterValues { it >= 1 }.keys.forEach {
-                    resultingString = if (resultingString.isEmpty()) it
-                    else "$resultingString, $it"
-                }
-                resultingString
-            }
             addAction(
                 Action.Builder().setTitle(getString(R.string.auto_station_details_button_text))
                     .setBackgroundColor(CarColor.GREEN)
@@ -34,36 +26,49 @@ class StationDetailsScreen(carContext: CarContext, val station: Station) : Scree
             )
             addRow(
                 buildRowWithText(
-                    title = SpannableString("Operator:"),
+                    title = SpannableString(getString(R.string.auto_station_details_operator)),
                     text = station.properties.operator ?: "-"
                 )
             )
             addRow(
                 buildRowWithText(
-                    title = SpannableString("Number of charging stations:"),
+                    title = SpannableString(getString(R.string.auto_station_details_station_capacity)),
                     text = station.properties.capacity.toString()
                 )
             )
-            addRow(buildRowWithText(SpannableString("Charger type list:"), socketTypeString))
+            addRow(buildRowWithText(SpannableString(getString(R.string.auto_station_details_station_charger_type_list)), getSocketTypeString()))
 
-        }
-            .build()
+        }.build()
+
         return PaneTemplate.Builder(stationsPane).setTitle(getPaneTitle())
             .setHeaderAction(Action.BACK)
             .build()
     }
 
-    fun getPaneTitle(): String {
+    private fun getPaneTitle(): String {
         return "${station.properties.street}" + " - ${station.properties.max_kw.getChargingTypeFromMaxKW()}"
     }
 
-    fun startNavigation() {
+    private fun getSocketTypeString() : String {
+        val socketTypeString = if (station.properties.socket_type_list == null) getString(R.string.auto_station_details_unknown_charger) else {
+            var resultingString = ""
+            station.properties.socket_type_list!!.groupingBy { it }.eachCount().filterValues { it >= 1 }.keys.forEach {
+                resultingString = if (resultingString.isEmpty()) it
+                else "$resultingString, $it"
+            }
+            resultingString
+        }
+        return socketTypeString
+    }
+
+    private fun startNavigation() {
         val latitude = station.geometry.coordinates[1]
         val longitude = station.geometry.coordinates[0]
-        val name = "Navigating to ${station.properties.street}"
+        val name = getString(R.string.auto_station_details_navigating_to, station.properties.street ?: "")
         val intent = Intent(CarContext.ACTION_NAVIGATE, Uri.parse("geo:0,0?q=${latitude},${longitude}(${name})"))
         intent.`package` = "com.google.android.apps.maps"
         carContext.startCarApp(intent)
+        setResult(station)
         screenManager.pop()
 //        screenManager.push(
 //            NavigationMapScreen(

@@ -45,3 +45,4 @@ fun buildMetadata(place: Place): Metadata =
     ).build()
 
 fun Screen.getString(stringId: Int): String = this.carContext.getString(stringId)
+fun Screen.getString(stringId: Int, stringArgument: String): String = this.carContext.getString(stringId, stringArgument)
