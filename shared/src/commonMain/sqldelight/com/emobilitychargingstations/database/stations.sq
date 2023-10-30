@@ -8,17 +8,18 @@ CREATE TABLE IF NOT EXISTS stationEntity(
 
 CREATE TABLE IF NOT EXISTS userInfoEntity(
  id INTEGER PRIMARY KEY AUTOINCREMENT,
- chargerType TEXT
+ chargerType TEXT,
+ favoriteStations TEXT AS List<Station>
 );
 
 insertUserInfo:
-INSERT OR REPLACE INTO userInfoEntity(id, chargerType) VALUES (1, ?);
+INSERT OR REPLACE INTO userInfoEntity(id, chargerType, favoriteStations) VALUES (1, ?, ?);
 
 getUserInfo:
 SELECT * FROM userInfoEntity;
 
 getAllStations:
-SELECT * FROM stationEntity WHERE features;
+SELECT * FROM stationEntity;
 
 insertStation:
 INSERT OR REPLACE

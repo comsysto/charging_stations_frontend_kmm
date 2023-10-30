@@ -3,7 +3,8 @@
     <!-- ANDROID AUTO  -->
     <string name="auto_map_title">Closest Stations</string>
     <string name="auto_map_empty_list_message">There are no stations in our database nearby</string>
-    <string name="auto_station_details_button_text">Start navigation</string>
+    <string name="auto_station_details_start_navigation">Start navigation</string>
+    <string name="auto_station_details_stop_navigation">Stop navigation</string>
     <string name="auto_station_details_unknown_charger">Unknown charger type</string>
     <string name="auto_station_details_operator">Operator:</string>
     <string name="auto_station_details_station_capacity">Number of charging stations:</string>
@@ -11,6 +12,8 @@
     <string name="auto_station_details_navigating_to">Navigating to %s</string>
     <string name="auto_navigation_complete_title">Destination reached</string>
     <string name="auto_navigation_complete_message">Selected charging station reached. Would you like to add it to favorites?</string>
-    <string name="auto_navigation_complete_action">Add</string>
+    <string name="auto_navigation_complete_already_in_favorite_message">Selected charging station reached. Would you like to remove it from favorites?</string>
+    <string name="auto_navigation_complete_add_action">Add</string>
+    <string name="auto_navigation_complete_remove_action">Remove</string>
 
 </resources>

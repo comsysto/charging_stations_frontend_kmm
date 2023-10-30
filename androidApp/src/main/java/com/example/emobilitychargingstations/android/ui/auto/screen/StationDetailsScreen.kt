@@ -19,10 +19,11 @@ import com.example.emobilitychargingstations.models.Station
 class StationDetailsScreen(carContext: CarContext, val station: Station) : Screen(carContext) {
     override fun onGetTemplate(): Template {
         val stationsPane = Pane.Builder().apply {
+            val actionTitle = if (station.isNavigatingTo) getString(R.string.auto_station_details_stop_navigation) else getString(R.string.auto_station_details_start_navigation)
             addAction(
-                Action.Builder().setTitle(getString(R.string.auto_station_details_button_text))
+                Action.Builder().setTitle(actionTitle)
                     .setBackgroundColor(CarColor.GREEN)
-                    .setOnClickListener(this@StationDetailsScreen::startNavigation).build()
+                    .setOnClickListener(this@StationDetailsScreen::changeNavigation).build()
             )
             addRow(
                 buildRowWithText(
@@ -61,15 +62,23 @@ class StationDetailsScreen(carContext: CarContext, val station: Station) : Scree
         return socketTypeString
     }
 
-    private fun startNavigation() {
-        val latitude = station.geometry.coordinates[1]
-        val longitude = station.geometry.coordinates[0]
-        val name = getString(R.string.auto_station_details_navigating_to, station.properties.street ?: "")
-        val intent = Intent(CarContext.ACTION_NAVIGATE, Uri.parse("geo:0,0?q=${latitude},${longitude}(${name})"))
-        intent.`package` = "com.google.android.apps.maps"
-        carContext.startCarApp(intent)
-        setResult(station)
-        screenManager.pop()
+    private fun changeNavigation() {
+        if (station.isNavigatingTo)  {
+            station.isNavigatingTo = false
+            setResult(station)
+        }
+        else {
+            station.isNavigatingTo = true
+            setResult(station)
+            val latitude = station.geometry.coordinates[1]
+            val longitude = station.geometry.coordinates[0]
+            val name = getString(R.string.auto_station_details_navigating_to, station.properties.street ?: "")
+            val intent = Intent(CarContext.ACTION_NAVIGATE, Uri.parse("geo:0,0?q=${latitude},${longitude}(${name})"))
+            intent.`package` = "com.google.android.apps.maps"
+            carContext.startCarApp(intent)
+        }
+        screenManager.popTo("MAIN SCREEN")
+//        screenManager.popToRoot()
 //        screenManager.push(
 //            NavigationMapScreen(
 //                carContext,

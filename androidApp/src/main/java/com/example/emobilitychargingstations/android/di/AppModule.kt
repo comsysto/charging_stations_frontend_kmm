@@ -5,6 +5,7 @@ import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import com.emobilitychargingstations.database.StationEntity
 import com.emobilitychargingstations.database.StationsDatabase
+import com.emobilitychargingstations.database.UserInfoEntity
 import com.example.emobilitychargingstations.data.local.DatabaseDriverFactory
 import com.example.emobilitychargingstations.data.stations.StationsRepository
 import com.example.emobilitychargingstations.data.stations.api.StationsApi
@@ -14,7 +15,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
@@ -42,16 +43,29 @@ object AppModule {
                    return if (databaseValue.isEmpty()){
                        listOf()
                    } else {
-                       val list = mutableListOf<Station>()
-                       databaseValue.split(",").forEach {
-                           list.add(Json.decodeFromString(string =  it))
-                       }
-                       return list
+                       return Json.decodeFromString<List<Station>>(databaseValue)
                    }
                 }
 
-                override fun encode(value: List<Station>): String = value.joinToString(separator = ",")
+                override fun encode(value: List<Station>): String {
+                    return Json.encodeToString(
+                        value
+                    )
+                }
             }
-        )), stationsApi)
+        ), UserInfoEntity.Adapter(favoriteStationsAdapter = object : ColumnAdapter<List<Station>, String> {
+            override fun decode(databaseValue: String): List<Station> {
+                return if (databaseValue.isEmpty()){
+                    listOf()
+                } else {
+                    return Json.decodeFromString<List<Station>>(databaseValue)
+                }
+            }
+            override fun encode(value: List<Station>): String {
+                return Json.encodeToString(
+                    value
+                )
+            }
+        })), stationsApi)
     }
 }
