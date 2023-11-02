@@ -1,0 +1,5 @@
+package com.example.emobilitychargingstations.android.ui.utilities
+
+const val LOCATION_REQUEST_REFRESH_VALUE_IN_MS = 4000L
+const val LOCATION_REQUEST_DISTANCE_DIFFERENCE_IN_METERS = 100f
+const val NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS = 600

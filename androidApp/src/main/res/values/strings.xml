@@ -2,6 +2,7 @@
 <resources>
     <!-- ANDROID AUTO  -->
     <string name="auto_map_title">Closest Stations</string>
+    <string name="auto_map_navigation_title">Navigating to station</string>
     <string name="auto_map_empty_list_message">There are no stations in our database nearby</string>
     <string name="auto_station_details_start_navigation">Start navigation</string>
     <string name="auto_station_details_stop_navigation">Stop navigation</string>
@@ -13,7 +14,9 @@
     <string name="auto_navigation_complete_title">Destination reached</string>
     <string name="auto_navigation_complete_message">Selected charging station reached. Would you like to add it to favorites?</string>
     <string name="auto_navigation_complete_already_in_favorite_message">Selected charging station reached. Would you like to remove it from favorites?</string>
-    <string name="auto_navigation_complete_add_action">Add</string>
-    <string name="auto_navigation_complete_remove_action">Remove</string>
+    <string name="auto_navigation_complete_add_action">Add Favorite</string>
+    <string name="auto_navigation_complete_remove_action">Remove Favorite</string>
+    <string name="auto_favorites_list_title">Favorites List</string>
+    <string name="auto_favorites_list_empty_message">There are currently no stations in favorite list</string>
 
 </resources>

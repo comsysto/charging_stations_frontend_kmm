@@ -7,6 +7,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.location.LocationRequest
 import android.text.SpannableString
+import android.text.Spanned
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
@@ -21,7 +22,11 @@ import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getPlaceWithMarker
 import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithPlace
+import com.example.emobilitychargingstations.android.ui.auto.extensions.createCarIconFromBitmap
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
+import com.example.emobilitychargingstations.android.ui.utilities.LOCATION_REQUEST_DISTANCE_DIFFERENCE_IN_METERS
+import com.example.emobilitychargingstations.android.ui.utilities.LOCATION_REQUEST_REFRESH_VALUE_IN_MS
+import com.example.emobilitychargingstations.android.ui.utilities.NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS
 import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
 import com.example.emobilitychargingstations.data.extensions.getTwoStationsClosestToUser
 import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
@@ -42,14 +47,14 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val 
     private var closestStations: List<Station> = listOf()
     private var stationToNavigateTo: Station? = null
     private val locationRequest =
-        LocationRequest.Builder(4000).apply {
-            setMinUpdateDistanceMeters(100f)
+        LocationRequest.Builder(LOCATION_REQUEST_REFRESH_VALUE_IN_MS).apply {
+            setMinUpdateDistanceMeters(LOCATION_REQUEST_DISTANCE_DIFFERENCE_IN_METERS)
         }.build()
 
     override fun onLocationChanged(location: Location) {
         location?.let {
             if (checkIsLocationMockDebug(it)) {
-                if (stationToNavigateTo != null && getDistanceValue(it, stationToNavigateTo!!.geometry) < 600) pushDestinationReachedScreen(stationToNavigateTo!!)
+                if (stationToNavigateTo != null && getDistanceValue(it, stationToNavigateTo!!.geometry) < NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS) pushDestinationReachedScreen(stationToNavigateTo!!)
                 else {
                     initialUserLocation = UserLocation(it.latitude, it.longitude)
                     filterStations()
@@ -60,6 +65,7 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val 
     }
 
     private fun pushDestinationReachedScreen(station: Station) {
+        closestStations[0].isNavigatingTo = false
         filterStations()
         stationToNavigateTo = null
         screenManager.push(NavigationCompleteScreen(carContext, station, stationsRepo))
@@ -80,11 +86,15 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val 
     override fun onScreenResult(result: Any?) {
         if (result != null) {
             val station = result as Station
-            stationToNavigateTo = if (station.isNavigatingTo) {
+            if (station.isNavigatingTo) {
+                stationToNavigateTo = station
                 closestStations = listOf(station, closestStations[1])
-                station
             }
-            else null
+            else {
+                stationToNavigateTo = null
+                closestStations.forEach { it.isNavigatingTo = false }
+                filterStations()
+            }
         }
         locationManager.requestLocationUpdates(LocationManager.FUSED_PROVIDER, locationRequest, carContext.mainExecutor, this)
     }
@@ -112,7 +122,6 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val 
     }
 
 
-
     override fun onGetTemplate(): Template {
         lifecycleScope.launch {
             stationsRepo.getUserInfoAsFlow().onEach {
@@ -123,85 +132,106 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val 
                 }
             }.collect()
         }
-
-        val openFavoritesAction = Action.Builder().setIcon(CarIcon.APP_ICON).setOnClickListener {
-            screenManager.push(FavoritesListScreen(carContext, stationsRepo, this))
-        }.build()
-        val mapTitle = getString(R.string.auto_map_title)
-        val actionStrip = ActionStrip.Builder().addAction(openFavoritesAction).build()
-        val mapTemplateBuilder = PlaceListMapTemplate.Builder().setTitle(mapTitle).setActionStrip(actionStrip)
-        if (initialUserLocation != null) mapTemplateBuilder.setAnchor(
-            getPlaceWithMarker(
-                initialUserLocation!!.latitude,
-                initialUserLocation!!.longitude,
-                CarColor.PRIMARY
+        val openFavoritesListAction = Action.Builder().apply {
+            setIcon(createCarIconFromBitmap(
+                carContext.getDrawable(R.drawable.favorites_star_icon)!!.toBitmap())
             )
-        )
+            setOnClickListener(ParkedOnlyOnClickListener.create {
+            screenManager.push(FavoritesListScreen(carContext, stationsRepo, this@ChargingMapScreen))
+        })
+        }.build()
+        var mapTitle = getString(R.string.auto_map_title)
+        val actionStrip = ActionStrip.Builder().addAction(openFavoritesListAction).build()
+        val mapTemplateBuilder = PlaceListMapTemplate.Builder().setActionStrip(actionStrip)
         if (initialUserLocation == null) mapTemplateBuilder.setLoading(true)
-        else if (closestStations.isEmpty()) mapTemplateBuilder.setItemList(
-            ItemList.Builder().setNoItemsMessage(getString(R.string.auto_map_empty_list_message)).build()
-        ) else {
-            var firstStation = closestStations[0]
-            var secondStation = closestStations[1]
-            var firstItemTitle = SpannableString("${firstStation.properties.street} - ")
-            var secondItemTitle = SpannableString("${secondStation.properties.street} - ")
-            if (firstStation.isNavigatingTo)  {
-                firstItemTitle = SpannableString("Navigating to: ${firstStation.properties.street} - ")
-            }
-            calculateDistanceAndGetTitles(firstItemTitle, secondItemTitle, closestStations)
-            mapTemplateBuilder.apply {
-                setItemList(
-                    ItemList.Builder().apply {
-                        val firstItemIcon = if (firstStation.isNavigatingTo) carContext.getDrawable(R.drawable.navigating_to_icon)?.toBitmap()
-                        else carContext.getDrawable(R.drawable.electric_car_icon)?.toBitmap()
-                        addItem(
-                            buildRowWithPlace(
-                                firstItemTitle, getPlaceWithMarker(
-                                    firstStation.geometry.coordinates[1],
-                                    firstStation.geometry.coordinates[0],
-                                    CarColor.createCustom(
-                                        Color.Transparent.hashCode(),
-                                        Color.Transparent.hashCode()
-                                    ),
-                                    firstItemIcon
-                                )
-                            ) {
-                                onItemClick(firstStation)
-                            })
-                        addItem(
-                            buildRowWithPlace(
-                                secondItemTitle, getPlaceWithMarker(
-                                    secondStation.geometry.coordinates[1],
-                                    secondStation.geometry.coordinates[0],
-                                    CarColor.createCustom(
-                                        Color.Transparent.hashCode(),
-                                        Color.Transparent.hashCode()
-                                    ),
-                                    carContext.getDrawable(R.drawable.electric_car_icon)?.toBitmap()
-                                )
-                            ) {
-                                onItemClick(secondStation)
-                            }
-                        )
-                    }.build()
+        else {
+            mapTemplateBuilder.setAnchor(
+                getPlaceWithMarker(
+                    initialUserLocation!!.latitude,
+                    initialUserLocation!!.longitude,
+                    CarColor.PRIMARY
                 )
-            }
+            )
+            if (closestStations.isEmpty()) mapTemplateBuilder.setItemList(
+                ItemList.Builder()
+                    .setNoItemsMessage(getString(R.string.auto_map_empty_list_message)).build()
+            ) else {
+                var firstStation = closestStations[0]
+                var secondStation: Station? = closestStations[1]
+                var firstItemIcon = carContext.getDrawable(R.drawable.electric_car_icon)?.toBitmap()
+                if (stationToNavigateTo != null) {
+//                    closestStations.forEach {
+//                        if (it.id != stationToNavigateTo!!.id) {
+//                            secondStation = it
+//                            return@forEach
+//                        }
+//                    }
+                    mapTitle = getString(R.string.auto_map_navigation_title)
+                    firstStation = stationToNavigateTo!!
+                    secondStation = null
+                    firstItemIcon =
+                        carContext.getDrawable(R.drawable.navigating_to_icon)?.toBitmap()
+                }
+                var firstItemTitle = SpannableString("${firstStation.properties.street} - ")
+                var secondItemTitle = SpannableString("${secondStation?.properties?.street} - ")
+                calculateDistanceAndGetTitles(firstItemTitle, secondItemTitle, firstStation, secondStation)
+                mapTemplateBuilder.apply {
+                    setItemList(
+                        ItemList.Builder().apply {
+                            addItem(
+                                buildRowWithPlace(
+                                    firstItemTitle, getPlaceWithMarker(
+                                        firstStation.geometry.coordinates[1],
+                                        firstStation.geometry.coordinates[0],
+                                        if (stationToNavigateTo != null) CarColor.GREEN else CarColor.createCustom(
+                                            Color.Transparent.hashCode(),
+                                            Color.Transparent.hashCode()
+                                        ),
+                                        firstItemIcon
+                                    )
+                                ) {
+                                    onItemClick(firstStation)
+                                })
+                            secondStation?.let {
+                                addItem(
+                                    buildRowWithPlace(
+                                        secondItemTitle, getPlaceWithMarker(
+                                            it.geometry.coordinates[1],
+                                            it.geometry.coordinates[0],
+                                            CarColor.createCustom(
+                                                Color.Transparent.hashCode(),
+                                                Color.Transparent.hashCode()
+                                            ),
+                                            carContext.getDrawable(R.drawable.electric_car_icon)
+                                                ?.toBitmap()
+                                        )
+                                    ) {
+                                        onItemClick(it)
+                                    }
+                                )
+                            }
+                        }.build()
+                    )
+                }
 
+            }
         }
+        mapTemplateBuilder.setTitle(mapTitle)
         return mapTemplateBuilder.build()
     }
 
     private fun calculateDistanceAndGetTitles(
         firstItemTitle: SpannableString,
         secondItemTitle: SpannableString,
-        closestStations: List<Station>
+        firstStation: Station,
+        secondStation: Station?
     ) {
         val distanceResult: FloatArray = floatArrayOf(0.0f)
         Location.distanceBetween(
             initialUserLocation!!.latitude,
             initialUserLocation!!.longitude,
-            closestStations[0].geometry.coordinates[1],
-            closestStations[0].geometry.coordinates[0],
+            firstStation.geometry.coordinates[1],
+            firstStation.geometry.coordinates[0],
             distanceResult
         )
         firstItemTitle.setSpan(
@@ -210,27 +240,27 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val 
             firstItemTitle.length,
             SPAN_INCLUSIVE_INCLUSIVE
         )
-        Location.distanceBetween(
-            initialUserLocation!!.latitude,
-            initialUserLocation!!.longitude,
-            closestStations[1].geometry.coordinates[1],
-            closestStations[1].geometry.coordinates[0],
-            distanceResult
-        )
-        secondItemTitle.setSpan(
-            DistanceSpan.create(create(distanceResult[0] / 1000.toDouble(), UNIT_KILOMETERS_P1)),
-            secondItemTitle.length,
-            secondItemTitle.length,
-            SPAN_INCLUSIVE_INCLUSIVE
-        )
+        secondStation?.let {
+            Location.distanceBetween(
+                initialUserLocation!!.latitude,
+                initialUserLocation!!.longitude,
+                it.geometry.coordinates[1],
+                it.geometry.coordinates[0],
+                distanceResult
+            )
+            secondItemTitle.setSpan(
+                DistanceSpan.create(create(distanceResult[0] / 1000.toDouble(), UNIT_KILOMETERS_P1)),
+                secondItemTitle.length,
+                secondItemTitle.length,
+                SPAN_INCLUSIVE_INCLUSIVE
+            )
+        }
+
     }
 
     private fun onItemClick(station: Station) {
             locationManager.removeUpdates(this)
             screenManager.pushForResult(StationDetailsScreen(carContext, station = station), this)
-//            screenManager.push(
-//                StationDetailsScreen(carContext, station = station)
-//            )
     }
 
 }
