@@ -32,23 +32,25 @@ class FavoritesListScreen(carContext: CarContext, val stationsRepository: Statio
         if (userInfo?.favoriteStations == null || userInfo.favoriteStations.isNullOrEmpty()) templateForDisplay = getMessageTemplateBuilderWithTitle(templateTitle, getString(R.string.auto_favorites_list_empty_message)).build()
         else {
             val listTemplateBuilder = ListTemplate.Builder()
-            listTemplateBuilder.setHeaderAction(Action.BACK)
-            listTemplateBuilder.setTitle(templateTitle)
-            listTemplateBuilder.setSingleList(ItemList.Builder().apply {
-                userInfo.favoriteStations!!.forEach {
-                    addItem(
-                        BuildRowWithTextAndIcon(
-                            SpannableString(it.properties.street),
-                            it.properties.operator ?: "",
-                            carContext.getDrawable(
-                                R.drawable.electric_car_icon
-                            )!!.toBitmap()
-                        ) {
-                            onItemClick(it)
-                        }
-                    )
-                }
-            }.build())
+            listTemplateBuilder.apply {
+                setHeaderAction(Action.BACK)
+                setTitle(templateTitle)
+                setSingleList(ItemList.Builder().apply {
+                    userInfo.favoriteStations!!.forEach {
+                        addItem(
+                            BuildRowWithTextAndIcon(
+                                SpannableString(it.properties.street),
+                                it.properties.operator ?: "",
+                                carContext.getDrawable(
+                                    R.drawable.electric_car_icon
+                                )!!.toBitmap()
+                            ) {
+                                onItemClick(it)
+                            }
+                        )
+                    }
+                }.build())
+            }
             templateForDisplay = listTemplateBuilder.build()
         }
         return templateForDisplay

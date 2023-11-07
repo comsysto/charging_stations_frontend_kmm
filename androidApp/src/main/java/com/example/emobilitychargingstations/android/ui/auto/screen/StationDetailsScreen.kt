@@ -15,6 +15,7 @@ import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithText
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getFavoritesAction
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
+import com.example.emobilitychargingstations.android.ui.utilities.AUTO_POI_MAP_SCREEN_MARKER
 import com.example.emobilitychargingstations.data.extensions.getChargingTypeFromMaxKW
 import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
 import com.example.emobilitychargingstations.models.Station
@@ -86,13 +87,13 @@ class StationDetailsScreen(carContext: CarContext, val station: Station, val sta
             val intent = Intent(CarContext.ACTION_NAVIGATE, Uri.parse("geo:0,0?q=${latitude},${longitude}(${name})"))
             carContext.startCarApp(intent)
         }
-        screenManager.popTo("MAIN SCREEN")
+        screenManager.popTo(AUTO_POI_MAP_SCREEN_MARKER)
     }
 
     private fun onFavoriteChanged(userInfo: UserInfo) {
         lifecycleScope.launch {
             stationsRepository?.setUserInfo(userInfo)
-            invalidate()
+            screenManager.popTo(AUTO_POI_MAP_SCREEN_MARKER)
         }
     }
 

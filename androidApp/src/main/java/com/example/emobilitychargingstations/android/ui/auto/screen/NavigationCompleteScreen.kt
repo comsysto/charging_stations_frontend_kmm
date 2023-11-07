@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 class NavigationCompleteScreen(carContext: CarContext, val station: Station, val stationsRepo: StationsRepositoryImpl): Screen(carContext) {
     override fun onGetTemplate(): Template {
         val userInfo = stationsRepo.getUserInfo()
-        val isAlreadyInFavorites = userInfo?.favoriteStations?.contains(station) ?: false
+        val isAlreadyInFavorites = userInfo?.favoriteStations?.firstOrNull { it.id == station.id }?.let { true } ?: false
         val title = getString(R.string.auto_navigation_complete_title)
         val body = if (isAlreadyInFavorites) getString(R.string.auto_navigation_complete_already_in_favorite_message) else getString(R.string.auto_navigation_complete_message)
         val messageTemplateBuilder = getMessageTemplateBuilderWithTitle(title, body)

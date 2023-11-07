@@ -80,7 +80,7 @@ fun Screen.getMessageTemplateBuilderWithTitle(title: String, Message: String): M
 }
 
 fun Screen.getFavoritesAction(station: Station, userInfo: UserInfo?, onFavoriteChange: (userInfo: UserInfo) -> Unit): Action {
-    val isAlreadyInFavorites = userInfo?.favoriteStations?.contains(station) ?: false
+    val isAlreadyInFavorites = userInfo?.favoriteStations?.firstOrNull { it.id == station.id }?.let { true } ?: false
     val actionText = if (isAlreadyInFavorites) getString(R.string.auto_navigation_complete_remove_action) else getString(R.string.auto_navigation_complete_add_action)
     return Action.Builder().apply {
         setTitle(actionText)

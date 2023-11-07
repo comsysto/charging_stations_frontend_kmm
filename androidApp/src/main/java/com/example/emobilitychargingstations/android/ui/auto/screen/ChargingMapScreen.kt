@@ -1,13 +1,9 @@
 package com.example.emobilitychargingstations.android.ui.auto.screen
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.location.Location
 import android.location.LocationListener
-import android.location.LocationManager
-import android.location.LocationRequest
 import android.text.SpannableString
-import android.text.Spanned
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
@@ -24,8 +20,8 @@ import com.example.emobilitychargingstations.android.ui.auto.extensions.getPlace
 import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithPlace
 import com.example.emobilitychargingstations.android.ui.auto.extensions.createCarIconFromBitmap
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
-import com.example.emobilitychargingstations.android.ui.utilities.LOCATION_REQUEST_DISTANCE_DIFFERENCE_IN_METERS
-import com.example.emobilitychargingstations.android.ui.utilities.LOCATION_REQUEST_REFRESH_VALUE_IN_MS
+import com.example.emobilitychargingstations.android.ui.utilities.AUTO_POI_MAP_SCREEN_MARKER
+import com.example.emobilitychargingstations.android.ui.utilities.LocationRequestStarter
 import com.example.emobilitychargingstations.android.ui.utilities.NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS
 import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
 import com.example.emobilitychargingstations.data.extensions.getTwoStationsClosestToUser
@@ -34,6 +30,8 @@ import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.StationGeoData
 import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.models.UserLocation
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -42,14 +40,23 @@ import kotlinx.coroutines.launch
 class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val stationsRepo: StationsRepositoryImpl) : Screen(carContext), LocationListener, OnScreenResultListener {
 
     private var userInfo = stationsRepo.getUserInfo()
-    private val locationManager: LocationManager = carContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private var initialUserLocation: UserLocation? = null
     private var closestStations: List<Station> = listOf()
     private var stationToNavigateTo: Station? = null
-    private val locationRequest =
-        LocationRequest.Builder(LOCATION_REQUEST_REFRESH_VALUE_IN_MS).apply {
-            setMinUpdateDistanceMeters(LOCATION_REQUEST_DISTANCE_DIFFERENCE_IN_METERS)
-        }.build()
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            locationResult.locations.firstOrNull()?.let {
+                if (checkIsLocationMockDebug(it)) {
+                    if (stationToNavigateTo != null && getDistanceValue(it, stationToNavigateTo!!.geometry) < NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS) pushDestinationReachedScreen(stationToNavigateTo!!)
+                    else {
+                        initialUserLocation = UserLocation(it.latitude, it.longitude)
+                        filterStations()
+                        invalidate()
+                    }
+                }
+            }
+        }
+    }
 
     override fun onLocationChanged(location: Location) {
         location?.let {
@@ -96,7 +103,7 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val 
                 filterStations()
             }
         }
-        locationManager.requestLocationUpdates(LocationManager.FUSED_PROVIDER, locationRequest, carContext.mainExecutor, this)
+
     }
 
     private fun filterStations() {
@@ -108,17 +115,8 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val 
         return if (BuildConfig.DEBUG) location.isMock else true
     }
     init {
-        locationManager.requestLocationUpdates(LocationManager.FUSED_PROVIDER, locationRequest, carContext.mainExecutor, this)
-        locationManager.getLastKnownLocation(LocationManager.FUSED_PROVIDER)?.let {
-            it?.let {
-                if (it.isMock || initialUserLocation == null) {
-                    initialUserLocation = UserLocation(it.latitude, it.longitude)
-                    filterStations()
-                    invalidate()
-                }
-            }
-        }
-        this.marker = "MAIN SCREEN"
+        LocationRequestStarter(carContext, locationCallback)
+        marker = AUTO_POI_MAP_SCREEN_MARKER
     }
 
 
@@ -160,12 +158,6 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val 
                 var secondStation: Station? = closestStations[1]
                 var firstItemIcon = carContext.getDrawable(R.drawable.electric_car_icon)?.toBitmap()
                 if (stationToNavigateTo != null) {
-//                    closestStations.forEach {
-//                        if (it.id != stationToNavigateTo!!.id) {
-//                            secondStation = it
-//                            return@forEach
-//                        }
-//                    }
                     mapTitle = getString(R.string.auto_map_navigation_title)
                     firstStation = stationToNavigateTo!!
                     secondStation = null
@@ -259,7 +251,6 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val 
     }
 
     private fun onItemClick(station: Station) {
-            locationManager.removeUpdates(this)
             screenManager.pushForResult(StationDetailsScreen(carContext, station = station), this)
     }
 

@@ -12,7 +12,8 @@
 
     <application
         android:name="com.example.emobilitychargingstations.android.EMobilityApp"
-        android:icon="@drawable/electric_vehicle_charging_station_icon"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="eCharm"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
