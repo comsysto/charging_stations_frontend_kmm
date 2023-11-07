@@ -18,6 +18,7 @@ import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.MyApplicationTheme
 import com.example.emobilitychargingstations.android.ui.composables.ComposableMapView
 import com.example.emobilitychargingstations.android.ui.composables.ChargerTypeSelectionScreen
+import com.example.emobilitychargingstations.android.ui.utilities.LocationRequestStarter
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Granularity
 import com.google.android.gms.location.LocationCallback
@@ -32,15 +33,7 @@ import org.osmdroid.util.GeoPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-
     private val stationsViewModel: StationsViewModel by viewModels()
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private val locationRequest =
-        LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000).apply {
-            setMinUpdateDistanceMeters(1000f)
-            setGranularity(Granularity.GRANULARITY_PERMISSION_LEVEL)
-            setWaitForAccurateLocation(true)
-        }.build()
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.locations.firstOrNull()?.let {
@@ -60,19 +53,10 @@ class MainActivity : ComponentActivity() {
         var startDestination = NAVIGATE_TO_CHARGER_SELECTION
         val userInfo = stationsViewModel.getUserInfo()
         if (userInfo != null) startDestination = NAVIGATE_TO_MAP_SCREEN
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             when {
                 permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true -> {
-                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
-//                    fusedLocationClient.lastLocation.addOnCompleteListener {
-//                        it.result?.let {
-//                            stationsViewModel.setUserLocation(
-//                                GeoPoint(
-//                                    it.latitude,
-//                                    it.longitude
-//                                )
-//                            )
+                    LocationRequestStarter(this, locationCallback)
                             setContent {
                                 MyApplicationTheme {
                                     val navController = rememberNavController()

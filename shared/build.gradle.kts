@@ -1,5 +1,6 @@
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.serialization") version "1.9.0"
     id("com.android.library")
     id("kotlinx-serialization")
     id("app.cash.sqldelight") version "2.0.0"
@@ -29,7 +30,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
                 implementation(kotlin("stdlib-common"))
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
                 implementation("app.cash.sqldelight:coroutines-extensions:2.0.0-alpha05")
                 implementation("com.squareup.okio:okio:3.3.0")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")

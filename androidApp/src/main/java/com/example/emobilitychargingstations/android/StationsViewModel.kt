@@ -52,7 +52,9 @@ class StationsViewModel @Inject constructor(
 
     fun setUserInfo(chargerName: String?) {
         viewModelScope.launch {
-            stationsDataSource.setUserInfo(UserInfo(chargerName))
+            val userInfo = getUserInfo()
+            if (userInfo == null) stationsDataSource.setUserInfo(UserInfo(chargerType = chargerName, favoriteStations = null))
+            else stationsDataSource.setUserInfo(userInfo.copy(chargerType = chargerName))
         }
     }
 

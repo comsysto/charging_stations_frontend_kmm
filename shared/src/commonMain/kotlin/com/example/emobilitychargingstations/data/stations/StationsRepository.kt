@@ -44,6 +44,6 @@ class StationsRepository(stationsDatabase: StationsDatabase, val stationsApi: St
     }
 
     override suspend fun setUserInfo(userInfo: UserInfo) {
-        queries.insertUserInfo(userInfo.chargerType)
+        queries.insertUserInfo(userInfo.chargerType, userInfo.favoriteStations)
     }
 }
