@@ -22,12 +22,14 @@ fun List<Station>.getOneStationClosestToUser(userLat: Double, userLng: Double): 
     var currentClosestStation = get(0)
 
     this.forEach {
-        val latDiff = abs(userLat - it.geometry.coordinates[1])
-        val lngDiff = abs(userLng - it.geometry.coordinates[0])
-        val totalDiff = latDiff + lngDiff
-        if (totalDiff < closestTotalDifference) {
-            closestTotalDifference = totalDiff
-            currentClosestStation = it
+        if (it.properties.street != null) {
+            val latDiff = abs(userLat - it.geometry.coordinates[1])
+            val lngDiff = abs(userLng - it.geometry.coordinates[0])
+            val totalDiff = latDiff + lngDiff
+            if (totalDiff < closestTotalDifference) {
+                closestTotalDifference = totalDiff
+                currentClosestStation = it
+            }
         }
     }
     return currentClosestStation
@@ -42,15 +44,16 @@ fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double, 
         if (chargerTypeStations.size == 1) resultList.add(currentClosestStation) else {
             var secondClosestStation = currentClosestStation
             chargerTypeStations.forEach {
-                val latDiff = abs(userLat - it.geometry.coordinates[1])
-                val lngDiff = abs(userLng - it.geometry.coordinates[0])
-                val totalDiff = latDiff + lngDiff
-                if (totalDiff < closestTotalDifference) {
-                    closestTotalDifference = totalDiff
-                    secondClosestStation = currentClosestStation
-                    currentClosestStation = it
+                if (it.properties.street != null) {
+                    val latDiff = abs(userLat - it.geometry.coordinates[1])
+                    val lngDiff = abs(userLng - it.geometry.coordinates[0])
+                    val totalDiff = latDiff + lngDiff
+                    if (totalDiff < closestTotalDifference) {
+                        closestTotalDifference = totalDiff
+                        secondClosestStation = currentClosestStation
+                        currentClosestStation = it
+                    }
                 }
-
             }
             resultList.add(currentClosestStation)
             resultList.add(secondClosestStation)
