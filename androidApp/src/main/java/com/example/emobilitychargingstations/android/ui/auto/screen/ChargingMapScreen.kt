@@ -7,7 +7,6 @@ import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
-import androidx.car.app.Screen
 import androidx.car.app.model.*
 import androidx.car.app.model.Distance.UNIT_KILOMETERS_P1
 import androidx.car.app.model.Distance.create
@@ -16,6 +15,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.lifecycleScope
 import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.R
+import com.example.emobilitychargingstations.android.ui.auto.BaseScreen
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getPlaceWithMarker
 import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithPlace
 import com.example.emobilitychargingstations.android.ui.auto.extensions.createCarIconFromBitmap
@@ -25,7 +25,6 @@ import com.example.emobilitychargingstations.android.ui.utilities.LocationReques
 import com.example.emobilitychargingstations.android.ui.utilities.NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS
 import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
 import com.example.emobilitychargingstations.data.extensions.getTwoStationsClosestToUser
-import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.StationGeoData
 import com.example.emobilitychargingstations.models.Stations
@@ -37,7 +36,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")
-class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val stationsRepo: StationsRepositoryImpl) : Screen(carContext), LocationListener, OnScreenResultListener {
+class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : BaseScreen(carContext), LocationListener, OnScreenResultListener {
+
+
 
     private var userInfo = stationsRepo.getUserInfo()
     private var initialUserLocation: UserLocation? = null
@@ -135,7 +136,7 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations, val 
                 carContext.getDrawable(R.drawable.favorites_star_icon)!!.toBitmap())
             )
             setOnClickListener(ParkedOnlyOnClickListener.create {
-            screenManager.push(FavoritesListScreen(carContext, stationsRepo, this@ChargingMapScreen))
+            screenManager.push(FavoritesListScreen(carContext, this@ChargingMapScreen))
         })
         }.build()
         var mapTitle = getString(R.string.auto_map_title)

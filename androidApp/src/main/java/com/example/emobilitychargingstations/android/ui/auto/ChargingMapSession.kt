@@ -46,6 +46,6 @@ class ChargingMapSession(private val stationsRepo: StationsRepositoryImpl): Sess
                 stations = stationsFromJson
             }
         }
-        return stations?.let { ChargingMapScreen(carContext, it, stationsRepo) } ?: EmptyScreen(carContext)
+        return stations?.let { ChargingMapScreen(carContext, it) } ?: EmptyScreen(carContext)
     }
 }

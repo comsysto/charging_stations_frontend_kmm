@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import android.text.SpannableString
 import androidx.car.app.CarContext
-import androidx.car.app.Screen
 import androidx.car.app.model.Action
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.Pane
@@ -12,21 +11,21 @@ import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Template
 import androidx.lifecycle.lifecycleScope
 import com.comsystoreply.emobilitychargingstations.android.R
+import com.example.emobilitychargingstations.android.ui.auto.BaseScreen
 import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithText
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getFavoritesAction
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
 import com.example.emobilitychargingstations.android.ui.utilities.AUTO_POI_MAP_SCREEN_MARKER
 import com.example.emobilitychargingstations.data.extensions.getChargingTypeFromMaxKW
-import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.UserInfo
 import kotlinx.coroutines.launch
 
-class StationDetailsScreen(carContext: CarContext, val station: Station, val stationsRepository: StationsRepositoryImpl? = null) : Screen(carContext) {
+class StationDetailsScreen(carContext: CarContext, val station: Station, private val showFavoritesAction: Boolean = false) : BaseScreen(carContext) {
 
     override fun onGetTemplate(): Template {
         val stationsPane = Pane.Builder().apply {
-            val userInfo = stationsRepository?.getUserInfo()
+            val userInfo = stationsRepo.getUserInfo()
             val actionTitle = if (station.isNavigatingTo) getString(R.string.auto_station_details_stop_navigation) else getString(R.string.auto_station_details_start_navigation)
             addAction(
                 Action.Builder().apply{
@@ -35,7 +34,7 @@ class StationDetailsScreen(carContext: CarContext, val station: Station, val sta
                     setOnClickListener(this@StationDetailsScreen::changeNavigation).build()
                 }.build()
             )
-            if (stationsRepository != null) addAction(getFavoritesAction(station, userInfo, ::onFavoriteChanged))
+            if (showFavoritesAction) addAction(getFavoritesAction(station, userInfo, ::onFavoriteChanged))
             addRow(
                 buildRowWithText(
                     title = SpannableString(getString(R.string.auto_station_details_operator)),
@@ -92,7 +91,7 @@ class StationDetailsScreen(carContext: CarContext, val station: Station, val sta
 
     private fun onFavoriteChanged(userInfo: UserInfo) {
         lifecycleScope.launch {
-            stationsRepository?.setUserInfo(userInfo)
+            stationsRepo?.setUserInfo(userInfo)
             screenManager.popTo(AUTO_POI_MAP_SCREEN_MARKER)
         }
     }

@@ -2,8 +2,6 @@ package com.example.emobilitychargingstations.android.ui.auto.screen
 
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
-import androidx.car.app.model.Action
-import androidx.car.app.model.MessageTemplate
 import androidx.car.app.model.Template
 import androidx.lifecycle.lifecycleScope
 import com.comsystoreply.emobilitychargingstations.android.R
@@ -16,6 +14,7 @@ import com.example.emobilitychargingstations.models.UserInfo
 import kotlinx.coroutines.launch
 
 class NavigationCompleteScreen(carContext: CarContext, val station: Station, val stationsRepo: StationsRepositoryImpl): Screen(carContext) {
+
     override fun onGetTemplate(): Template {
         val userInfo = stationsRepo.getUserInfo()
         val isAlreadyInFavorites = userInfo?.favoriteStations?.firstOrNull { it.id == station.id }?.let { true } ?: false
