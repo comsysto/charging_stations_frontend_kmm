@@ -4,7 +4,7 @@ package com.example.emobilitychargingstations.android.ui.auto
 import androidx.car.app.CarAppService
 import androidx.car.app.Session
 import androidx.car.app.validation.HostValidator
-import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
+import com.example.emobilitychargingstations.data.stations.StationsRepositoryImpl
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

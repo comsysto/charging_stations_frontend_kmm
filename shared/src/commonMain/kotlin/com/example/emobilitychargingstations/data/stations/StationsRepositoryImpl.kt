@@ -1,4 +1,4 @@
-package com.example.emobilitychargingstations.domain.stations
+package com.example.emobilitychargingstations.data.stations
 
 import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.models.UserInfo

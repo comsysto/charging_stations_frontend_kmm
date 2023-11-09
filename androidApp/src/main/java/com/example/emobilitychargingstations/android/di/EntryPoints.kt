@@ -1,6 +1,6 @@
 package com.example.emobilitychargingstations.android.di
 
-import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
+import com.example.emobilitychargingstations.data.stations.StationsRepositoryImpl
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent

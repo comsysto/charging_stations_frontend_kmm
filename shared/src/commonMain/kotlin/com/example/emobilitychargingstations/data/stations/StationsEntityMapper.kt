@@ -1,4 +1,4 @@
-package com.example.emobilitychargingstations.data.stations.database
+package com.example.emobilitychargingstations.data.stations
 
 import com.emobilitychargingstations.database.StationEntity
 import com.example.emobilitychargingstations.models.Stations

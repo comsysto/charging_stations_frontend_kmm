@@ -10,9 +10,8 @@ import com.example.emobilitychargingstations.android.ui.auto.screen.ChargingMapS
 import com.example.emobilitychargingstations.android.ui.auto.screen.EmptyScreen
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.Stations
-import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
+import com.example.emobilitychargingstations.data.stations.StationsRepositoryImpl
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 class ChargingMapSession(private val stationsRepo: StationsRepositoryImpl): Session() {

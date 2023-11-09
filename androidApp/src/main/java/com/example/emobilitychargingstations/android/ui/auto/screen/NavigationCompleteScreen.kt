@@ -8,7 +8,7 @@ import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getFavoritesAction
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getMessageTemplateBuilderWithTitle
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
-import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
+import com.example.emobilitychargingstations.data.stations.StationsRepositoryImpl
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.UserInfo
 import kotlinx.coroutines.launch

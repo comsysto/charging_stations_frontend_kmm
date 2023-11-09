@@ -10,7 +10,7 @@ import com.example.emobilitychargingstations.data.local.DatabaseDriverFactory
 import com.example.emobilitychargingstations.data.stations.StationsRepository
 import com.example.emobilitychargingstations.data.stations.api.StationsApi
 import com.example.emobilitychargingstations.models.Station
-import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
+import com.example.emobilitychargingstations.data.stations.StationsRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
