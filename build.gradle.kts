@@ -1,7 +1,6 @@
 plugins {
     kotlin("android").version("1.9.0").apply(false)
     kotlin("multiplatform").version("1.9.0").apply(false)
-    id("com.google.dagger.hilt.android").version("2.44").apply(false)
     kotlin("jvm") version "1.9.0"
     kotlin("plugin.serialization") version "1.9.0"
 }
@@ -18,7 +17,6 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0")
         classpath("com.android.tools.build:gradle:8.1.1")
         classpath("com.squareup.sqldelight:gradle-plugin:1.5.5")
-        classpath("com.google.dagger:hilt-android-gradle-plugin:2.48")
     }
 }
 

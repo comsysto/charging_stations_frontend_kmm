@@ -1,10 +1,10 @@
 package com.example.emobilitychargingstations.domain.user
 
-import com.example.emobilitychargingstations.data.users.UsersRepositoryImpl
+import com.example.emobilitychargingstations.data.users.UsersRepository
 import com.example.emobilitychargingstations.models.UserInfo
 import kotlinx.coroutines.flow.Flow
 
-class UserUseCase(val usersRepository: UsersRepositoryImpl) {
+class UserUseCase(val usersRepository: UsersRepository) {
     fun getUserInfo(): UserInfo? {
         return usersRepository.getUserInfo()
     }

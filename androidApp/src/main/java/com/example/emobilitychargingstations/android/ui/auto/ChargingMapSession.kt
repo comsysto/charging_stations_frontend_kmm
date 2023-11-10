@@ -8,13 +8,13 @@ import androidx.car.app.Screen
 import androidx.car.app.Session
 import com.example.emobilitychargingstations.android.ui.auto.screen.ChargingMapScreen
 import com.example.emobilitychargingstations.android.ui.auto.screen.EmptyScreen
+import com.example.emobilitychargingstations.domain.stations.StationsUseCase
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.Stations
-import com.example.emobilitychargingstations.data.stations.StationsRepositoryImpl
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 
-class ChargingMapSession(private val stationsRepo: StationsRepositoryImpl): Session() {
+class ChargingMapSession(private val stationsUseCase: StationsUseCase): Session() {
     override fun onCreateScreen(intent: Intent): Screen {
         var stations: Stations?
         runBlocking {
@@ -31,7 +31,7 @@ class ChargingMapSession(private val stationsRepo: StationsRepositoryImpl): Sess
             //  TODO: implement permission handling
                 Log.v("TEST LOCATION Exception", exception.toString())
             }
-            stations = stationsRepo.getStationsLocal()
+            stations = stationsUseCase.getStationsLocal()
             if (stations == null) {
                 val stationsJsonString = carContext.assets.open("munichStations.json").bufferedReader().use { it.readText() }
                 val regensburgStationsJsonString = carContext.assets.open("regensburgStations.json").bufferedReader().use { it.readText() }
@@ -41,7 +41,7 @@ class ChargingMapSession(private val stationsRepo: StationsRepositoryImpl): Sess
                 stationsFromJson.features?.let { combinedStations.addAll(it) }
                 regensburgStationsFromJson.features?.let { combinedStations.addAll(it) }
                 stationsFromJson = stationsFromJson.copy(features = combinedStations)
-                stationsRepo.insertStations(stationsFromJson)
+                stationsUseCase.insertStations(stationsFromJson)
                 stations = stationsFromJson
             }
         }

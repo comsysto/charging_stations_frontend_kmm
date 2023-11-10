@@ -5,19 +5,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.emobilitychargingstations.data.stations.StationsRepositoryImpl
+import com.example.emobilitychargingstations.domain.stations.StationsUseCase
+import com.example.emobilitychargingstations.domain.user.UserUseCase
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.models.UserInfo
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.osmdroid.util.GeoPoint
-import javax.inject.Inject
 
-@HiltViewModel
-class StationsViewModel @Inject constructor(
-    private val stationsDataSource: StationsRepositoryImpl
+
+class StationsViewModel(
+    private val userUseCase: UserUseCase,
+    private val stationsUseCase: StationsUseCase
 ) : ViewModel() {
 
     private val stationsData: MutableLiveData<Stations> = MutableLiveData()
@@ -30,9 +30,9 @@ class StationsViewModel @Inject constructor(
     }
     fun getTestStations(context: Context) {
         viewModelScope.launch {
-            val currentStations = stationsDataSource.getStationsLocal()
+            val currentStations = stationsUseCase.getStationsLocal()
             if (currentStations?.features != null) {
-                stationsData.value = currentStations
+                stationsData.value = currentStations!!
             }
             else {
                 val stationsJsonString = context.assets.open("munichStations.json").bufferedReader().use { it.readText() }
@@ -43,7 +43,7 @@ class StationsViewModel @Inject constructor(
                 stationsFromJson.features?.let { combinedStations.addAll(it) }
                 regensburgStationsFromJson.features?.let { combinedStations.addAll(it) }
                 stationsFromJson = stationsFromJson.copy(features = combinedStations)
-                stationsDataSource.insertStations(stationsFromJson)
+                stationsUseCase.insertStations(stationsFromJson)
                 stationsData.value = stationsFromJson
             }
         }
@@ -52,11 +52,11 @@ class StationsViewModel @Inject constructor(
     fun setUserInfo(chargerName: String?) {
         viewModelScope.launch {
             val userInfo = getUserInfo()
-            if (userInfo == null) stationsDataSource.setUserInfo(UserInfo(chargerType = chargerName, favoriteStations = null))
-            else stationsDataSource.setUserInfo(userInfo.copy(chargerType = chargerName))
+            if (userInfo == null) userUseCase.setUserInfo(UserInfo(chargerType = chargerName, favoriteStations = null))
+            else userUseCase.setUserInfo(userInfo.copy(chargerType = chargerName))
         }
     }
 
-    fun getUserInfo(): UserInfo? = stationsDataSource.getUserInfo()
+    fun getUserInfo(): UserInfo? = userUseCase.getUserInfo()
 
 }

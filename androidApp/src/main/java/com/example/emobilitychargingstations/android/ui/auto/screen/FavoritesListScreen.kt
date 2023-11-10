@@ -23,7 +23,7 @@ class FavoritesListScreen(carContext: CarContext, val onScreenResultListener: On
     val listItemLimit = constraintManager.getContentLimit(ConstraintManager.CONTENT_LIMIT_TYPE_LIST)
     override fun onGetTemplate(): Template {
         Log.v("TEST LIST ITEM LIMIT", listItemLimit.toString())
-        val userInfo = stationsRepo.getUserInfo()
+        val userInfo = userUseCase.getUserInfo()
         val templateTitle = getString(R.string.auto_favorites_list_title)
         var templateForDisplay: Template?
         if (userInfo?.favoriteStations == null || userInfo.favoriteStations.isNullOrEmpty()) templateForDisplay = getMessageTemplateBuilderWithTitle(templateTitle, getString(R.string.auto_favorites_list_empty_message)).build()

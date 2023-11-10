@@ -25,7 +25,7 @@ class StationDetailsScreen(carContext: CarContext, val station: Station, private
 
     override fun onGetTemplate(): Template {
         val stationsPane = Pane.Builder().apply {
-            val userInfo = stationsRepo.getUserInfo()
+            val userInfo = userUseCase.getUserInfo()
             val actionTitle = if (station.isNavigatingTo) getString(R.string.auto_station_details_stop_navigation) else getString(R.string.auto_station_details_start_navigation)
             addAction(
                 Action.Builder().apply{
@@ -91,7 +91,7 @@ class StationDetailsScreen(carContext: CarContext, val station: Station, private
 
     private fun onFavoriteChanged(userInfo: UserInfo) {
         lifecycleScope.launch {
-            stationsRepo?.setUserInfo(userInfo)
+            userUseCase.setUserInfo(userInfo)
             screenManager.popTo(AUTO_POI_MAP_SCREEN_MARKER)
         }
     }

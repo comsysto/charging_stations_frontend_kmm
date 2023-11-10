@@ -2,11 +2,9 @@ package com.example.emobilitychargingstations.android
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
@@ -16,24 +14,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.MyApplicationTheme
-import com.example.emobilitychargingstations.android.ui.composables.ComposableMapView
 import com.example.emobilitychargingstations.android.ui.composables.ChargerTypeSelectionScreen
+import com.example.emobilitychargingstations.android.ui.composables.ComposableMapView
 import com.example.emobilitychargingstations.android.ui.utilities.LocationRequestStarter
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.Granularity
 import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import dagger.hilt.android.AndroidEntryPoint
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val stationsViewModel: StationsViewModel by viewModels()
+    private val stationsViewModel: StationsViewModel by viewModel()
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.locations.firstOrNull()?.let {

@@ -16,9 +16,9 @@ import androidx.lifecycle.lifecycleScope
 import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.BaseScreen
-import com.example.emobilitychargingstations.android.ui.auto.extensions.getPlaceWithMarker
 import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithPlace
 import com.example.emobilitychargingstations.android.ui.auto.extensions.createCarIconFromBitmap
+import com.example.emobilitychargingstations.android.ui.auto.extensions.getPlaceWithMarker
 import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
 import com.example.emobilitychargingstations.android.ui.utilities.AUTO_POI_MAP_SCREEN_MARKER
 import com.example.emobilitychargingstations.android.ui.utilities.LocationRequestStarter
@@ -38,9 +38,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("MissingPermission")
 class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : BaseScreen(carContext), LocationListener, OnScreenResultListener {
 
-
-
-    private var userInfo = stationsRepo.getUserInfo()
+    private var userInfo = userUseCase.getUserInfo()
     private var initialUserLocation: UserLocation? = null
     private var closestStations: List<Station> = listOf()
     private var stationToNavigateTo: Station? = null
@@ -76,7 +74,7 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
         closestStations[0].isNavigatingTo = false
         filterStations()
         stationToNavigateTo = null
-        screenManager.push(NavigationCompleteScreen(carContext, station, stationsRepo))
+        screenManager.push(NavigationCompleteScreen(carContext, station))
     }
 
     private fun getDistanceValue(location: Location, stationLocation: StationGeoData): Float {
@@ -123,7 +121,7 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
 
     override fun onGetTemplate(): Template {
         lifecycleScope.launch {
-            stationsRepo.getUserInfoAsFlow().onEach {
+            userUseCase.getUserInfoAsFlow().onEach {
                 if (it?.chargerType != userInfo?.chargerType) {
                     userInfo = it
                     filterStations()
