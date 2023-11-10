@@ -4,23 +4,19 @@ package com.example.emobilitychargingstations.android.ui.auto
 import androidx.car.app.CarAppService
 import androidx.car.app.Session
 import androidx.car.app.validation.HostValidator
-import com.example.emobilitychargingstations.domain.stations.StationsRepositoryImpl
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import com.example.emobilitychargingstations.domain.stations.StationsUseCase
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 
-@AndroidEntryPoint
-class StationsMapService (): CarAppService() {
-    @Inject
-    lateinit var stationsRepositoryImpl: StationsRepositoryImpl
-
-
+class StationsMapService (): CarAppService(), KoinComponent {
+    private val stationsUseCase: StationsUseCase by inject()
     override fun createHostValidator(): HostValidator {
         return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR
     }
 
     override fun onCreateSession(): Session {
-        return ChargingMapSession(stationsRepositoryImpl)
+        return ChargingMapSession(stationsUseCase)
     }
 
 }

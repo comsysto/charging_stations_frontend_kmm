@@ -4,7 +4,6 @@ plugins {
     id("com.android.application")
     kotlin("android")
     id("kotlin-kapt")
-    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -53,12 +52,6 @@ android {
     kotlin {
         jvmToolchain(17)
     }
-
-    kapt {
-        javacOptions{
-            option("-Adagger.hilt.android.internal.disableAndroidSuperclassValidation=true")
-        }
-    }
 }
 
 val composeVersion = "1.5.1"
@@ -80,12 +73,6 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
-    implementation("com.google.dagger:hilt-android:2.48")
-//    kapt("groupId:artifactId:version")
-    kapt("com.google.dagger:hilt-android-compiler:2.48")
-    kapt("androidx.hilt:hilt-compiler:1.0.0")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-
     implementation("org.osmdroid:osmdroid-android:6.1.16")
     implementation ("com.github.MKergall:osmbonuspack:6.9.0")
 
@@ -95,4 +82,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("io.insert-koin:koin-android:3.5.0")
+    implementation("io.insert-koin:koin-androidx-compose:3.5.0")
 }

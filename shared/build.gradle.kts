@@ -24,6 +24,7 @@ kotlin {
     sourceSets {
         val ktorVersion = "2.3.4"
         val sqlDelightVersion = "2.0.0"
+        val koinVersion = "3.5.0"
 
         val commonMain by getting {
             dependencies {
@@ -34,7 +35,8 @@ kotlin {
                 implementation("app.cash.sqldelight:coroutines-extensions:2.0.0-alpha05")
                 implementation("com.squareup.okio:okio:3.3.0")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
-
+                implementation("io.insert-koin:koin-core:$koinVersion")
+                implementation("io.insert-koin:koin-test:$koinVersion")
             }
         }
         val commonTest by getting {
