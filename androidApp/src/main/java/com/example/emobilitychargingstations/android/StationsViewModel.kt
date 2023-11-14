@@ -1,6 +1,7 @@
 package com.example.emobilitychargingstations.android
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,6 +11,9 @@ import com.example.emobilitychargingstations.domain.user.UserUseCase
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.models.UserInfo
+import com.example.emobilitychargingstations.models.UserLocation
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.osmdroid.util.GeoPoint
@@ -25,6 +29,18 @@ class StationsViewModel(
 
     private val userLocation : MutableLiveData<GeoPoint> = MutableLiveData(GeoPoint(51.3397, 12.3731))
     val _userLocation: LiveData<GeoPoint> = userLocation
+
+
+    init {
+        stationsUseCase.startRepeatingRequest(UserLocation(userLocation.value?.latitude ?: 0.0, userLocation.value?.longitude ?: 0.0)).onEach {
+            Log.v("TESTING REPEATING API", it[0].toString())
+        }.launchIn(viewModelScope)
+        viewModelScope.launch {
+            val stations = stationsUseCase.getStationsRemote(UserLocation(59.9198, 10.73373))
+            Log.v("TESTING API", stations.toString())
+        }
+    }
+
     fun setUserLocation(newUserLocation: GeoPoint) {
         userLocation.postValue(newUserLocation)
     }

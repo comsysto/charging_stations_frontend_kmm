@@ -5,6 +5,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
+import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
 import androidx.car.app.model.*
@@ -13,6 +14,7 @@ import androidx.car.app.model.Distance.create
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.BaseScreen
@@ -32,6 +34,7 @@ import com.example.emobilitychargingstations.models.UserLocation
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
@@ -42,6 +45,8 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
     private var initialUserLocation: UserLocation? = null
     private var closestStations: List<Station> = listOf()
     private var stationToNavigateTo: Station? = null
+    private var initialStationList = stationsList.features
+
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.locations.firstOrNull()?.let {
@@ -49,6 +54,10 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
                     if (stationToNavigateTo != null && getDistanceValue(it, stationToNavigateTo!!.geometry) < NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS) pushDestinationReachedScreen(stationToNavigateTo!!)
                     else {
                         initialUserLocation = UserLocation(it.latitude, it.longitude)
+                        stationsUseCase.startRepeatingRequest(initialUserLocation).onEach {
+                            Log.v("NOBIL RESULT", it.toString())
+                            initialStationList = it
+                        }.launchIn(lifecycleScope)
                         filterStations()
                         invalidate()
                     }
@@ -106,12 +115,13 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
     }
 
     private fun filterStations() {
-        closestStations = if (stationsList.features.isNullOrEmpty() || initialUserLocation == null) listOf()
-        else stationsList.getStationsClosestToUserLocation(initialUserLocation!!.latitude, initialUserLocation!!.longitude).getTwoStationsClosestToUser(initialUserLocation!!.latitude, initialUserLocation!!.longitude, userInfo?.chargerType)
+        closestStations = if (initialStationList.isNullOrEmpty() || initialUserLocation == null) listOf()
+        else initialStationList!!.getStationsClosestToUserLocation(initialUserLocation!!.latitude, initialUserLocation!!.longitude).getTwoStationsClosestToUser(initialUserLocation!!.latitude, initialUserLocation!!.longitude, userInfo?.chargerType)
     }
 
     private fun checkIsLocationMockDebug(location: Location) : Boolean {
         return if (BuildConfig.DEBUG) location.isMock else true
+//        return true
     }
     init {
         LocationRequestStarter(carContext, locationCallback)

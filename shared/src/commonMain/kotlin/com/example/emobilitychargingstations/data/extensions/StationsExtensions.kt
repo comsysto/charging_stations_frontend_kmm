@@ -17,6 +17,18 @@ fun Stations.getStationsClosestToUserLocation(userLat: Double, userLng: Double):
     return filteredList
 }
 
+fun List<Station>.getStationsClosestToUserLocation(userLat: Double, userLng: Double): List<Station> {
+    val filteredList = mutableListOf<Station>()
+    this?.forEach {
+        if (userLat in it.geometry.coordinates[1] - 1..it.geometry.coordinates[1] + 1
+            && userLng in it.geometry.coordinates[0] - 1..it.geometry.coordinates[0] + 1
+        ) {
+            filteredList.add(it)
+        }
+    }
+    return filteredList
+}
+
 fun List<Station>.getOneStationClosestToUser(userLat: Double, userLng: Double): Station {
     var closestTotalDifference = 180.00
     var currentClosestStation = get(0)
