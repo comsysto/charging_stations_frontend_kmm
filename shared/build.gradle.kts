@@ -27,6 +27,7 @@ kotlin {
         val koinVersion = "3.5.0"
 
         val commonMain by getting {
+            resources.srcDirs("resources")
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
                 implementation(kotlin("stdlib-common"))

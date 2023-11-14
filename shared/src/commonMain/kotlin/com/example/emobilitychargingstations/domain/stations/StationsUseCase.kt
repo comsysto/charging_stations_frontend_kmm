@@ -9,7 +9,9 @@ import com.example.emobilitychargingstations.models.UserLocation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 
-class StationsUseCase(val stationsRepository: StationsRepository) {
+class StationsUseCase(private val stationsRepository: StationsRepository) {
+
+    private var userLocation: UserLocation? = null
 
     suspend fun insertStations(stations: Stations) {
         stationsRepository.insertStations(
@@ -25,19 +27,23 @@ class StationsUseCase(val stationsRepository: StationsRepository) {
         return stationsRepository.getStationsRemote(userLocation)?.toStationList()
     }
 
-    fun startRepeatingRequest(userLocation: UserLocation?) = flow {
+    fun setTemporaryLocation(newLocation: UserLocation?) {
+        userLocation = newLocation
+    }
+
+    fun startRepeatingRequest(initialLocation: UserLocation?) = flow {
+        userLocation = initialLocation
         while (true) {
             val remoteStations = stationsRepository.getStationsRemote(userLocation)?.toStationList()
             val localStations = stationsRepository.getStationsLocal()
             val stationList = mutableListOf<Station>()
-            var resultingList = listOf<Station>()
             localStations?.features?.let {
                 stationList.addAll(it)
             }
             remoteStations?.let {
                 stationList.addAll(it)
             }
-            resultingList = stationList.toList()
+            var resultingList = stationList.toList()
             userLocation?.let {
                 resultingList = resultingList.getStationsClosestToUserLocation(it.latitude, it.longitude)
             }

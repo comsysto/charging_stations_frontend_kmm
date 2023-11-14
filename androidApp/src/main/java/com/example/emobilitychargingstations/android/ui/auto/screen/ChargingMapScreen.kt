@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")
-class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : BaseScreen(carContext), LocationListener, OnScreenResultListener {
+class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : BaseScreen(carContext), OnScreenResultListener {
 
     private var userInfo = userUseCase.getUserInfo()
     private var initialUserLocation: UserLocation? = null
@@ -54,10 +54,7 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
                     if (stationToNavigateTo != null && getDistanceValue(it, stationToNavigateTo!!.geometry) < NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS) pushDestinationReachedScreen(stationToNavigateTo!!)
                     else {
                         initialUserLocation = UserLocation(it.latitude, it.longitude)
-                        stationsUseCase.startRepeatingRequest(initialUserLocation).onEach {
-                            Log.v("NOBIL RESULT", it.toString())
-                            initialStationList = it
-                        }.launchIn(lifecycleScope)
+                        stationsUseCase.setTemporaryLocation(initialUserLocation)
                         filterStations()
                         invalidate()
                     }
@@ -66,17 +63,13 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
         }
     }
 
-    override fun onLocationChanged(location: Location) {
-        location?.let {
-            if (checkIsLocationMockDebug(it)) {
-                if (stationToNavigateTo != null && getDistanceValue(it, stationToNavigateTo!!.geometry) < NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS) pushDestinationReachedScreen(stationToNavigateTo!!)
-                else {
-                    initialUserLocation = UserLocation(it.latitude, it.longitude)
-                    filterStations()
-                    invalidate()
-                 }
-            }
-        }
+    init {
+        LocationRequestStarter(carContext, locationCallback)
+        stationsUseCase.startRepeatingRequest(initialUserLocation).onEach {
+            Log.v("NOBIL RESULT", it.toString())
+            initialStationList = it
+        }.launchIn(lifecycleScope)
+        marker = AUTO_POI_MAP_SCREEN_MARKER
     }
 
     private fun pushDestinationReachedScreen(station: Station) {
@@ -123,11 +116,6 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
         return if (BuildConfig.DEBUG) location.isMock else true
 //        return true
     }
-    init {
-        LocationRequestStarter(carContext, locationCallback)
-        marker = AUTO_POI_MAP_SCREEN_MARKER
-    }
-
 
     override fun onGetTemplate(): Template {
         lifecycleScope.launch {
