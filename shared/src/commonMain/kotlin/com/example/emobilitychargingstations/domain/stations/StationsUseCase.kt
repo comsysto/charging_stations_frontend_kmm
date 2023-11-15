@@ -1,6 +1,7 @@
 package com.example.emobilitychargingstations.domain.stations
 
 import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
+import com.example.emobilitychargingstations.SharedFunctions
 import com.example.emobilitychargingstations.data.stations.StationsRepository
 import com.example.emobilitychargingstations.data.stations.toStationList
 import com.example.emobilitychargingstations.models.Station
@@ -20,7 +21,9 @@ class StationsUseCase(private val stationsRepository: StationsRepository) {
     }
 
     suspend fun getStationsLocal(): Stations? {
-        return stationsRepository.getStationsLocal()
+        var localStations = stationsRepository.getStationsLocal()
+        if (localStations == null) localStations = SharedFunctions().getStationsFromJson()
+        return localStations
     }
 
     suspend fun getStationsRemote(userLocation: UserLocation?): List<Station>? {

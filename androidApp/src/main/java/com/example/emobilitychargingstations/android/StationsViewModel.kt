@@ -33,12 +33,8 @@ class StationsViewModel(
 
     init {
         stationsUseCase.startRepeatingRequest(UserLocation(userLocation.value?.latitude ?: 0.0, userLocation.value?.longitude ?: 0.0)).onEach {
-            Log.v("TESTING REPEATING API", it[0].toString())
+//            Log.v("TESTING REPEATING API", it[0].toString())
         }.launchIn(viewModelScope)
-        viewModelScope.launch {
-            val stations = stationsUseCase.getStationsRemote(UserLocation(59.9198, 10.73373))
-            Log.v("TESTING API", stations.toString())
-        }
     }
 
     fun setUserLocation(newUserLocation: GeoPoint) {
@@ -51,18 +47,18 @@ class StationsViewModel(
             if (currentStations?.features != null) {
                 stationsData.value = currentStations!!
             }
-            else {
-                val stationsJsonString = context.assets.open("munichStations.json").bufferedReader().use { it.readText() }
-                val regensburgStationsJsonString = context.assets.open("regensburgStations.json").bufferedReader().use { it.readText() }
-                var stationsFromJson = Json.decodeFromString<Stations>(stationsJsonString)
-                val regensburgStationsFromJson = Json.decodeFromString<Stations>(regensburgStationsJsonString)
-                val combinedStations = mutableListOf<Station>()
-                stationsFromJson.features?.let { combinedStations.addAll(it) }
-                regensburgStationsFromJson.features?.let { combinedStations.addAll(it) }
-                stationsFromJson = stationsFromJson.copy(features = combinedStations)
-                stationsUseCase.insertStations(stationsFromJson)
-                stationsData.value = stationsFromJson
-            }
+//            else {
+//                val stationsJsonString = context.assets.open("munichStations.json").bufferedReader().use { it.readText() }
+//                val regensburgStationsJsonString = context.assets.open("regensburgStations.json").bufferedReader().use { it.readText() }
+//                var stationsFromJson = Json.decodeFromString<Stations>(stationsJsonString)
+//                val regensburgStationsFromJson = Json.decodeFromString<Stations>(regensburgStationsJsonString)
+//                val combinedStations = mutableListOf<Station>()
+//                stationsFromJson.features?.let { combinedStations.addAll(it) }
+//                regensburgStationsFromJson.features?.let { combinedStations.addAll(it) }
+//                stationsFromJson = stationsFromJson.copy(features = combinedStations)
+//                stationsUseCase.insertStations(stationsFromJson)
+//                stationsData.value = stationsFromJson
+//            }
         }
     }
 

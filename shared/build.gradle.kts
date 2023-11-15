@@ -29,6 +29,7 @@ kotlin {
         val commonMain by getting {
             resources.srcDirs("resources")
             dependencies {
+//                implementation("org.jetbrains.compose.components:components-resources:1.3.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
                 implementation(kotlin("stdlib-common"))
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
@@ -89,6 +90,7 @@ sqldelight {
 }
 
 android {
+    sourceSets["main"].resources.srcDir("src/commonMain/resources")
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

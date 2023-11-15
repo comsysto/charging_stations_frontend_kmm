@@ -2,10 +2,9 @@ import SwiftUI
 import shared
 
 struct ContentView: View {
-	let greet = Greeting().greet()
-
+    let stations = UseCasesProvider.stationsUseCase.getStationsLocal()
 	var body: some View {
-		Text(greet)
+        Text(String(stations))
 	}
 }
 
