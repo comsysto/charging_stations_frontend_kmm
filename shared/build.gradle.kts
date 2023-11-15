@@ -1,21 +1,34 @@
 plugins {
     kotlin("multiplatform")
+    kotlin("native.cocoapods")
     kotlin("plugin.serialization") version "1.9.0"
     id("com.android.library")
     id("kotlinx-serialization")
     id("app.cash.sqldelight") version "2.0.0"
 }
-
 kotlin {
     android {
     }
+
     
     listOf(
         iosX64(),
-        iosArm64(),
+        iosArm64{},
         iosSimulatorArm64()
     ).forEach {
-        it.binaries.framework {
+//        it.binaries.framework {
+//            baseName = "shared"
+//            binaryOption("bundleId", "com.example.emobilitychargingstations")
+//        }
+    }
+    cocoapods {
+        summary = "Some description for the Shared Module"
+        homepage = "Link to the Shared Module homepage"
+        version = "1.0"
+        ios.deploymentTarget = "14.1"
+        podfile = project.file("../iosApp/Podfile")
+        extraSpecAttributes["resources"] = "['src/commonMain/resources/**', 'src/iosMain/resources/**']"
+        framework {
             baseName = "shared"
             binaryOption("bundleId", "com.example.emobilitychargingstations")
         }
@@ -29,7 +42,6 @@ kotlin {
         val commonMain by getting {
             resources.srcDirs("resources")
             dependencies {
-//                implementation("org.jetbrains.compose.components:components-resources:1.3.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
                 implementation(kotlin("stdlib-common"))
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")

@@ -22,7 +22,12 @@ class StationsUseCase(private val stationsRepository: StationsRepository) {
 
     suspend fun getStationsLocal(): Stations? {
         var localStations = stationsRepository.getStationsLocal()
-        if (localStations == null) localStations = SharedFunctions().getStationsFromJson()
+        if (localStations == null) {
+            localStations = SharedFunctions().getStationsFromJson()
+            localStations?.let {
+                insertStations(localStations!!)
+            }
+        }
         return localStations
     }
 

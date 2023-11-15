@@ -2,6 +2,19 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:../shared/src/iosMain/kotlin/com/example/emobilitychargingstations/KoinStarter.kt">
+   </FileRef>
+   <Group
+      location = "group:../shared/src/commonMain/resources"
+      name = "resources">
+      <FileRef
+         location = "group:munichStations.json">
+      </FileRef>
+      <FileRef
+         location = "group:regensburgStations.json">
+      </FileRef>
+   </Group>
+   <FileRef
       location = "group:iosApp.xcodeproj">
    </FileRef>
    <FileRef

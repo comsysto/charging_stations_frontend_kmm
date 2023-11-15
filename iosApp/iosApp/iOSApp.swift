@@ -4,11 +4,20 @@ import shared
 @main
 struct iOSApp: App {
     init() {
-        KoinStarter.initializeKoin()
+        KoinStarterKt.initializeKoin()
+        getStations()
     }
 	var body: some Scene {
 		WindowGroup {
 			ContentView()
 		}
 	}
+    
+    func getStations()  {
+        Task {
+            do {try await debugPrint(UseCasesProvider().stationsUseCase().getStationsLocal())}
+            catch {debugPrint(error)}
+        }
+                
+    }
 }
