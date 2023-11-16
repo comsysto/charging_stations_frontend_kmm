@@ -33,14 +33,14 @@ fun List<Station>.getOneStationClosestToUser(userLat: Double, userLng: Double): 
     var closestTotalDifference = 180.00
     var currentClosestStation = get(0)
 
-    this.forEach {
-        if (it.properties.street != null) {
-            val latDiff = abs(userLat - it.geometry.coordinates[1])
-            val lngDiff = abs(userLng - it.geometry.coordinates[0])
+    this.forEach {station ->
+        station.properties.street?.let {
+            val latDiff = abs(userLat - station.geometry.coordinates[1])
+            val lngDiff = abs(userLng - station.geometry.coordinates[0])
             val totalDiff = latDiff + lngDiff
             if (totalDiff < closestTotalDifference) {
                 closestTotalDifference = totalDiff
-                currentClosestStation = it
+                currentClosestStation = station
             }
         }
     }
@@ -55,15 +55,15 @@ fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double, 
         var currentClosestStation = chargerTypeStations.getOneStationClosestToUser(userLat, userLng)
         if (chargerTypeStations.size == 1) resultList.add(currentClosestStation) else {
             var secondClosestStation = currentClosestStation
-            chargerTypeStations.forEach {
-                if (it.properties.street != null) {
-                    val latDiff = abs(userLat - it.geometry.coordinates[1])
-                    val lngDiff = abs(userLng - it.geometry.coordinates[0])
+            chargerTypeStations.forEach {station ->
+                station.properties.street?.let {
+                    val latDiff = abs(userLat - station.geometry.coordinates[1])
+                    val lngDiff = abs(userLng - station.geometry.coordinates[0])
                     val totalDiff = latDiff + lngDiff
                     if (totalDiff < closestTotalDifference) {
                         closestTotalDifference = totalDiff
                         secondClosestStation = currentClosestStation
-                        currentClosestStation = it
+                        currentClosestStation = station
                     }
                 }
             }

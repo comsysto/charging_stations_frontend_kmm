@@ -39,13 +39,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")
-class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : BaseScreen(carContext), OnScreenResultListener {
+class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScreenResultListener {
 
     private var userInfo = userUseCase.getUserInfo()
     private var initialUserLocation: UserLocation? = null
     private var closestStations: List<Station> = listOf()
     private var stationToNavigateTo: Station? = null
-    private var initialStationList = stationsList.features
+    private var initialStationList: List<Station>? = null
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
@@ -66,8 +66,7 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
     init {
         LocationRequestStarter(carContext, locationCallback)
         stationsUseCase.startRepeatingRequest(initialUserLocation).onEach {
-            Log.v("NOBIL RESULT", it.toString())
-            initialStationList = it
+            if (it != initialStationList) initialStationList = it
         }.launchIn(lifecycleScope)
         marker = AUTO_POI_MAP_SCREEN_MARKER
     }
@@ -92,8 +91,8 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
     }
 
     override fun onScreenResult(result: Any?) {
-        if (result != null) {
-            val station = result as Station
+        result?.let {stationResult ->
+            val station = stationResult as Station
             if (station.isNavigatingTo) {
                 stationToNavigateTo = station
                 closestStations = listOf(station, closestStations[1])
@@ -104,7 +103,6 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
                 filterStations()
             }
         }
-
     }
 
     private fun filterStations() {
@@ -138,7 +136,7 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
         var mapTitle = getString(R.string.auto_map_title)
         val actionStrip = ActionStrip.Builder().addAction(openFavoritesListAction).build()
         val mapTemplateBuilder = PlaceListMapTemplate.Builder().setActionStrip(actionStrip)
-        if (initialUserLocation == null) mapTemplateBuilder.setLoading(true)
+        if (initialUserLocation == null || initialStationList == null) mapTemplateBuilder.setLoading(true)
         else {
             mapTemplateBuilder.setAnchor(
                 getPlaceWithMarker(

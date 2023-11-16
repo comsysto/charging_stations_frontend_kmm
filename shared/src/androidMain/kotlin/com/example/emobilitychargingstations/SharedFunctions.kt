@@ -1,5 +1,6 @@
 package com.example.emobilitychargingstations
 
+import com.comsystoreply.emobilitychargingstations.BuildConfig
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.Stations
 import kotlinx.serialization.json.Json
@@ -18,4 +19,6 @@ actual class SharedFunctions {
         stationsFromJson = stationsFromJson.copy(features = combinedStations)
         return stationsFromJson
     }
+
+    actual val isDebug = BuildConfig.DEBUG
 }

@@ -1,5 +1,6 @@
 package com.example.emobilitychargingstations
 
+import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.Stations
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCObjectVar
@@ -24,15 +25,33 @@ actual class SharedFunctions {
         var stations: Stations? = null
         val bundle = NSBundle.bundleForClass(BundleMarker)
         val munichStationsPath = bundle.pathForResource("munichStations", "json")
-        munichStationsPath?.let {
-            memScoped {
+        val regensburgStationsPath = bundle.pathForResource("regensburgStations", "json")
+        memScoped {
+            var munichStations: Stations
+            var regensburgStations: Stations
+            val combinedStations = mutableListOf<Station>()
+            munichStationsPath?.let {path ->
                 val errorPtr = alloc<ObjCObjectVar<NSError?>>()
-                val stationsString = NSString.stringWithContentsOfFile(it, NSUTF8StringEncoding, errorPtr.ptr)
-                stations = Json.decodeFromString<Stations>(stationsString!!)
+                val stationsString = NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, errorPtr.ptr)
+                munichStations = Json.decodeFromString<Stations>(stationsString!!)
+                munichStations.features?.let {
+                    combinedStations.addAll(it)
+                }
             }
+            regensburgStationsPath?.let {path ->
+                val errorPtr = alloc<ObjCObjectVar<NSError?>>()
+                val stationsString = NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, errorPtr.ptr)
+                regensburgStations = Json.decodeFromString<Stations>(stationsString!!)
+                regensburgStations.features?.let {
+                    combinedStations.addAll(it)
+                }
+            }
+            if (combinedStations.isNotEmpty()) stations = Stations(type = "FeatureCollection", features = combinedStations)
         }
         return stations
     }
+
+    actual val isDebug = Platform.isDebugBinary
 
     private class BundleMarker: NSObject() {
         companion object : NSObjectMeta()

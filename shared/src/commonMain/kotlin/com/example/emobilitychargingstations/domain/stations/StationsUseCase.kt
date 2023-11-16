@@ -1,5 +1,7 @@
 package com.example.emobilitychargingstations.domain.stations
 
+import com.example.emobilitychargingstations.SHOULD_TRY_API_REQUEST
+import com.example.emobilitychargingstations.STATION_REQUEST_REPEAT_TIME_MS
 import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
 import com.example.emobilitychargingstations.SharedFunctions
 import com.example.emobilitychargingstations.data.stations.StationsRepository
@@ -40,14 +42,18 @@ class StationsUseCase(private val stationsRepository: StationsRepository) {
     }
 
     fun startRepeatingRequest(initialLocation: UserLocation?) = flow {
+        val localStations = getStationsLocal()
         userLocation = initialLocation
+        if (userLocation != null) emit(localStations?.getStationsClosestToUserLocation(userLocation!!.latitude, userLocation!!.longitude))
+        else emit(localStations!!.features)
         while (true) {
-            var remoteStations: List<Station>? = listOf<Station>()
-            try {
-                remoteStations = stationsRepository.getStationsRemote(userLocation)?.toStationList()
-            } catch (e: Exception) {
+            var remoteStations: List<Station>? = null
+            if (SharedFunctions().isDebug && SHOULD_TRY_API_REQUEST)  {
+                try {
+                    remoteStations = stationsRepository.getStationsRemote(userLocation)?.toStationList()
+                } catch (e: Exception) {
+                }
             }
-            val localStations = getStationsLocal()
             val stationList = mutableListOf<Station>()
             localStations?.features?.let {
                 stationList.addAll(it)
@@ -60,7 +66,7 @@ class StationsUseCase(private val stationsRepository: StationsRepository) {
                 resultingList = resultingList.getStationsClosestToUserLocation(it.latitude, it.longitude)
             }
             emit(resultingList)
-            delay(20000)
+            delay(STATION_REQUEST_REPEAT_TIME_MS)
         }
     }
 

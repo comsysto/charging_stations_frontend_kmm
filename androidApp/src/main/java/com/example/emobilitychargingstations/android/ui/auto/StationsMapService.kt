@@ -9,14 +9,13 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 
-class StationsMapService (): CarAppService(), KoinComponent {
-    private val stationsUseCase: StationsUseCase by inject()
+class StationsMapService (): CarAppService() {
     override fun createHostValidator(): HostValidator {
         return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR
     }
 
     override fun onCreateSession(): Session {
-        return ChargingMapSession(stationsUseCase)
+        return ChargingMapSession()
     }
 
 }
