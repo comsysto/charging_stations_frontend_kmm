@@ -1,8 +1,9 @@
 package com.example.emobilitychargingstations.android.ui.composables
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.Lifecycle
@@ -21,7 +23,7 @@ import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.StationsViewModel
 import com.example.emobilitychargingstations.data.extensions.filterByChargerType
 import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
-import com.example.emobilitychargingstations.models.Stations
+import com.example.emobilitychargingstations.models.Station
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.bonuspack.utils.BonusPackHelper
 import org.osmdroid.util.BoundingBox
@@ -33,25 +35,37 @@ import org.osmdroid.views.overlay.Marker
 fun ComposableMapView(proceedToSocketSelection: () -> Unit, stationsViewModel: StationsViewModel) {
     val testStations = stationsViewModel._stationsData.observeAsState()
     val userLocation = stationsViewModel._userLocation.observeAsState()
-    stationsViewModel.getTestStations(LocalContext.current)
     val mapViewState = mapViewWithLifecycle(testStations.value, userLocation.value, stationsViewModel.getUserInfo()?.chargerType)
-    ConstraintLayout {
-        val (map, button) = createRefs()
-        AndroidView({ mapViewState },
-            Modifier
-                .fillMaxSize()
-                .constrainAs(map) {}) {}
-        TextButton(modifier = Modifier.constrainAs(button){
-                                                          top.linkTo(map.top)
-            end.linkTo(map.end)
-        }, onClick = { proceedToSocketSelection() }) {
-            Text("Change socket", color = Color.Black)
+    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+        val (map, button, progressBar) = createRefs()
+        if (testStations.value != null && userLocation.value != null)  {
+            AndroidView({ mapViewState },
+                Modifier
+                    .fillMaxSize()
+                    .constrainAs(map) {}) {}
+            TextButton(modifier = Modifier.constrainAs(button) {
+                top.linkTo(map.top)
+                end.linkTo(map.end)
+            }, onClick = { proceedToSocketSelection() }) {
+                Text("Change socket", color = Color.Black)
+            }
         }
+        else CircularProgressIndicator(
+            modifier = Modifier.width(78.dp).constrainAs(progressBar){
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            },
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            trackColor = MaterialTheme.colorScheme.secondary
+        )
+
     }
 }
 
 @Composable
-fun mapViewWithLifecycle(stations: Stations?, userLocation: GeoPoint?, chargerType: String? = null): MapView {
+fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?, chargerType: String? = null): MapView {
     val context = LocalContext.current
     val mapView = remember {
         MapView(context).apply {
@@ -78,15 +92,17 @@ fun mapViewWithLifecycle(stations: Stations?, userLocation: GeoPoint?, chargerTy
                 stationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                 markerCluster.add(stationMarker)
         }
+        userMarker?.let {
+            folderOverlay.remove(it)
+        }
+        userMarker = Marker(mapView)
+        userMarker.position = userLocation
+        folderOverlay.add(userMarker)
         if (markerCluster.items.size > 0) folderOverlay.add(markerCluster)
+        mapView.zoomToBoundingBox(BoundingBox.fromGeoPoints(listOf(userLocation)), false)
     }
-    if (userMarker != null) folderOverlay.remove(userMarker)
-    userMarker = Marker(mapView)
-    userMarker.position = userLocation
-    folderOverlay.add(userMarker)
     mapView.overlays.clear()
     mapView.overlays.add(folderOverlay)
-    mapView.zoomToBoundingBox(BoundingBox.fromGeoPoints(listOf(userLocation)), false)
     val lifecycleObserver = rememberMapObserver(mapView)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(lifecycle) {

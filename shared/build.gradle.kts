@@ -1,21 +1,29 @@
 plugins {
     kotlin("multiplatform")
+    kotlin("native.cocoapods")
     kotlin("plugin.serialization") version "1.9.0"
     id("com.android.library")
     id("kotlinx-serialization")
     id("app.cash.sqldelight") version "2.0.0"
 }
-
 kotlin {
     android {
     }
+
     
     listOf(
         iosX64(),
-        iosArm64(),
+        iosArm64{},
         iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
+    )
+    cocoapods {
+        summary = "Some description for the Shared Module"
+        homepage = "Link to the Shared Module homepage"
+        version = "1.0"
+        ios.deploymentTarget = "14.1"
+        podfile = project.file("../iosApp/Podfile")
+        extraSpecAttributes["resources"] = "['src/commonMain/resources/**', 'src/iosMain/resources/**']"
+        framework {
             baseName = "shared"
             binaryOption("bundleId", "com.example.emobilitychargingstations")
         }
@@ -27,6 +35,7 @@ kotlin {
         val koinVersion = "3.5.0"
 
         val commonMain by getting {
+            resources.srcDirs("resources")
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
                 implementation(kotlin("stdlib-common"))
@@ -34,6 +43,8 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
                 implementation("app.cash.sqldelight:coroutines-extensions:2.0.0-alpha05")
                 implementation("com.squareup.okio:okio:3.3.0")
+                implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.insert-koin:koin-core:$koinVersion")
                 implementation("io.insert-koin:koin-test:$koinVersion")
@@ -86,6 +97,7 @@ sqldelight {
 }
 
 android {
+    sourceSets["main"].resources.srcDir("src/commonMain/resources")
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

@@ -2,7 +2,6 @@ package com.example.emobilitychargingstations.android.ui.auto.screen
 
 import android.annotation.SuppressLint
 import android.location.Location
-import android.location.LocationListener
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
 import androidx.car.app.CarContext
@@ -27,21 +26,23 @@ import com.example.emobilitychargingstations.data.extensions.getStationsClosestT
 import com.example.emobilitychargingstations.data.extensions.getTwoStationsClosestToUser
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.StationGeoData
-import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.models.UserLocation
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")
-class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : BaseScreen(carContext), LocationListener, OnScreenResultListener {
+class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScreenResultListener {
 
     private var userInfo = userUseCase.getUserInfo()
     private var initialUserLocation: UserLocation? = null
     private var closestStations: List<Station> = listOf()
     private var stationToNavigateTo: Station? = null
+    private var initialStationList: List<Station>? = null
+
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.locations.firstOrNull()?.let {
@@ -49,6 +50,7 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
                     if (stationToNavigateTo != null && getDistanceValue(it, stationToNavigateTo!!.geometry) < NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS) pushDestinationReachedScreen(stationToNavigateTo!!)
                     else {
                         initialUserLocation = UserLocation(it.latitude, it.longitude)
+                        stationsUseCase.setTemporaryLocation(initialUserLocation)
                         filterStations()
                         invalidate()
                     }
@@ -57,17 +59,12 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
         }
     }
 
-    override fun onLocationChanged(location: Location) {
-        location?.let {
-            if (checkIsLocationMockDebug(it)) {
-                if (stationToNavigateTo != null && getDistanceValue(it, stationToNavigateTo!!.geometry) < NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS) pushDestinationReachedScreen(stationToNavigateTo!!)
-                else {
-                    initialUserLocation = UserLocation(it.latitude, it.longitude)
-                    filterStations()
-                    invalidate()
-                 }
-            }
-        }
+    init {
+        LocationRequestStarter(carContext, locationCallback)
+        stationsUseCase.startRepeatingRequest(initialUserLocation).onEach {
+            if (it != initialStationList) initialStationList = it
+        }.launchIn(lifecycleScope)
+        marker = AUTO_POI_MAP_SCREEN_MARKER
     }
 
     private fun pushDestinationReachedScreen(station: Station) {
@@ -90,8 +87,8 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
     }
 
     override fun onScreenResult(result: Any?) {
-        if (result != null) {
-            val station = result as Station
+        result?.let {stationResult ->
+            val station = stationResult as Station
             if (station.isNavigatingTo) {
                 stationToNavigateTo = station
                 closestStations = listOf(station, closestStations[1])
@@ -102,22 +99,17 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
                 filterStations()
             }
         }
-
     }
 
     private fun filterStations() {
-        closestStations = if (stationsList.features.isNullOrEmpty() || initialUserLocation == null) listOf()
-        else stationsList.getStationsClosestToUserLocation(initialUserLocation!!.latitude, initialUserLocation!!.longitude).getTwoStationsClosestToUser(initialUserLocation!!.latitude, initialUserLocation!!.longitude, userInfo?.chargerType)
+        closestStations = if (initialStationList.isNullOrEmpty() || initialUserLocation == null) listOf()
+        else initialStationList!!.getStationsClosestToUserLocation(initialUserLocation!!.latitude, initialUserLocation!!.longitude).getTwoStationsClosestToUser(initialUserLocation!!.latitude, initialUserLocation!!.longitude, userInfo?.chargerType)
     }
 
     private fun checkIsLocationMockDebug(location: Location) : Boolean {
         return if (BuildConfig.DEBUG) location.isMock else true
+//        return true
     }
-    init {
-        LocationRequestStarter(carContext, locationCallback)
-        marker = AUTO_POI_MAP_SCREEN_MARKER
-    }
-
 
     override fun onGetTemplate(): Template {
         lifecycleScope.launch {
@@ -140,7 +132,7 @@ class ChargingMapScreen(carContext: CarContext, val stationsList: Stations) : Ba
         var mapTitle = getString(R.string.auto_map_title)
         val actionStrip = ActionStrip.Builder().addAction(openFavoritesListAction).build()
         val mapTemplateBuilder = PlaceListMapTemplate.Builder().setActionStrip(actionStrip)
-        if (initialUserLocation == null) mapTemplateBuilder.setLoading(true)
+        if (initialUserLocation == null || initialStationList == null) mapTemplateBuilder.setLoading(true)
         else {
             mapTemplateBuilder.setAnchor(
                 getPlaceWithMarker(

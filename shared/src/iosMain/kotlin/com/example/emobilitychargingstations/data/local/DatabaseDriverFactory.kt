@@ -5,7 +5,7 @@ import app.cash.sqldelight.driver.native.NativeSqliteDriver
 import com.emobilitychargingstations.database.StationsDatabase
 
 
-actual class DatabaseDriverFactory {
+actual class DatabaseDriverFactory() {
     actual fun createDriver(): SqlDriver {
         return NativeSqliteDriver(StationsDatabase.Schema, "stations.db")
     }

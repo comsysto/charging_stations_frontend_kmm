@@ -1,6 +1,7 @@
 package com.example.emobilitychargingstations.android
 
 import android.annotation.SuppressLint
+import android.location.Location
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,7 +30,7 @@ class MainActivity : ComponentActivity() {
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.locations.firstOrNull()?.let {
-                stationsViewModel.setUserLocation(
+                if (checkIsLocationMockDebug(it)) stationsViewModel.setUserLocation(
                     GeoPoint(
                         it.latitude,
                         it.longitude
@@ -39,16 +40,20 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun checkIsLocationMockDebug(location: Location) : Boolean {
+        return if (BuildConfig.DEBUG) location.isMock else true
+    }
+
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var startDestination = NAVIGATE_TO_CHARGER_SELECTION
         val userInfo = stationsViewModel.getUserInfo()
-        if (userInfo != null) startDestination = NAVIGATE_TO_MAP_SCREEN
+        if (userInfo?.chargerType != null) startDestination = NAVIGATE_TO_MAP_SCREEN
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             when {
                 permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true -> {
-                    LocationRequestStarter(this, locationCallback)
+                    startRepeatingRequests()
                             setContent {
                                 MyApplicationTheme {
                                     val navController = rememberNavController()
@@ -79,13 +84,16 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 }
-//                            }
-//                        }
                     }
                 }
             }
         }.launch(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION))
         Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
+    }
+
+    private fun startRepeatingRequests() {
+        LocationRequestStarter(this, locationCallback)
+        stationsViewModel.getTestStations()
     }
     companion object {
         private const val NAVIGATE_TO_CHARGER_SELECTION = "chargerSelectionScreen"
