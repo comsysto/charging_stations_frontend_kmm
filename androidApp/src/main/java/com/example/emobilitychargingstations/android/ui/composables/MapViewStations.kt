@@ -1,8 +1,6 @@
 package com.example.emobilitychargingstations.android.ui.composables
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -21,7 +19,7 @@ import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.StationsViewModel
 import com.example.emobilitychargingstations.data.extensions.filterByChargerType
 import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
-import com.example.emobilitychargingstations.models.Stations
+import com.example.emobilitychargingstations.models.Station
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.bonuspack.utils.BonusPackHelper
 import org.osmdroid.util.BoundingBox
@@ -33,7 +31,7 @@ import org.osmdroid.views.overlay.Marker
 fun ComposableMapView(proceedToSocketSelection: () -> Unit, stationsViewModel: StationsViewModel) {
     val testStations = stationsViewModel._stationsData.observeAsState()
     val userLocation = stationsViewModel._userLocation.observeAsState()
-    stationsViewModel.getTestStations(LocalContext.current)
+//    stationsViewModel.getTestStations(LocalContext.current)
     val mapViewState = mapViewWithLifecycle(testStations.value, userLocation.value, stationsViewModel.getUserInfo()?.chargerType)
     ConstraintLayout {
         val (map, button) = createRefs()
@@ -41,8 +39,8 @@ fun ComposableMapView(proceedToSocketSelection: () -> Unit, stationsViewModel: S
             Modifier
                 .fillMaxSize()
                 .constrainAs(map) {}) {}
-        TextButton(modifier = Modifier.constrainAs(button){
-                                                          top.linkTo(map.top)
+        TextButton(modifier = Modifier.constrainAs(button) {
+            top.linkTo(map.top)
             end.linkTo(map.end)
         }, onClick = { proceedToSocketSelection() }) {
             Text("Change socket", color = Color.Black)
@@ -51,7 +49,7 @@ fun ComposableMapView(proceedToSocketSelection: () -> Unit, stationsViewModel: S
 }
 
 @Composable
-fun mapViewWithLifecycle(stations: Stations?, userLocation: GeoPoint?, chargerType: String? = null): MapView {
+fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?, chargerType: String? = null): MapView {
     val context = LocalContext.current
     val mapView = remember {
         MapView(context).apply {

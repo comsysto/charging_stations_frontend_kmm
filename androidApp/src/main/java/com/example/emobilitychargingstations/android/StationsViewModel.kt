@@ -24,29 +24,27 @@ class StationsViewModel(
     private val stationsUseCase: StationsUseCase
 ) : ViewModel() {
 
-    private val stationsData: MutableLiveData<Stations> = MutableLiveData()
-    val _stationsData: LiveData<Stations> = stationsData
+    private val stationsData: MutableLiveData<List<Station>> = MutableLiveData()
+    val _stationsData: LiveData<List<Station>> = stationsData
 
     private val userLocation : MutableLiveData<GeoPoint> = MutableLiveData(GeoPoint(51.3397, 12.3731))
     val _userLocation: LiveData<GeoPoint> = userLocation
-
-
-    init {
-        stationsUseCase.startRepeatingRequest(UserLocation(userLocation.value?.latitude ?: 0.0, userLocation.value?.longitude ?: 0.0)).onEach {
-//            Log.v("TESTING REPEATING API", it[0].toString())
-        }.launchIn(viewModelScope)
-    }
 
     fun setUserLocation(newUserLocation: GeoPoint) {
         stationsUseCase.setTemporaryLocation(UserLocation(newUserLocation.latitude, newUserLocation.longitude))
         userLocation.postValue(newUserLocation)
     }
-    fun getTestStations(context: Context) {
-        viewModelScope.launch {
-            val currentStations = stationsUseCase.getStationsLocal()
-            if (currentStations?.features != null) {
-                stationsData.value = currentStations!!
+    fun getTestStations() {
+        stationsUseCase.startRepeatingRequest(UserLocation(userLocation.value?.latitude ?: 0.0, userLocation.value?.longitude ?: 0.0)).onEach {
+            if (it.isNotEmpty()) {
+                stationsData.postValue(it)
             }
+        }.launchIn(viewModelScope)
+//        viewModelScope.launch {
+//            val currentStations = stationsUseCase.getStationsLocal()
+//            if (currentStations?.features != null) {
+//                stationsData.value = currentStations.features
+//            }
 //            else {
 //                val stationsJsonString = context.assets.open("munichStations.json").bufferedReader().use { it.readText() }
 //                val regensburgStationsJsonString = context.assets.open("regensburgStations.json").bufferedReader().use { it.readText() }
@@ -59,7 +57,7 @@ class StationsViewModel(
 //                stationsUseCase.insertStations(stationsFromJson)
 //                stationsData.value = stationsFromJson
 //            }
-        }
+//        }
     }
 
     fun setUserInfo(chargerName: String?) {

@@ -42,8 +42,12 @@ class StationsUseCase(private val stationsRepository: StationsRepository) {
     fun startRepeatingRequest(initialLocation: UserLocation?) = flow {
         userLocation = initialLocation
         while (true) {
-            val remoteStations = stationsRepository.getStationsRemote(userLocation)?.toStationList()
-            val localStations = stationsRepository.getStationsLocal()
+            var remoteStations: List<Station>? = listOf<Station>()
+            try {
+                remoteStations = stationsRepository.getStationsRemote(userLocation)?.toStationList()
+            } catch (e: Exception) {
+            }
+            val localStations = getStationsLocal()
             val stationList = mutableListOf<Station>()
             localStations?.features?.let {
                 stationList.addAll(it)

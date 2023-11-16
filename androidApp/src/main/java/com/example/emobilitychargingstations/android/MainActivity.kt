@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             when {
                 permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true -> {
-                    LocationRequestStarter(this, locationCallback)
+                    startRepeatingRequests()
                             setContent {
                                 MyApplicationTheme {
                                     val navController = rememberNavController()
@@ -79,13 +79,16 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 }
-//                            }
-//                        }
                     }
                 }
             }
         }.launch(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION))
         Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
+    }
+
+    private fun startRepeatingRequests() {
+        LocationRequestStarter(this, locationCallback)
+        stationsViewModel.getTestStations()
     }
     companion object {
         private const val NAVIGATE_TO_CHARGER_SELECTION = "chargerSelectionScreen"
