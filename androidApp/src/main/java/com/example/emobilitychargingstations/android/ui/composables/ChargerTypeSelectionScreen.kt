@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.emobilitychargingstations.android.StationsViewModel
-import com.example.emobilitychargingstations.models.ChargerTypesEnum
 import com.example.emobilitychargingstations.android.models.ToggleInfo
+import com.example.emobilitychargingstations.models.ChargerTypesEnum
 
 @Composable
 fun ChargerTypeSelectionScreen(proceedToNextScreen: () -> Unit, viewModel: StationsViewModel) {

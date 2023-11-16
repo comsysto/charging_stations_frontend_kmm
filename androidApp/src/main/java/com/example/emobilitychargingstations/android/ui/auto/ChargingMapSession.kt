@@ -7,12 +7,7 @@ import androidx.car.app.CarAppPermission
 import androidx.car.app.Screen
 import androidx.car.app.Session
 import com.example.emobilitychargingstations.android.ui.auto.screen.ChargingMapScreen
-import com.example.emobilitychargingstations.android.ui.auto.screen.EmptyScreen
-import com.example.emobilitychargingstations.domain.stations.StationsUseCase
-import com.example.emobilitychargingstations.models.Station
-import com.example.emobilitychargingstations.models.Stations
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.Json
 
 class ChargingMapSession(): Session() {
     override fun onCreateScreen(intent: Intent): Screen {

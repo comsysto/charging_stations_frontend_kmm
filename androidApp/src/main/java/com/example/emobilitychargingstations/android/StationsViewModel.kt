@@ -32,8 +32,8 @@ class StationsViewModel(
     }
     fun getTestStations() {
         stationsUseCase.startRepeatingRequest(UserLocation(userLocation.value?.latitude ?: 0.0, userLocation.value?.longitude ?: 0.0)).onEach {
-            if (!it.isNullOrEmpty()) {
-                if (it != stationsData.value) stationsData.postValue(it)
+            if (!it.isNullOrEmpty() && it != stationsData.value) {
+                stationsData.postValue(it)
             }
         }.launchIn(viewModelScope)
     }

@@ -8,9 +8,6 @@ import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.serialization.json.Json
-import okio.FileSystem
-import okio.Path.Companion.toPath
-import okio.buffer
 import platform.Foundation.NSBundle
 import platform.Foundation.NSError
 import platform.Foundation.NSString

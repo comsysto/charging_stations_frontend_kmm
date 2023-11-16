@@ -2,10 +2,8 @@ package com.example.emobilitychargingstations.android.ui.auto.screen
 
 import android.annotation.SuppressLint
 import android.location.Location
-import android.location.LocationListener
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
-import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
 import androidx.car.app.model.*
@@ -14,7 +12,6 @@ import androidx.car.app.model.Distance.create
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.BaseScreen
@@ -29,7 +26,6 @@ import com.example.emobilitychargingstations.data.extensions.getStationsClosestT
 import com.example.emobilitychargingstations.data.extensions.getTwoStationsClosestToUser
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.StationGeoData
-import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.models.UserLocation
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
