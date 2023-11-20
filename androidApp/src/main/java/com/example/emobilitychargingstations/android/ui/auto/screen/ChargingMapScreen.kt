@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.location.Location
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
+import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
 import androidx.car.app.model.*
@@ -62,7 +63,11 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
     init {
         LocationRequestStarter(carContext, locationCallback)
         stationsUseCase.startRepeatingRequest(initialUserLocation).onEach {
-            if (it != initialStationList) initialStationList = it
+            if (it != initialStationList) {
+                initialStationList = it
+                filterStations()
+                invalidate()
+            }
         }.launchIn(lifecycleScope)
         marker = AUTO_POI_MAP_SCREEN_MARKER
     }

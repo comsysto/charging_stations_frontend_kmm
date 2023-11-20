@@ -8,7 +8,7 @@
     <string name="auto_station_details_stop_navigation">Stop navigation</string>
     <string name="auto_station_details_unknown_charger">Unknown charger type</string>
     <string name="auto_station_details_operator">Operator:</string>
-    <string name="auto_station_details_station_capacity">Number of charging stations:</string>
+    <string name="auto_station_details_station_capacity">Number of available stations:</string>
     <string name="auto_station_details_station_charger_type_list">Charger type list:</string>
     <string name="auto_station_details_navigating_to">Navigating to %s</string>
     <string name="auto_navigation_complete_title">Destination reached</string>

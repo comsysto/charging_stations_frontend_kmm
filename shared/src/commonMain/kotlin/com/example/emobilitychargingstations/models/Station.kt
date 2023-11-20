@@ -10,4 +10,5 @@ data class Station(
     val geometry: StationGeoData,
     @Transient
     var isNavigatingTo: Boolean = false
+
 )

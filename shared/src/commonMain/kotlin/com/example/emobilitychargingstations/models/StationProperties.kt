@@ -1,5 +1,7 @@
 package com.example.emobilitychargingstations.models
 
+import kotlinx.serialization.Transient
+
 @kotlinx.serialization.Serializable
 data class StationProperties (
     val capacity: Double?,
@@ -11,6 +13,8 @@ data class StationProperties (
     val station_id: Long,
     val street: String?,
     val total_kw: Double?,
-    val town: String?
+    val town: String?,
+    @Transient
+    var availableChargingStations: Int = 0
     ) {
 }

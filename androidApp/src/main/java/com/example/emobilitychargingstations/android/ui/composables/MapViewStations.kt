@@ -1,5 +1,6 @@
 package com.example.emobilitychargingstations.android.ui.composables
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
@@ -75,13 +76,13 @@ fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?, char
     }
     var userMarker: Marker? = null
     mapView.minZoomLevel = 9.00
-    mapView.maxZoomLevel = 16.00
+    mapView.maxZoomLevel = 15.00
     mapView.isHorizontalMapRepetitionEnabled = false
     mapView.isVerticalMapRepetitionEnabled = false
     val folderOverlay = FolderOverlay()
-    val markerCluster = RadiusMarkerClusterer(context)
-    markerCluster.setIcon(BonusPackHelper.getBitmapFromVectorDrawable(context, org.osmdroid.bonuspack.R.drawable.marker_cluster))
     if (stations != null && userLocation != null) {
+        val markerCluster = RadiusMarkerClusterer(context)
+        markerCluster.setIcon(BonusPackHelper.getBitmapFromVectorDrawable(context, org.osmdroid.bonuspack.R.drawable.marker_cluster))
         markerCluster.items.removeAll(markerCluster.items.toSet())
         stations.getStationsClosestToUserLocation(userLocation.latitude, userLocation.longitude).filterByChargerType(chargerType).forEach {
                 val stationGeoPoint = GeoPoint(it.geometry.coordinates[1], it.geometry.coordinates[0])

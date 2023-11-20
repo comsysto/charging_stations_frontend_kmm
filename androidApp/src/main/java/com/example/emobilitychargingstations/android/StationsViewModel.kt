@@ -28,7 +28,7 @@ class StationsViewModel(
 
     fun setUserLocation(newUserLocation: GeoPoint) {
         stationsUseCase.setTemporaryLocation(UserLocation(newUserLocation.latitude, newUserLocation.longitude))
-        userLocation.postValue(newUserLocation)
+        userLocation.value = newUserLocation
     }
     fun getTestStations() {
         stationsUseCase.startRepeatingRequest(UserLocation(userLocation.value?.latitude ?: 0.0, userLocation.value?.longitude ?: 0.0)).onEach {

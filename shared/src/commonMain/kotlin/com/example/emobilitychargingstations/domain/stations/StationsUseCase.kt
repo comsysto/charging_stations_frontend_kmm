@@ -56,6 +56,9 @@ class StationsUseCase(private val stationsRepository: StationsRepository) {
             }
             val stationList = mutableListOf<Station>()
             localStations?.features?.let {
+                it.forEach { station ->
+                    station.properties.availableChargingStations = (0..(station.properties.capacity?.toInt() ?: 1)).random()
+                }
                 stationList.addAll(it)
             }
             remoteStations?.let {

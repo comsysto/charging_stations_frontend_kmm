@@ -30,12 +30,16 @@ class MainActivity : ComponentActivity() {
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.locations.firstOrNull()?.let {
-                if (checkIsLocationMockDebug(it)) stationsViewModel.setUserLocation(
-                    GeoPoint(
-                        it.latitude,
-                        it.longitude
+                if (checkIsLocationMockDebug(it))  {
+                    val isInitialUserLocationNull = stationsViewModel._userLocation.value == null
+                    stationsViewModel.setUserLocation(
+                        GeoPoint(
+                            it.latitude,
+                            it.longitude
+                        )
                     )
-                )
+                    if (isInitialUserLocationNull) stationsViewModel.getTestStations()
+                }
             }
         }
     }
@@ -93,7 +97,6 @@ class MainActivity : ComponentActivity() {
 
     private fun startRepeatingRequests() {
         LocationRequestStarter(this, locationCallback)
-        stationsViewModel.getTestStations()
     }
     companion object {
         private const val NAVIGATE_TO_CHARGER_SELECTION = "chargerSelectionScreen"

@@ -37,14 +37,14 @@ class StationDetailsScreen(carContext: CarContext, val station: Station, private
             if (showFavoritesAction) addAction(getFavoritesAction(station, userInfo, ::onFavoriteChanged))
             addRow(
                 buildRowWithText(
-                    title = SpannableString(getString(R.string.auto_station_details_operator)),
-                    text = station.properties.operator ?: "-"
+                    title = SpannableString(getString(R.string.auto_station_details_station_capacity)),
+                    text = station.properties.availableChargingStations.toString() + "/" + station.properties.capacity?.toInt().toString()
                 )
             )
             addRow(
                 buildRowWithText(
-                    title = SpannableString(getString(R.string.auto_station_details_station_capacity)),
-                    text = station.properties.capacity.toString()
+                    title = SpannableString(getString(R.string.auto_station_details_operator)),
+                    text = station.properties.operator ?: "-"
                 )
             )
             addRow(buildRowWithText(SpannableString(getString(R.string.auto_station_details_station_charger_type_list)), getSocketTypeString()))

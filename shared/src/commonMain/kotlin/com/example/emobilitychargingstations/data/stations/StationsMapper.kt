@@ -21,7 +21,7 @@ fun List<StationsResponseModel>.toStationList(): List<Station> {
             id = it.id,
             type = null,
             properties = StationProperties(
-                capacity = it.availableChargingStations.toDouble(),
+                capacity = it.totalChargingStations.toDouble(),
                 data_source = it.dataSource,
                 dc_support = null,
                 max_kw = null,
@@ -31,7 +31,8 @@ fun List<StationsResponseModel>.toStationList(): List<Station> {
                 station_id = it.stationId,
                 street = it.street,
                 total_kw = null,
-                town = it.town
+                town = it.town,
+                availableChargingStations = it.availableChargingStations
             ),
             geometry = StationGeoData(
                 type = "POINT",
