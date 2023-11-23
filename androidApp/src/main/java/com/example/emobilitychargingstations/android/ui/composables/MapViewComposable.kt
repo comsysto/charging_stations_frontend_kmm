@@ -22,9 +22,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.StationsViewModel
 import com.example.emobilitychargingstations.android.ui.composables.reusables.getActivityViewModel
-import com.example.emobilitychargingstations.data.extensions.filterByChargerType
-import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
-import com.example.emobilitychargingstations.models.ChargerTypesEnum
 import com.example.emobilitychargingstations.models.Station
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.bonuspack.utils.BonusPackHelper
@@ -37,7 +34,7 @@ import org.osmdroid.views.overlay.Marker
 fun MapViewComposable(proceedToSocketSelection: () -> Unit, stationsViewModel: StationsViewModel = getActivityViewModel()) {
     val testStations = stationsViewModel._stationsData.observeAsState()
     val userLocation = stationsViewModel._userLocation.observeAsState()
-    val mapViewState = mapViewWithLifecycle(testStations.value, userLocation.value, stationsViewModel.getUserInfo()?.filterProperties?.chargerType)
+    val mapViewState = mapViewWithLifecycle(testStations.value, userLocation.value)
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (map, button, progressBar) = createRefs()
         if (testStations.value != null && userLocation.value != null)  {
@@ -69,7 +66,7 @@ fun MapViewComposable(proceedToSocketSelection: () -> Unit, stationsViewModel: S
 }
 
 @Composable
-fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?, chargerType: ChargerTypesEnum? = null): MapView {
+fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?): MapView {
     val context = LocalContext.current
     val mapView = remember {
         MapView(context).apply {
@@ -87,7 +84,7 @@ fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?, char
         val markerCluster = RadiusMarkerClusterer(context)
         markerCluster.setIcon(BonusPackHelper.getBitmapFromVectorDrawable(context, org.osmdroid.bonuspack.R.drawable.marker_cluster))
         markerCluster.items.removeAll(markerCluster.items.toSet())
-        stations.getStationsClosestToUserLocation(userLocation.latitude, userLocation.longitude).filterByChargerType(chargerType).forEach {
+        stations.forEach {
                 val stationGeoPoint = GeoPoint(it.geometry.coordinates[1], it.geometry.coordinates[0])
                 val stationMarker = Marker(mapView)
                 stationMarker.position = stationGeoPoint

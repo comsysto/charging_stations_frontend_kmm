@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.location.Location
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
+import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
 import androidx.car.app.model.*
@@ -22,7 +23,6 @@ import com.example.emobilitychargingstations.android.ui.utilities.getString
 import com.example.emobilitychargingstations.android.ui.utilities.AUTO_POI_MAP_SCREEN_MARKER
 import com.example.emobilitychargingstations.android.ui.utilities.LocationRequestStarter
 import com.example.emobilitychargingstations.android.ui.utilities.NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS
-import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
 import com.example.emobilitychargingstations.data.extensions.getTwoStationsClosestToUser
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.StationGeoData
@@ -62,6 +62,7 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
     init {
         LocationRequestStarter(carContext, locationCallback)
         stationsUseCase.startRepeatingRequest(initialUserLocation).onEach {
+            Log.v("TEST REPEATING REQ", it.toString())
             if (it != initialStationList) {
                 initialStationList = it
                 filterStations()
@@ -106,7 +107,7 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
 
     private fun filterStations() {
         closestStations = if (initialStationList.isNullOrEmpty() || initialUserLocation == null) listOf()
-        else initialStationList!!.getStationsClosestToUserLocation(initialUserLocation!!.latitude, initialUserLocation!!.longitude).getTwoStationsClosestToUser(initialUserLocation!!.latitude, initialUserLocation!!.longitude, userInfo?.filterProperties?.chargerType)
+        else initialStationList!!.getTwoStationsClosestToUser(initialUserLocation!!.latitude, initialUserLocation!!.longitude)
     }
 
     private fun checkIsLocationMockDebug(location: Location) : Boolean {
@@ -115,15 +116,6 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
     }
 
     override fun onGetTemplate(): Template {
-        lifecycleScope.launch {
-            userUseCase.getUserInfoAsFlow().onEach {
-                if (it?.filterProperties?.chargerType != userInfo?.filterProperties?.chargerType) {
-                    userInfo = it
-                    filterStations()
-                    invalidate()
-                }
-            }.collect()
-        }
         val openFavoritesListAction = Action.Builder().apply {
             setIcon(
                 createCarIconFromBitmap(

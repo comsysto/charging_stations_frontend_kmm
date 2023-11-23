@@ -1,6 +1,7 @@
 package com.example.emobilitychargingstations.data.extensions
 
 import com.example.emobilitychargingstations.models.ChargerTypesEnum
+import com.example.emobilitychargingstations.models.ChargingTypeEnum
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.Stations
 import kotlin.math.abs
@@ -47,15 +48,14 @@ fun List<Station>.getOneStationClosestToUser(userLat: Double, userLng: Double): 
     return currentClosestStation
 }
 
-fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double, filterByChargerType: ChargerTypesEnum? = null): List<Station> {
+fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double): List<Station> {
     var closestTotalDifference = 180.00
-    val chargerTypeStations = this.filterByChargerType(filterByChargerType)
     val resultList = mutableListOf<Station>()
-    if (chargerTypeStations.isNotEmpty()) {
-        var currentClosestStation = chargerTypeStations.getOneStationClosestToUser(userLat, userLng)
-        if (chargerTypeStations.size == 1) resultList.add(currentClosestStation) else {
+    if (this.isNotEmpty()) {
+        var currentClosestStation = this.getOneStationClosestToUser(userLat, userLng)
+        if (this.size == 1) resultList.add(currentClosestStation) else {
             var secondClosestStation = currentClosestStation
-            chargerTypeStations.forEach {station ->
+            this.forEach {station ->
                 station.properties.street?.let {
                     val latDiff = abs(userLat - station.geometry.coordinates[1])
                     val lngDiff = abs(userLng - station.geometry.coordinates[0])
@@ -113,4 +113,29 @@ fun List<Station>.filterByChargerType(chargerType: ChargerTypesEnum?): List<Stat
 //        }
         result
     }
+}
+
+fun List<Station>.filterByChargingType(chargingTypeEnum: ChargingTypeEnum): List<Station> {
+    return filter { it.checkIsStationOfChargingType(chargingTypeEnum) }
+}
+
+fun Station.checkIsStationOfChargingType(chargingTypeEnum: ChargingTypeEnum): Boolean {
+    var result = true
+    this.properties.max_kw?.let {
+        result = when (chargingTypeEnum) {
+            ChargingTypeEnum.NORMAL -> {
+                it <= 6.99
+            }
+            ChargingTypeEnum.FAST -> {
+               it in 7.0 .. 42.99
+            }
+            ChargingTypeEnum.RAPID -> {
+                it >= 43
+            }
+            ChargingTypeEnum.ANY -> {
+                true
+            }
+        }
+    }
+    return result
 }

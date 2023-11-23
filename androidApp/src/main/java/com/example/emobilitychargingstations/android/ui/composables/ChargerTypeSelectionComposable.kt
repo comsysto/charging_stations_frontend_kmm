@@ -68,7 +68,7 @@ fun ChargerTypeSelectionComposable(proceedToNextScreen: () -> Unit, viewModel: S
                     enabled = socketTypeButtons.any { toggleInfo -> toggleInfo.isChecked },
                     onClick = {
                         socketTypeButtons.firstOrNull { toggleInfo -> toggleInfo.isChecked }?.chargerType?.let {
-                            viewModel.setUserInfo(it)
+                            viewModel.setChargerType(it)
                         }
                         proceedToNextScreen()
                     }

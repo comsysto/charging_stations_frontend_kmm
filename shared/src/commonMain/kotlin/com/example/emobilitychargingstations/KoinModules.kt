@@ -25,7 +25,7 @@ fun repositoryModule() = module {
 
 fun useCaseModule() = module {
     factory { UserUseCase(get()) }
-    factory { StationsUseCase(get()) }
+    factory { StationsUseCase(get(), get()) }
 }
 
 fun provideApi(): StationsApi {
