@@ -1,6 +1,5 @@
 package com.example.emobilitychargingstations.android.ui.composables
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,8 +26,6 @@ import com.example.emobilitychargingstations.data.extensions.filterByChargerType
 import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
 import com.example.emobilitychargingstations.models.ChargerTypesEnum
 import com.example.emobilitychargingstations.models.Station
-import org.koin.androidx.compose.getViewModel
-import org.koin.androidx.compose.koinViewModel
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.bonuspack.utils.BonusPackHelper
 import org.osmdroid.util.BoundingBox
@@ -40,9 +37,7 @@ import org.osmdroid.views.overlay.Marker
 fun MapViewComposable(proceedToSocketSelection: () -> Unit, stationsViewModel: StationsViewModel = getActivityViewModel()) {
     val testStations = stationsViewModel._stationsData.observeAsState()
     val userLocation = stationsViewModel._userLocation.observeAsState()
-    val mapViewState = mapViewWithLifecycle(testStations.value, userLocation.value, stationsViewModel.getUserInfo()?.chargerType)
-    Log.v("TEST LOG", testStations.toString())
-    Log.v("TEST LOG 2", userLocation.toString())
+    val mapViewState = mapViewWithLifecycle(testStations.value, userLocation.value, stationsViewModel.getUserInfo()?.filterProperties?.chargerType)
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (map, button, progressBar) = createRefs()
         if (testStations.value != null && userLocation.value != null)  {

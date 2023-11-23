@@ -23,13 +23,13 @@ import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.StationsViewModel
 import com.example.emobilitychargingstations.android.models.ChargerTypeToggleInfo
 import com.example.emobilitychargingstations.android.ui.composables.reusables.getActivityViewModel
-import com.example.emobilitychargingstations.android.ui.utilities.getNameFromString
+import com.example.emobilitychargingstations.android.ui.utilities.getStringIdFromChargerType
 import com.example.emobilitychargingstations.models.ChargerTypesEnum
 
 @Composable
 fun ChargerTypeSelectionComposable(proceedToNextScreen: () -> Unit, viewModel: StationsViewModel = getActivityViewModel()) {
     val listOfButtonsInfo = mutableListOf<ChargerTypeToggleInfo>()
-    val chargerType = viewModel.getUserInfo()?.chargerType
+    val chargerType = viewModel.getUserInfo()?.filterProperties?.chargerType
     ChargerTypesEnum.values().forEach {
         listOfButtonsInfo.add(ChargerTypeToggleInfo(chargerType == it, it))
     }
@@ -67,7 +67,9 @@ fun ChargerTypeSelectionComposable(proceedToNextScreen: () -> Unit, viewModel: S
                     modifier = Modifier.padding(horizontal = 10.dp),
                     enabled = socketTypeButtons.any { toggleInfo -> toggleInfo.isChecked },
                     onClick = {
-                        viewModel.setUserInfo(socketTypeButtons.firstOrNull { toggleInfo -> toggleInfo.isChecked }?.chargerType)
+                        socketTypeButtons.firstOrNull { toggleInfo -> toggleInfo.isChecked }?.chargerType?.let {
+                            viewModel.setUserInfo(it)
+                        }
                         proceedToNextScreen()
                     }
                 ) {
@@ -87,7 +89,7 @@ fun ChargerTypeButtonsComposable(socketTypeButtons: SnapshotStateList<ChargerTyp
                     it.copy(isChecked = it.chargerType == toggleInfo.chargerType)
                 }
             })
-            Text(text = toggleInfo.getNameFromString())
+            Text(text = stringResource(id = toggleInfo.chargerType.getStringIdFromChargerType()))
         }
     }
 }

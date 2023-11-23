@@ -1,6 +1,6 @@
 package com.example.emobilitychargingstations.models
 
 data class UserInfo(
-    val chargerType: ChargerTypesEnum?,
+    val filterProperties: StationFilterProperties?,
     val favoriteStations: MutableList<Station>?
 )

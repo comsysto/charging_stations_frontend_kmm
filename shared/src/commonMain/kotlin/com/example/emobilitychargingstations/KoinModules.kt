@@ -1,5 +1,4 @@
 import app.cash.sqldelight.ColumnAdapter
-import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import com.emobilitychargingstations.database.StationEntity
 import com.emobilitychargingstations.database.StationsDatabase
@@ -12,6 +11,7 @@ import com.example.emobilitychargingstations.data.users.UsersRepositoryImpl
 import com.example.emobilitychargingstations.domain.stations.StationsUseCase
 import com.example.emobilitychargingstations.domain.user.UserUseCase
 import com.example.emobilitychargingstations.models.Station
+import com.example.emobilitychargingstations.models.StationFilterProperties
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
@@ -62,5 +62,15 @@ fun provideDataSource(driver: SqlDriver): StationsDatabase {
                 value
             )
         }
-    }, chargerTypeAdapter = EnumColumnAdapter()))
+    }, filterPropertiesAdapter = object : ColumnAdapter<StationFilterProperties, String> {
+        override fun decode(databaseValue: String): StationFilterProperties {
+            return if (databaseValue.isEmpty()) return StationFilterProperties()
+            else Json.decodeFromString(databaseValue)
+        }
+        override fun encode(value: StationFilterProperties): String {
+            return Json.encodeToString(
+                value
+            )
+        }
+    }))
 }

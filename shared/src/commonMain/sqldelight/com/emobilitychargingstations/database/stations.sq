@@ -1,6 +1,7 @@
-import com.example.emobilitychargingstations.models.Station;
-import kotlin.collections.List;
 import com.example.emobilitychargingstations.models.ChargerTypesEnum;
+import com.example.emobilitychargingstations.models.Station;
+import com.example.emobilitychargingstations.models.StationFilterProperties;
+import kotlin.collections.List;
 
 CREATE TABLE IF NOT EXISTS stationEntity(
     type Text NOT NULL PRIMARY KEY,
@@ -9,12 +10,12 @@ CREATE TABLE IF NOT EXISTS stationEntity(
 
 CREATE TABLE IF NOT EXISTS userInfoEntity(
  id INTEGER PRIMARY KEY AUTOINCREMENT,
- chargerType TEXT AS ChargerTypesEnum,
+ filterProperties TEXT AS StationFilterProperties,
  favoriteStations TEXT AS List<Station>
 );
 
 insertUserInfo:
-INSERT OR REPLACE INTO userInfoEntity(id, chargerType, favoriteStations) VALUES (1, ?, ?);
+INSERT OR REPLACE INTO userInfoEntity(id, filterProperties, favoriteStations) VALUES (1, ?, ?);
 
 getUserInfo:
 SELECT * FROM userInfoEntity;

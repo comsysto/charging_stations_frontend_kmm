@@ -8,6 +8,7 @@ import com.example.emobilitychargingstations.domain.stations.StationsUseCase
 import com.example.emobilitychargingstations.domain.user.UserUseCase
 import com.example.emobilitychargingstations.models.ChargerTypesEnum
 import com.example.emobilitychargingstations.models.Station
+import com.example.emobilitychargingstations.models.StationFilterProperties
 import com.example.emobilitychargingstations.models.UserInfo
 import com.example.emobilitychargingstations.models.UserLocation
 import kotlinx.coroutines.flow.launchIn
@@ -39,11 +40,23 @@ class StationsViewModel(
         }.launchIn(viewModelScope)
     }
 
-    fun setUserInfo(chargerName: ChargerTypesEnum?) {
+    fun setUserInfo(chargerName: ChargerTypesEnum) {
         viewModelScope.launch {
             val userInfo = getUserInfo()
-            if (userInfo == null) userUseCase.setUserInfo(UserInfo(chargerType = chargerName, favoriteStations = null))
-            else userUseCase.setUserInfo(userInfo.copy(chargerType = chargerName))
+            if (userInfo == null) userUseCase.setUserInfo(
+                UserInfo(
+                    filterProperties = StationFilterProperties().copy(
+                        chargerType = chargerName
+                    ), favoriteStations = null
+                )
+            )
+            else userUseCase.setUserInfo(
+                userInfo.copy(
+                    filterProperties = userInfo.filterProperties?.copy(
+                        chargerType = chargerName
+                    )
+                )
+            )
         }
     }
 

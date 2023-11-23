@@ -19,7 +19,7 @@ fun Stations.getStationsClosestToUserLocation(userLat: Double, userLng: Double):
 
 fun List<Station>.getStationsClosestToUserLocation(userLat: Double, userLng: Double): List<Station> {
     val filteredList = mutableListOf<Station>()
-    this?.forEach {
+    this.forEach {
         if (userLat in it.geometry.coordinates[1] - 1..it.geometry.coordinates[1] + 1
             && userLng in it.geometry.coordinates[0] - 1..it.geometry.coordinates[0] + 1
         ) {
@@ -76,7 +76,7 @@ fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double, 
 }
 
 fun List<Station>.filterByChargerType(chargerType: ChargerTypesEnum?): List<Station> {
-    var keywords = mutableListOf<String>()
+    val keywords = mutableListOf<String>()
     when (chargerType) {
         ChargerTypesEnum.AC_TYPE_2 -> {
             keywords.add("typ 2")
@@ -105,7 +105,8 @@ fun List<Station>.filterByChargerType(chargerType: ChargerTypesEnum?): List<Stat
 //        if (station.properties.socket_type_list == null) result = true
 //        else {
             keywords.forEach { keyword ->
-                station.properties.socket_type_list?.forEach {
+                if (keyword == "tesla" && station.properties.operator?.lowercase()?.contains(keyword) == true) result = true
+                else station.properties.socket_type_list?.forEach {
                     if (it.contains(keyword, true)) result = true
                 }
             }

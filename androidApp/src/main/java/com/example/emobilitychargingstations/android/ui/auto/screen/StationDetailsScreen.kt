@@ -16,6 +16,7 @@ import com.example.emobilitychargingstations.android.ui.utilities.buildRowWithTe
 import com.example.emobilitychargingstations.android.ui.utilities.getFavoritesAction
 import com.example.emobilitychargingstations.android.ui.utilities.getString
 import com.example.emobilitychargingstations.android.ui.utilities.AUTO_POI_MAP_SCREEN_MARKER
+import com.example.emobilitychargingstations.android.ui.utilities.getStringIdFromChargingType
 import com.example.emobilitychargingstations.data.extensions.getChargingTypeFromMaxKW
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.UserInfo
@@ -57,7 +58,9 @@ class StationDetailsScreen(carContext: CarContext, val station: Station, private
     }
 
     private fun getPaneTitle(): String {
-        return "${station.properties.street}" + " - ${station.properties.max_kw.getChargingTypeFromMaxKW()}"
+        val chargingType = station.properties.max_kw.getChargingTypeFromMaxKW()
+        val chargingTypeString = getString(chargingType.getStringIdFromChargingType())
+        return "${station.properties.street} - $chargingTypeString"
     }
 
     private fun getSocketTypeString() : String {

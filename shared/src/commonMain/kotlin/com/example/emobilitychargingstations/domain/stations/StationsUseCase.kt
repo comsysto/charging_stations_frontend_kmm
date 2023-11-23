@@ -27,7 +27,7 @@ class StationsUseCase(private val stationsRepository: StationsRepository) {
         if (localStations == null) {
             localStations = SharedFunctions().getStationsFromJson()
             localStations?.let {
-                insertStations(localStations!!)
+                insertStations(it)
             }
         }
         return localStations

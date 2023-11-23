@@ -90,7 +90,7 @@ fun Screen.getFavoritesAction(station: Station, userInfo: UserInfo?, onFavoriteC
                     userInfo?.favoriteStations?.remove(station)
                     onFavoriteChange(userInfo!!)
                 } else {
-                    if (userInfo?.favoriteStations.isNullOrEmpty()) onFavoriteChange(UserInfo(chargerType = null, favoriteStations = mutableListOf(station)))
+                    if (userInfo?.favoriteStations.isNullOrEmpty()) onFavoriteChange(UserInfo(filterProperties = userInfo?.filterProperties, favoriteStations = mutableListOf(station)))
                     else {
                         userInfo?.favoriteStations?.add(station)
                         onFavoriteChange(userInfo!!)

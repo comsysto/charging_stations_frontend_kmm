@@ -106,7 +106,7 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
 
     private fun filterStations() {
         closestStations = if (initialStationList.isNullOrEmpty() || initialUserLocation == null) listOf()
-        else initialStationList!!.getStationsClosestToUserLocation(initialUserLocation!!.latitude, initialUserLocation!!.longitude).getTwoStationsClosestToUser(initialUserLocation!!.latitude, initialUserLocation!!.longitude, userInfo?.chargerType)
+        else initialStationList!!.getStationsClosestToUserLocation(initialUserLocation!!.latitude, initialUserLocation!!.longitude).getTwoStationsClosestToUser(initialUserLocation!!.latitude, initialUserLocation!!.longitude, userInfo?.filterProperties?.chargerType)
     }
 
     private fun checkIsLocationMockDebug(location: Location) : Boolean {
@@ -117,7 +117,7 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
     override fun onGetTemplate(): Template {
         lifecycleScope.launch {
             userUseCase.getUserInfoAsFlow().onEach {
-                if (it?.chargerType != userInfo?.chargerType) {
+                if (it?.filterProperties?.chargerType != userInfo?.filterProperties?.chargerType) {
                     userInfo = it
                     filterStations()
                     invalidate()

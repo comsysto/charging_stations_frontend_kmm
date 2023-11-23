@@ -3,7 +3,6 @@ package com.example.emobilitychargingstations.android
 import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -57,8 +56,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         var startDestination = NAVIGATE_TO_CHARGER_SELECTION
         val userInfo = stationsViewModel.getUserInfo()
-        Log.v("Test User", userInfo.toString())
-        if (userInfo?.chargerType != null) startDestination = NAVIGATE_TO_MAP_SCREEN
+        if (userInfo?.filterProperties?.chargerType != null) startDestination = NAVIGATE_TO_MAP_SCREEN
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             when {
                 permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true -> {
@@ -94,7 +92,7 @@ class MainActivity : ComponentActivity() {
                                                     StationsFilterComposable()
                                                 }
                                             }
-                                            if (userInfo?.chargerType != null) when (carConnection.value) {
+                                            if (userInfo?.filterProperties?.chargerType != null) when (carConnection.value) {
                                                 CarConnection.CONNECTION_TYPE_PROJECTION -> {
                                                     navController.navigate(NAVIGATE_TO_FILTER_SCREEN) {
                                                         popUpTo(NAVIGATE_TO_FILTER_SCREEN)
