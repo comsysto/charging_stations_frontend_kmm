@@ -5,9 +5,9 @@ import androidx.car.app.model.Template
 import androidx.lifecycle.lifecycleScope
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.BaseScreen
-import com.example.emobilitychargingstations.android.ui.auto.extensions.getFavoritesAction
-import com.example.emobilitychargingstations.android.ui.auto.extensions.getMessageTemplateBuilderWithTitle
-import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
+import com.example.emobilitychargingstations.android.ui.utilities.getFavoritesAction
+import com.example.emobilitychargingstations.android.ui.utilities.getMessageTemplateBuilderWithTitle
+import com.example.emobilitychargingstations.android.ui.utilities.getString
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.UserInfo
 import kotlinx.coroutines.launch

@@ -1,4 +1,4 @@
-package com.example.emobilitychargingstations.android.ui.auto.extensions
+package com.example.emobilitychargingstations.android.ui.utilities
 
 import android.graphics.Bitmap
 import android.text.SpannableString

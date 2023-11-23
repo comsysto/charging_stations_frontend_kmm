@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.location.Location
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
-import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
 import androidx.car.app.model.*
@@ -16,10 +15,10 @@ import androidx.lifecycle.lifecycleScope
 import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.BaseScreen
-import com.example.emobilitychargingstations.android.ui.auto.extensions.buildRowWithPlace
-import com.example.emobilitychargingstations.android.ui.auto.extensions.createCarIconFromBitmap
-import com.example.emobilitychargingstations.android.ui.auto.extensions.getPlaceWithMarker
-import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
+import com.example.emobilitychargingstations.android.ui.utilities.buildRowWithPlace
+import com.example.emobilitychargingstations.android.ui.utilities.createCarIconFromBitmap
+import com.example.emobilitychargingstations.android.ui.utilities.getPlaceWithMarker
+import com.example.emobilitychargingstations.android.ui.utilities.getString
 import com.example.emobilitychargingstations.android.ui.utilities.AUTO_POI_MAP_SCREEN_MARKER
 import com.example.emobilitychargingstations.android.ui.utilities.LocationRequestStarter
 import com.example.emobilitychargingstations.android.ui.utilities.NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS
@@ -74,7 +73,6 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
 
     private fun pushDestinationReachedScreen(station: Station) {
         closestStations[0].isNavigatingTo = false
-        filterStations()
         stationToNavigateTo = null
         screenManager.push(NavigationCompleteScreen(carContext, station))
     }
@@ -127,7 +125,8 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
             }.collect()
         }
         val openFavoritesListAction = Action.Builder().apply {
-            setIcon(createCarIconFromBitmap(
+            setIcon(
+                createCarIconFromBitmap(
                 carContext.getDrawable(R.drawable.favorites_star_icon)!!.toBitmap())
             )
             setOnClickListener(ParkedOnlyOnClickListener.create {

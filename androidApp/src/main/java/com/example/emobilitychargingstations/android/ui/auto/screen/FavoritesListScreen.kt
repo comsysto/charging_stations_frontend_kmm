@@ -1,10 +1,8 @@
 package com.example.emobilitychargingstations.android.ui.auto.screen
 
 import android.text.SpannableString
-import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
-import androidx.car.app.constraints.ConstraintManager
 import androidx.car.app.model.Action
 import androidx.car.app.model.ItemList
 import androidx.car.app.model.ListTemplate
@@ -12,17 +10,14 @@ import androidx.car.app.model.Template
 import androidx.core.graphics.drawable.toBitmap
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.BaseScreen
-import com.example.emobilitychargingstations.android.ui.auto.extensions.BuildRowWithTextAndIcon
-import com.example.emobilitychargingstations.android.ui.auto.extensions.getMessageTemplateBuilderWithTitle
-import com.example.emobilitychargingstations.android.ui.auto.extensions.getString
+import com.example.emobilitychargingstations.android.ui.utilities.BuildRowWithTextAndIcon
+import com.example.emobilitychargingstations.android.ui.utilities.getMessageTemplateBuilderWithTitle
+import com.example.emobilitychargingstations.android.ui.utilities.getString
 import com.example.emobilitychargingstations.models.Station
 
 class FavoritesListScreen(carContext: CarContext, val onScreenResultListener: OnScreenResultListener? = null): BaseScreen(carContext) {
 
-    val constraintManager = carContext.getCarService(ConstraintManager::class.java)
-    val listItemLimit = constraintManager.getContentLimit(ConstraintManager.CONTENT_LIMIT_TYPE_LIST)
     override fun onGetTemplate(): Template {
-        Log.v("TEST LIST ITEM LIMIT", listItemLimit.toString())
         val userInfo = userUseCase.getUserInfo()
         val templateTitle = getString(R.string.auto_favorites_list_title)
         var templateForDisplay: Template?
@@ -39,7 +34,7 @@ class FavoritesListScreen(carContext: CarContext, val onScreenResultListener: On
                                 SpannableString(it.properties.street),
                                 it.properties.operator ?: "",
                                 carContext.getDrawable(
-                                    R.drawable.electric_car_icon
+                                    R.drawable.electric_car_icon_white
                                 )!!.toBitmap()
                             ) {
                                 onItemClick(it)

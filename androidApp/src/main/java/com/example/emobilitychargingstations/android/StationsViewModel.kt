@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.emobilitychargingstations.domain.stations.StationsUseCase
 import com.example.emobilitychargingstations.domain.user.UserUseCase
+import com.example.emobilitychargingstations.models.ChargerTypesEnum
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.UserInfo
 import com.example.emobilitychargingstations.models.UserLocation
@@ -32,13 +33,13 @@ class StationsViewModel(
     }
     fun getTestStations() {
         stationsUseCase.startRepeatingRequest(UserLocation(userLocation.value?.latitude ?: 0.0, userLocation.value?.longitude ?: 0.0)).onEach {
-            if (!it.isNullOrEmpty() && it != stationsData.value) {
+            if (it != null && it != stationsData.value) {
                 stationsData.postValue(it)
             }
         }.launchIn(viewModelScope)
     }
 
-    fun setUserInfo(chargerName: String?) {
+    fun setUserInfo(chargerName: ChargerTypesEnum?) {
         viewModelScope.launch {
             val userInfo = getUserInfo()
             if (userInfo == null) userUseCase.setUserInfo(UserInfo(chargerType = chargerName, favoriteStations = null))

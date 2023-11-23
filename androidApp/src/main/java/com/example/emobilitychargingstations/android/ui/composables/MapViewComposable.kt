@@ -22,9 +22,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.StationsViewModel
+import com.example.emobilitychargingstations.android.ui.composables.reusables.getActivityViewModel
 import com.example.emobilitychargingstations.data.extensions.filterByChargerType
 import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
+import com.example.emobilitychargingstations.models.ChargerTypesEnum
 import com.example.emobilitychargingstations.models.Station
+import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.bonuspack.utils.BonusPackHelper
 import org.osmdroid.util.BoundingBox
@@ -33,10 +37,12 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.FolderOverlay
 import org.osmdroid.views.overlay.Marker
 @Composable
-fun ComposableMapView(proceedToSocketSelection: () -> Unit, stationsViewModel: StationsViewModel) {
+fun MapViewComposable(proceedToSocketSelection: () -> Unit, stationsViewModel: StationsViewModel = getActivityViewModel()) {
     val testStations = stationsViewModel._stationsData.observeAsState()
     val userLocation = stationsViewModel._userLocation.observeAsState()
     val mapViewState = mapViewWithLifecycle(testStations.value, userLocation.value, stationsViewModel.getUserInfo()?.chargerType)
+    Log.v("TEST LOG", testStations.toString())
+    Log.v("TEST LOG 2", userLocation.toString())
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (map, button, progressBar) = createRefs()
         if (testStations.value != null && userLocation.value != null)  {
@@ -52,12 +58,14 @@ fun ComposableMapView(proceedToSocketSelection: () -> Unit, stationsViewModel: S
             }
         }
         else CircularProgressIndicator(
-            modifier = Modifier.width(78.dp).constrainAs(progressBar){
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            },
+            modifier = Modifier
+                .width(78.dp)
+                .constrainAs(progressBar) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                },
             color = MaterialTheme.colorScheme.surfaceVariant,
             trackColor = MaterialTheme.colorScheme.secondary
         )
@@ -66,7 +74,7 @@ fun ComposableMapView(proceedToSocketSelection: () -> Unit, stationsViewModel: S
 }
 
 @Composable
-fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?, chargerType: String? = null): MapView {
+fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?, chargerType: ChargerTypesEnum? = null): MapView {
     val context = LocalContext.current
     val mapView = remember {
         MapView(context).apply {

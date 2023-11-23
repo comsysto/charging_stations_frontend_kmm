@@ -1,4 +1,5 @@
 import app.cash.sqldelight.ColumnAdapter
+import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import com.emobilitychargingstations.database.StationEntity
 import com.emobilitychargingstations.database.StationsDatabase
@@ -61,5 +62,5 @@ fun provideDataSource(driver: SqlDriver): StationsDatabase {
                 value
             )
         }
-    }))
+    }, chargerTypeAdapter = EnumColumnAdapter()))
 }

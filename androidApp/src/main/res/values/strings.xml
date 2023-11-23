@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <string name="confirm">Confirm</string>
     <!-- ANDROID AUTO  -->
     <string name="auto_map_title">Closest Stations</string>
     <string name="auto_map_navigation_title">Navigating to station</string>
@@ -18,5 +20,9 @@
     <string name="auto_navigation_complete_remove_action">Remove Favorite</string>
     <string name="auto_favorites_list_title">Favorites List</string>
     <string name="auto_favorites_list_empty_message">There are currently no stations in favorite list</string>
+
+    <!-- ANDROID  -->
+    <string name="android_charger_type_selection">Please select charger type:</string>
+    <string name="android_charging_type_selection">Please select charging type:</string>
 
 </resources>

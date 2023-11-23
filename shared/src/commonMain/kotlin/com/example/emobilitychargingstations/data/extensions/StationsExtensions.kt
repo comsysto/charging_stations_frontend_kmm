@@ -47,7 +47,7 @@ fun List<Station>.getOneStationClosestToUser(userLat: Double, userLng: Double): 
     return currentClosestStation
 }
 
-fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double, filterByChargerType: String? = null): List<Station> {
+fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double, filterByChargerType: ChargerTypesEnum? = null): List<Station> {
     var closestTotalDifference = 180.00
     val chargerTypeStations = this.filterByChargerType(filterByChargerType)
     val resultList = mutableListOf<Station>()
@@ -75,39 +75,41 @@ fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double, 
     return resultList
 }
 
-fun List<Station>.filterByChargerType(chargerType: String?): List<Station> {
+fun List<Station>.filterByChargerType(chargerType: ChargerTypesEnum?): List<Station> {
     var keywords = mutableListOf<String>()
     when (chargerType) {
-        ChargerTypesEnum.AC_TYPE_2.displayName -> {
+        ChargerTypesEnum.AC_TYPE_2 -> {
             keywords.add("typ 2")
             keywords.add("typ2")
         }
-        ChargerTypesEnum.AC_TYPE_1.displayName -> {
+        ChargerTypesEnum.AC_TYPE_1 -> {
             keywords.add("Typ1")
             keywords.add("Typ 1")
         }
-        ChargerTypesEnum.DC_EU.displayName -> {
+        ChargerTypesEnum.DC_EU -> {
             keywords.add("DC Kupplung Combo")
         }
-        ChargerTypesEnum.DC_CHADEMO.displayName -> {
+        ChargerTypesEnum.DC_CHADEMO -> {
             keywords.add("chademo")
         }
-        ChargerTypesEnum.TESLA.displayName -> {
+        ChargerTypesEnum.TESLA -> {
             keywords.add("tesla")
+        }
+        ChargerTypesEnum.ALL -> {
         }
         else -> {}
     }
     return if (keywords.isEmpty()) this
     else this.filter { station ->
         var result = false
-        if (station.properties.socket_type_list == null) result = true
-        else {
+//        if (station.properties.socket_type_list == null) result = true
+//        else {
             keywords.forEach { keyword ->
-                station.properties.socket_type_list.forEach {
+                station.properties.socket_type_list?.forEach {
                     if (it.contains(keyword, true)) result = true
                 }
             }
-        }
+//        }
         result
     }
 }
