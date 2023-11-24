@@ -105,7 +105,7 @@ fun List<Station>.filterByChargerType(chargerType: ChargerTypesEnum?): List<Stat
 //        if (station.properties.socket_type_list == null) result = true
 //        else {
             keywords.forEach { keyword ->
-                if (keyword == "tesla" && station.properties.operator?.lowercase()?.contains(keyword) == true) result = true
+                if (keyword == "tesla" && station.properties.operator?.contains(keyword, true) == true) result = true
                 else station.properties.socket_type_list?.forEach {
                     if (it.contains(keyword, true)) result = true
                 }

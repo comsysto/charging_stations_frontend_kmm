@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.MyApplicationTheme
 import com.example.emobilitychargingstations.android.ui.composables.ChargerTypeSelectionComposable
@@ -41,7 +43,7 @@ class MainActivity : ComponentActivity() {
                             it.longitude
                         )
                     )
-                    if (isInitialUserLocationNull) stationsViewModel.getTestStations()
+                    if (isInitialUserLocationNull) stationsViewModel.startRepeatingStationsRequest()
                 }
             }
         }
@@ -74,32 +76,47 @@ class MainActivity : ComponentActivity() {
                                                 navController = navController,
                                                 startDestination = startDestination
                                             ) {
-                                                composable(NAVIGATE_TO_CHARGER_SELECTION) {
+                                                composable("$NAVIGATE_TO_CHARGER_SELECTION?navigateToNext={navigateToNext}", arguments = listOf(
+                                                    navArgument("navigateToNext") {
+                                                        type = NavType.BoolType
+                                                        defaultValue = true
+                                                    }
+                                                )) { backStackEntry ->
+                                                    val shouldNavigateToMap = backStackEntry.arguments?.getBoolean("navigateToNext")
                                                     ChargerTypeSelectionComposable(proceedToNextScreen = {
-                                                        navController.navigate(
+                                                        if (shouldNavigateToMap == true) navController.navigate(
                                                             NAVIGATE_TO_MAP_SCREEN
-                                                        )
+                                                        ) else navController.popBackStack()
                                                     })
                                                 }
                                                 composable(NAVIGATE_TO_MAP_SCREEN) {
                                                     MapViewComposable(proceedToSocketSelection = {
                                                         navController.navigate(
-                                                            NAVIGATE_TO_CHARGER_SELECTION
+                                                            NAVIGATE_TO_FILTER_SCREEN
                                                         )
                                                     })
                                                 }
                                                 composable(NAVIGATE_TO_FILTER_SCREEN) {
-                                                    StationsFilterComposable()
+                                                    StationsFilterComposable(navigateToChargerType = {
+                                                        navController.navigate(
+                                                            "$NAVIGATE_TO_CHARGER_SELECTION?navigateToNext=false")
+                                                    })
                                                 }
                                             }
                                             if (userInfo?.filterProperties?.chargerType != null) when (carConnection.value) {
                                                 CarConnection.CONNECTION_TYPE_PROJECTION -> {
-                                                    navController.navigate(NAVIGATE_TO_FILTER_SCREEN) {
-                                                        popUpTo(NAVIGATE_TO_FILTER_SCREEN)
+                                                    stationsViewModel.stopRepeatingStationsRequest()
+                                                    navController.currentDestination?.route?.let {
+                                                        navController.popBackStack(
+                                                            it, true)
                                                     }
+                                                    navController.navigate(NAVIGATE_TO_FILTER_SCREEN)
                                                 }
                                                 else -> {
-                                                    if (navController.currentBackStackEntry?.destination?.route != NAVIGATE_TO_MAP_SCREEN) navController.navigate(NAVIGATE_TO_MAP_SCREEN)
+                                                    if (navController.currentBackStackEntry?.destination?.route != NAVIGATE_TO_MAP_SCREEN) {
+                                                        navController.navigate(NAVIGATE_TO_MAP_SCREEN)
+                                                        stationsViewModel.startRepeatingStationsRequest()
+                                                    }
                                                 }
                                             }
                                         }

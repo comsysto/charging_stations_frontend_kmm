@@ -18,9 +18,6 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.coroutineContext
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
@@ -53,10 +50,10 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
         userLocation = newLocation
     }
 
-    fun startRepeatingRequest(initialLocation: UserLocation?) = channelFlow<List<Station>?> {
+    fun startRepeatingRequest(initialLocation: UserLocation?) = channelFlow {
         val localStations = getStationsLocal()
         var userInfo = userUseCase.getUserInfo()
-        var localStationsWithUserFilters = localStations?.features
+        var localStationsWithUserFilters = localStations?.copy()?.features
         localStationsWithUserFilters?.let {
             localStationsWithUserFilters = applyUserFiltersToStations(it, userInfo)
         }
@@ -67,7 +64,7 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
         CoroutineScope(currentCoroutineContext()).launch {
             userUseCase.getUserInfoAsFlow().onEach {
                 if ((userInfo?.filterProperties?.chargingType != it?.filterProperties?.chargingType
-                            || userInfo?.filterProperties?.chargerType != it?.filterProperties?.chargerType) && resultingList.isNotEmpty()) {
+                            || userInfo?.filterProperties?.chargerType != it?.filterProperties?.chargerType)) {
                     userInfo = it
                     resultingList = applyUserFiltersToStations(localStations!!.features!!, userInfo)
                     send(resultingList)

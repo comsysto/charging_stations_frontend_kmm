@@ -53,16 +53,6 @@ fun ChargerTypeSelectionComposable(proceedToNextScreen: () -> Unit, viewModel: S
                 ChargerTypeButtonsComposable(socketTypeButtons)
             }
             Row {
-//                Button(
-//                    modifier = Modifier.padding(horizontal = 10.dp),
-//                    onClick = {
-//                        socketTypeButtons.replaceAll { it.copy(isChecked = false) }
-//                        viewModel.setUserInfo(null)
-//                        proceedToNextScreen()
-//                    }
-//                ) {
-//                    Text("Remove selection")
-//                }
                 Button(
                     modifier = Modifier.padding(horizontal = 10.dp),
                     enabled = socketTypeButtons.any { toggleInfo -> toggleInfo.isChecked },

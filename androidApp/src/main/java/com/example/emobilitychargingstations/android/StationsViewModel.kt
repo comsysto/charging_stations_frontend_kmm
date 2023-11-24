@@ -11,6 +11,7 @@ import com.example.emobilitychargingstations.models.ChargingTypeEnum
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.UserInfo
 import com.example.emobilitychargingstations.models.UserLocation
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -28,16 +29,23 @@ class StationsViewModel(
     private val userLocation : MutableLiveData<GeoPoint> = MutableLiveData()
     val _userLocation: LiveData<GeoPoint> = userLocation
 
+    private var stationsJob: Job? = null
+
     fun setUserLocation(newUserLocation: GeoPoint) {
         stationsUseCase.setTemporaryLocation(UserLocation(newUserLocation.latitude, newUserLocation.longitude))
         userLocation.value = newUserLocation
     }
-    fun getTestStations() {
-        stationsUseCase.startRepeatingRequest(UserLocation(userLocation.value?.latitude ?: 0.0, userLocation.value?.longitude ?: 0.0)).onEach {
+    fun startRepeatingStationsRequest() {
+        if (stationsJob == null) stationsJob = stationsUseCase.startRepeatingRequest(UserLocation(userLocation.value?.latitude ?: 0.0, userLocation.value?.longitude ?: 0.0)).onEach {
             if (it != null && it != stationsData.value) {
                 stationsData.postValue(it)
             }
         }.launchIn(viewModelScope)
+    }
+
+    fun stopRepeatingStationsRequest() {
+        stationsJob?.cancel()
+        stationsJob = null
     }
 
     fun setChargerType(chargerName: ChargerTypesEnum) {

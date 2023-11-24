@@ -46,7 +46,7 @@ fun MapViewComposable(proceedToSocketSelection: () -> Unit, stationsViewModel: S
                 top.linkTo(map.top)
                 end.linkTo(map.end)
             }, onClick = { proceedToSocketSelection() }) {
-                Text("Change socket", color = Color.Black)
+                Text("Filter options", color = Color.Black)
             }
         }
         else CircularProgressIndicator(

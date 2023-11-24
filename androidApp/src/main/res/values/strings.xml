@@ -5,7 +5,7 @@
     <!-- ANDROID AUTO  -->
     <string name="auto_map_title">Closest Stations</string>
     <string name="auto_map_navigation_title">Navigating to station</string>
-    <string name="auto_map_empty_list_message">There are no stations in our database nearby</string>
+    <string name="auto_map_empty_list_message">No stations nearby with selected filters</string>
     <string name="auto_station_details_start_navigation">Start navigation</string>
     <string name="auto_station_details_stop_navigation">Stop navigation</string>
     <string name="auto_station_details_unknown_charger">Unknown charger type</string>

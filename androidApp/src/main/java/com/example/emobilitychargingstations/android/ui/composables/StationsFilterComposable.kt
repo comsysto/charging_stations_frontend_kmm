@@ -1,6 +1,6 @@
 package com.example.emobilitychargingstations.android.ui.composables
 
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,51 +16,35 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.StationsViewModel
-import com.example.emobilitychargingstations.android.models.ChargerTypeToggleInfo
 import com.example.emobilitychargingstations.android.models.ChargingTypeToggleInfo
-import com.example.emobilitychargingstations.android.models.ToggleInfo
-import com.example.emobilitychargingstations.android.ui.composables.reusables.RadioButtonsComposable
 import com.example.emobilitychargingstations.android.ui.composables.reusables.getActivityViewModel
-import com.example.emobilitychargingstations.android.ui.utilities.getStringIdFromChargerType
 import com.example.emobilitychargingstations.android.ui.utilities.getStringIdFromChargingType
 import com.example.emobilitychargingstations.models.ChargingTypeEnum
-import org.koin.androidx.compose.koinViewModel
+
 
 
 @Composable
-fun StationsFilterComposable(viewModel: StationsViewModel = getActivityViewModel()) {
+fun StationsFilterComposable(viewModel: StationsViewModel = getActivityViewModel(), navigateToChargerType: () -> Unit) {
     val userInfo = viewModel.getUserInfo()
     Box {
+        val context = LocalContext.current
         Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
             .padding(8.dp)
             .fillMaxSize()) {
-//            AvailabilityFilterComposable()
             ChargingTypeFilterComposable(userInfo?.filterProperties?.chargingType)
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = { navigateToChargerType() }) {
                 Text(text = "Change Charger Type")
             }
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = { Toast.makeText(context, "Not yet implemented", Toast.LENGTH_SHORT).show() }) {
                 Text(text = "Edit Favorites")
             }
         }
     }
-}
-
-@Composable
-fun AvailabilityFilterComposable() {
-    val socketTypeButtons = remember {
-        val mutableStateList = mutableStateListOf<ToggleInfo>()
-        mutableStateList.add(ToggleInfo(false, "Yes"))
-        mutableStateList.add(ToggleInfo(true, "No"))
-        mutableStateList
-    }
-        Text(text = "Display only currently available stations")
-        RadioButtonsComposable(socketTypeButtons = socketTypeButtons)
-
 }
 
 @Composable

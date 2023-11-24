@@ -14,8 +14,7 @@ actual class SharedFunctions {
         val combinedStations = mutableListOf<Station>()
         stationsFromJson.features?.let { combinedStations.addAll(it) }
         regensburgStationsFromJson.features?.let { combinedStations.addAll(it) }
-        combinedStations.filter { it.properties.street != null }
-        stationsFromJson = stationsFromJson.copy(features = combinedStations)
+        stationsFromJson = stationsFromJson.copy(features = combinedStations.filter { it.properties.street != null })
         return stationsFromJson
     }
 
