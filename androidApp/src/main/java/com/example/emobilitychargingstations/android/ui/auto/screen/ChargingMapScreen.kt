@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.location.Location
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
+import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
 import androidx.car.app.model.*
@@ -43,18 +44,12 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.locations.firstOrNull()?.let {
                 if (checkIsLocationMockDebug(it)) {
+                    Log.v("LocationChange", it.toString())
                     if (stationToNavigateTo != null && getDistanceValue(it, stationToNavigateTo!!.geometry) < NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS) pushDestinationReachedScreen(stationToNavigateTo!!)
                     else {
-                        if (initialUserLocation == null) stationsUseCase.startRepeatingRequest(
-                            UserLocation(it.latitude, it.longitude)
-                        ).onEach {
-                            if (it != initialStationList) {
-                                initialStationList = it
-                                filterStations()
-                                invalidate()
-                            }
-                        }.launchIn(lifecycleScope)
-                        initialUserLocation = UserLocation(it.latitude, it.longitude)
+                        val userLocation = UserLocation(it.latitude, it.longitude)
+                        if (initialUserLocation == null) startStationsRepeatingRequest(userLocation)
+                        initialUserLocation = userLocation
                         stationsUseCase.setTemporaryLocation(initialUserLocation)
                         filterStations()
                         invalidate()
@@ -79,14 +74,27 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
             val station = stationResult as Station
             if (station.isNavigatingTo) {
                 stationToNavigateTo = station
-                closestStations = listOf(station, closestStations[1])
+                closestStations = listOf(station)
             }
             else {
                 stationToNavigateTo = null
                 closestStations.forEach { it.isNavigatingTo = false }
                 filterStations()
             }
+            invalidate()
         }
+    }
+
+    private fun startStationsRepeatingRequest (userLocation: UserLocation) {
+        stationsUseCase.startRepeatingRequest(
+            userLocation
+        ).onEach {
+            if (stationToNavigateTo == null && it != initialStationList) {
+                initialStationList = it
+                filterStations()
+                invalidate()
+            }
+        }.launchIn(lifecycleScope)
     }
 
     private fun pushDestinationReachedScreen(station: Station) {
@@ -108,8 +116,10 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
     }
 
     private fun filterStations() {
-        closestStations = if (initialStationList.isNullOrEmpty() || initialUserLocation == null) listOf()
-        else initialStationList!!.getTwoStationsClosestToUser(initialUserLocation!!.latitude, initialUserLocation!!.longitude)
+        if (stationToNavigateTo == null) {
+            closestStations = if (initialStationList.isNullOrEmpty() || initialUserLocation == null) listOf()
+            else initialStationList!!.getTwoStationsClosestToUser(initialUserLocation!!.latitude, initialUserLocation!!.longitude)
+        }
     }
 
     private fun checkIsLocationMockDebug(location: Location) : Boolean {
