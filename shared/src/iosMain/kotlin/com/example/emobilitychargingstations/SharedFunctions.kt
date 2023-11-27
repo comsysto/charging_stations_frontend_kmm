@@ -43,7 +43,10 @@ actual class SharedFunctions {
                     combinedStations.addAll(it)
                 }
             }
-            if (combinedStations.isNotEmpty()) stations = Stations(type = "FeatureCollection", features = combinedStations)
+            if (combinedStations.isNotEmpty()) {
+                combinedStations.filter { it.properties.street != null }
+                stations = Stations(type = "FeatureCollection", features = combinedStations)
+            }
         }
         return stations
     }

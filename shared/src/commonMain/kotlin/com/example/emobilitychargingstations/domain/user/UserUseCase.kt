@@ -1,6 +1,9 @@
 package com.example.emobilitychargingstations.domain.user
 
 import com.example.emobilitychargingstations.data.users.UsersRepository
+import com.example.emobilitychargingstations.models.ChargerTypesEnum
+import com.example.emobilitychargingstations.models.ChargingTypeEnum
+import com.example.emobilitychargingstations.models.StationFilterProperties
 import com.example.emobilitychargingstations.models.UserInfo
 import kotlinx.coroutines.flow.Flow
 
@@ -15,5 +18,19 @@ class UserUseCase(val usersRepository: UsersRepository) {
 
     suspend fun setUserInfo(userInfo: UserInfo) {
         usersRepository.setUserInfo(userInfo)
+    }
+
+    suspend fun setChargerType(chargerTypesEnum: ChargerTypesEnum) {
+        var userInfo = getUserInfo()
+        userInfo = userInfo?.copy(filterProperties = userInfo.filterProperties?.copy(chargerType = chargerTypesEnum))
+            ?: UserInfo(favoriteStations = null, filterProperties = StationFilterProperties(chargerType = chargerTypesEnum))
+        setUserInfo(userInfo)
+    }
+
+    suspend fun setChargingType(chargingTypeEnum: ChargingTypeEnum) {
+        var userInfo = getUserInfo()
+        userInfo = userInfo?.copy(filterProperties = userInfo.filterProperties?.copy(chargingType = chargingTypeEnum))
+            ?: UserInfo(favoriteStations = null, filterProperties = StationFilterProperties(chargingType = chargingTypeEnum))
+        setUserInfo(userInfo)
     }
 }

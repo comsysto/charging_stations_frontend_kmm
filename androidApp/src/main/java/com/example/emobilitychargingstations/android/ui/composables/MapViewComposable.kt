@@ -1,6 +1,5 @@
 package com.example.emobilitychargingstations.android.ui.composables
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
@@ -22,8 +21,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.StationsViewModel
-import com.example.emobilitychargingstations.data.extensions.filterByChargerType
-import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
+import com.example.emobilitychargingstations.android.ui.composables.reusables.getActivityViewModel
 import com.example.emobilitychargingstations.models.Station
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.bonuspack.utils.BonusPackHelper
@@ -33,10 +31,10 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.FolderOverlay
 import org.osmdroid.views.overlay.Marker
 @Composable
-fun ComposableMapView(proceedToSocketSelection: () -> Unit, stationsViewModel: StationsViewModel) {
+fun MapViewComposable(proceedToSocketSelection: () -> Unit, stationsViewModel: StationsViewModel = getActivityViewModel()) {
     val testStations = stationsViewModel._stationsData.observeAsState()
     val userLocation = stationsViewModel._userLocation.observeAsState()
-    val mapViewState = mapViewWithLifecycle(testStations.value, userLocation.value, stationsViewModel.getUserInfo()?.chargerType)
+    val mapViewState = mapViewWithLifecycle(testStations.value, userLocation.value)
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (map, button, progressBar) = createRefs()
         if (testStations.value != null && userLocation.value != null)  {
@@ -48,16 +46,18 @@ fun ComposableMapView(proceedToSocketSelection: () -> Unit, stationsViewModel: S
                 top.linkTo(map.top)
                 end.linkTo(map.end)
             }, onClick = { proceedToSocketSelection() }) {
-                Text("Change socket", color = Color.Black)
+                Text("Filter options", color = Color.Black)
             }
         }
         else CircularProgressIndicator(
-            modifier = Modifier.width(78.dp).constrainAs(progressBar){
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            },
+            modifier = Modifier
+                .width(78.dp)
+                .constrainAs(progressBar) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                },
             color = MaterialTheme.colorScheme.surfaceVariant,
             trackColor = MaterialTheme.colorScheme.secondary
         )
@@ -66,7 +66,7 @@ fun ComposableMapView(proceedToSocketSelection: () -> Unit, stationsViewModel: S
 }
 
 @Composable
-fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?, chargerType: String? = null): MapView {
+fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?): MapView {
     val context = LocalContext.current
     val mapView = remember {
         MapView(context).apply {
@@ -84,7 +84,7 @@ fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?, char
         val markerCluster = RadiusMarkerClusterer(context)
         markerCluster.setIcon(BonusPackHelper.getBitmapFromVectorDrawable(context, org.osmdroid.bonuspack.R.drawable.marker_cluster))
         markerCluster.items.removeAll(markerCluster.items.toSet())
-        stations.getStationsClosestToUserLocation(userLocation.latitude, userLocation.longitude).filterByChargerType(chargerType).forEach {
+        stations.forEach {
                 val stationGeoPoint = GeoPoint(it.geometry.coordinates[1], it.geometry.coordinates[0])
                 val stationMarker = Marker(mapView)
                 stationMarker.position = stationGeoPoint

@@ -11,6 +11,7 @@ import com.example.emobilitychargingstations.data.users.UsersRepositoryImpl
 import com.example.emobilitychargingstations.domain.stations.StationsUseCase
 import com.example.emobilitychargingstations.domain.user.UserUseCase
 import com.example.emobilitychargingstations.models.Station
+import com.example.emobilitychargingstations.models.StationFilterProperties
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
@@ -24,7 +25,7 @@ fun repositoryModule() = module {
 
 fun useCaseModule() = module {
     factory { UserUseCase(get()) }
-    factory { StationsUseCase(get()) }
+    factory { StationsUseCase(get(), get()) }
 }
 
 fun provideApi(): StationsApi {
@@ -57,6 +58,16 @@ fun provideDataSource(driver: SqlDriver): StationsDatabase {
             }
         }
         override fun encode(value: List<Station>): String {
+            return Json.encodeToString(
+                value
+            )
+        }
+    }, filterPropertiesAdapter = object : ColumnAdapter<StationFilterProperties, String> {
+        override fun decode(databaseValue: String): StationFilterProperties {
+            return if (databaseValue.isEmpty()) return StationFilterProperties()
+            else Json.decodeFromString(databaseValue)
+        }
+        override fun encode(value: StationFilterProperties): String {
             return Json.encodeToString(
                 value
             )

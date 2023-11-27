@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <string name="confirm">Confirm</string>
     <!-- ANDROID AUTO  -->
     <string name="auto_map_title">Closest Stations</string>
     <string name="auto_map_navigation_title">Navigating to station</string>
-    <string name="auto_map_empty_list_message">There are no stations in our database nearby</string>
+    <string name="auto_map_empty_list_message">No stations nearby with selected filters</string>
     <string name="auto_station_details_start_navigation">Start navigation</string>
     <string name="auto_station_details_stop_navigation">Stop navigation</string>
     <string name="auto_station_details_unknown_charger">Unknown charger type</string>
@@ -18,5 +20,20 @@
     <string name="auto_navigation_complete_remove_action">Remove Favorite</string>
     <string name="auto_favorites_list_title">Favorites List</string>
     <string name="auto_favorites_list_empty_message">There are currently no stations in favorite list</string>
+
+    <!-- ANDROID  -->
+    <string name="android_charger_type_selection">Please select charger type:</string>
+    <string name="android_charging_type_selection">Please select charging type:</string>
+    <string name="android_charger_type_ac_1">AC Type 1</string>
+    <string name="android_charger_type_ac_2">AC Type 2</string>
+    <string name="android_charger_type_dc_eu">Standard DC</string>
+    <string name="android_charger_type_dc_chademo">DC CHAdeMO</string>
+    <string name="android_charger_type_tesla">Tesla</string>
+    <string name="android_charger_type_all">All charger types</string>
+    <string name="android_charging_type_normal">Normal charging</string>
+    <string name="android_charging_type_fast">Fast charging</string>
+    <string name="android_charging_type_rapid">Rapid charging</string>
+    <string name="android_charging_type_all">All charging types</string>
+    <string name="android_charging_type_unknown">Unknown charging type</string>
 
 </resources>

@@ -4,6 +4,6 @@ import com.emobilitychargingstations.database.UserInfoEntity
 import com.example.emobilitychargingstations.models.UserInfo
 
 fun UserInfoEntity.toUserInfo() = UserInfo(
-    chargerType = this.chargerType,
+    filterProperties = this.filterProperties,
     favoriteStations = this.favoriteStations?.toMutableList()
 )
