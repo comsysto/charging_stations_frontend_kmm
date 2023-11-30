@@ -13,8 +13,8 @@ android {
         applicationId = "com.comsystoreply.emobilitychargingstations.android"
         minSdk = 31
         targetSdk = 33
-        versionCode = 12
-        versionName = "0.3"
+        versionCode = 13
+        versionName = "0.31"
     }
     buildFeatures {
         compose = true

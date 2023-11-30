@@ -23,6 +23,7 @@ import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.StationsViewModel
 import com.example.emobilitychargingstations.android.ui.composables.reusables.getActivityViewModel
 import com.example.emobilitychargingstations.models.Station
+import com.example.emobilitychargingstations.models.UserLocation
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.bonuspack.utils.BonusPackHelper
 import org.osmdroid.util.BoundingBox
@@ -30,6 +31,8 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.FolderOverlay
 import org.osmdroid.views.overlay.Marker
+
+private var isZoomCompleted: Boolean = false
 @Composable
 fun MapViewComposable(proceedToSocketSelection: () -> Unit, stationsViewModel: StationsViewModel = getActivityViewModel()) {
     val testStations = stationsViewModel._stationsData.observeAsState()
@@ -66,7 +69,7 @@ fun MapViewComposable(proceedToSocketSelection: () -> Unit, stationsViewModel: S
 }
 
 @Composable
-fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?): MapView {
+fun mapViewWithLifecycle(stations: List<Station>?, userLocation: UserLocation?): MapView {
     val context = LocalContext.current
     val mapView = remember {
         MapView(context).apply {
@@ -81,6 +84,7 @@ fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?): Map
     mapView.isVerticalMapRepetitionEnabled = false
     val folderOverlay = FolderOverlay()
     if (stations != null && userLocation != null) {
+        val userLocationAsGeoPoint = GeoPoint(userLocation.latitude, userLocation.longitude)
         val markerCluster = RadiusMarkerClusterer(context)
         markerCluster.setIcon(BonusPackHelper.getBitmapFromVectorDrawable(context, org.osmdroid.bonuspack.R.drawable.marker_cluster))
         markerCluster.items.removeAll(markerCluster.items.toSet())
@@ -93,14 +97,15 @@ fun mapViewWithLifecycle(stations: List<Station>?, userLocation: GeoPoint?): Map
                 stationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                 markerCluster.add(stationMarker)
         }
-        userMarker?.let {
-            folderOverlay.remove(it)
+        if (!isZoomCompleted) {
+            mapView.zoomToBoundingBox(BoundingBox.fromGeoPoints(listOf(userLocationAsGeoPoint)), false)
+            isZoomCompleted = true
         }
         userMarker = Marker(mapView)
-        userMarker.position = userLocation
+        userMarker.position = userLocationAsGeoPoint
         folderOverlay.add(userMarker)
         if (markerCluster.items.size > 0) folderOverlay.add(markerCluster)
-        mapView.zoomToBoundingBox(BoundingBox.fromGeoPoints(listOf(userLocation)), false)
+
     }
     mapView.overlays.clear()
     mapView.overlays.add(folderOverlay)

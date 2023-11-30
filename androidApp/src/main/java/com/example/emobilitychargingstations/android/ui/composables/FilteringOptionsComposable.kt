@@ -27,7 +27,7 @@ import com.example.emobilitychargingstations.android.ui.utilities.getStringIdFro
 import com.example.emobilitychargingstations.models.ChargerTypesEnum
 
 @Composable
-fun ChargerTypeSelectionComposable(proceedToNextScreen: () -> Unit, viewModel: StationsViewModel = getActivityViewModel()) {
+fun FilteringOptionsComposable(proceedToNextScreen: () -> Unit, viewModel: StationsViewModel = getActivityViewModel()) {
     val listOfButtonsInfo = mutableListOf<ChargerTypeToggleInfo>()
     val chargerType = viewModel.getUserInfo()?.filterProperties?.chargerType
     ChargerTypesEnum.values().forEach {
@@ -48,10 +48,7 @@ fun ChargerTypeSelectionComposable(proceedToNextScreen: () -> Unit, viewModel: S
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(stringResource(R.string.android_charger_type_selection))
-            Column(modifier = Modifier.padding(vertical = 10.dp), horizontalAlignment = Alignment.Start) {
-                ChargerTypeButtonsComposable(socketTypeButtons)
-            }
+            ChargerTypeButtonsComposable(socketTypeButtons)
             Row {
                 Button(
                     modifier = Modifier.padding(horizontal = 10.dp),
@@ -72,14 +69,17 @@ fun ChargerTypeSelectionComposable(proceedToNextScreen: () -> Unit, viewModel: S
 
 @Composable
 fun ChargerTypeButtonsComposable(socketTypeButtons: SnapshotStateList<ChargerTypeToggleInfo>) {
-    socketTypeButtons.forEachIndexed { index, toggleInfo ->
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
-            RadioButton(selected = toggleInfo.isChecked, onClick = {
-                socketTypeButtons.replaceAll {
-                    it.copy(isChecked = it.chargerType == toggleInfo.chargerType)
-                }
-            })
-            Text(text = stringResource(id = toggleInfo.chargerType.getStringIdFromChargerType()))
+    Text(stringResource(R.string.android_charger_type_selection))
+    Column(modifier = Modifier.padding(vertical = 10.dp), horizontalAlignment = Alignment.Start) {
+        socketTypeButtons.forEach { toggleInfo ->
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
+                RadioButton(selected = toggleInfo.isChecked, onClick = {
+                    socketTypeButtons.replaceAll {
+                        it.copy(isChecked = it.chargerType == toggleInfo.chargerType)
+                    }
+                })
+                Text(text = stringResource(id = toggleInfo.chargerType.getStringIdFromChargerType()))
+            }
         }
     }
 }

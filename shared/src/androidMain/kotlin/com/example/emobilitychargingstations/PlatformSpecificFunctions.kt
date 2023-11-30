@@ -5,7 +5,7 @@ import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.Stations
 import kotlinx.serialization.json.Json
 
-actual class SharedFunctions {
+actual class PlatformSpecificFunctions {
     actual fun getStationsFromJson(): Stations? {
         val munichStations = javaClass.classLoader!!.getResourceAsStream("munichStations.json")!!.bufferedReader().use { it.readText() }
         val regensburgStationsJson = javaClass.classLoader!!.getResourceAsStream("regensburgStations.json")!!.bufferedReader().use { it.readText() }

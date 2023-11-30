@@ -16,7 +16,7 @@ import platform.Foundation.stringWithContentsOfFile
 import platform.darwin.NSObject
 import platform.darwin.NSObjectMeta
 
-actual class SharedFunctions {
+actual class PlatformSpecificFunctions {
     @OptIn(ExperimentalForeignApi::class)
     actual fun getStationsFromJson(): Stations? {
         var stations: Stations? = null

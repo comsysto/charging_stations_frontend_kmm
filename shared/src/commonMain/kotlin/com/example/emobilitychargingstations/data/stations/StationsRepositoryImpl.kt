@@ -1,5 +1,6 @@
 package com.example.emobilitychargingstations.data.stations
 
+import arrow.core.Either
 import com.emobilitychargingstations.database.StationsDatabase
 import com.example.emobilitychargingstations.data.stations.api.StationsApi
 import com.example.emobilitychargingstations.models.Stations
@@ -21,7 +22,7 @@ class StationsRepositoryImpl(stationsDatabase: StationsDatabase, val stationsApi
         return queries.getAllStations().executeAsOneOrNull()?.toStations()
     }
 
-    override suspend fun getStationsRemote(userLocation: UserLocation?): List<StationsResponseModel>? {
+    override suspend fun getStationsRemote(userLocation: UserLocation?): Either<Exception, List<StationsResponseModel>> {
         return stationsApi.requestStationsWithLocation(userLocation)
     }
 }

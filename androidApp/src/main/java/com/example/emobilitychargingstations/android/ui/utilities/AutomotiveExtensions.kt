@@ -12,6 +12,7 @@ import androidx.car.app.model.Metadata
 import androidx.car.app.model.Place
 import androidx.car.app.model.PlaceMarker
 import androidx.car.app.model.Row
+import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.lifecycleScope
 import com.comsystoreply.emobilitychargingstations.android.R
@@ -100,6 +101,11 @@ fun Screen.getFavoritesAction(station: Station, userInfo: UserInfo?, onFavoriteC
         }
     }.build()
 }
+
+fun Screen.getTransparentCarColor() = CarColor.createCustom(
+    Color.Transparent.hashCode(),
+    Color.Transparent.hashCode()
+)
 
 fun Screen.getString(stringId: Int): String = this.carContext.getString(stringId)
 fun Screen.getString(stringId: Int, stringArgument: String): String = this.carContext.getString(stringId, stringArgument)

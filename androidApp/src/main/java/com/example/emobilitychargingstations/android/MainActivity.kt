@@ -19,15 +19,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.MyApplicationTheme
-import com.example.emobilitychargingstations.android.ui.composables.ChargerTypeSelectionComposable
+import com.example.emobilitychargingstations.android.ui.composables.FilteringOptionsComposable
 import com.example.emobilitychargingstations.android.ui.composables.MapViewComposable
 import com.example.emobilitychargingstations.android.ui.composables.StationsFilterComposable
 import com.example.emobilitychargingstations.android.ui.utilities.LocationRequestStarter
+import com.example.emobilitychargingstations.models.UserLocation
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.osmdroid.config.Configuration
-import org.osmdroid.util.GeoPoint
 
 class MainActivity : ComponentActivity() {
 
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
                 if (checkIsLocationMockDebug(it))  {
                     val isInitialUserLocationNull = stationsViewModel._userLocation.value == null
                     stationsViewModel.setUserLocation(
-                        GeoPoint(
+                        UserLocation(
                             it.latitude,
                             it.longitude
                         )
@@ -76,14 +76,14 @@ class MainActivity : ComponentActivity() {
                                                 navController = navController,
                                                 startDestination = startDestination
                                             ) {
-                                                composable("$NAVIGATE_TO_CHARGER_SELECTION?navigateToNext={navigateToNext}", arguments = listOf(
-                                                    navArgument("navigateToNext") {
+                                                composable("$NAVIGATE_TO_CHARGER_SELECTION?$ARGUMENT_NAVIGATE_TO_NEXT={$ARGUMENT_NAVIGATE_TO_NEXT}", arguments = listOf(
+                                                    navArgument(ARGUMENT_NAVIGATE_TO_NEXT) {
                                                         type = NavType.BoolType
                                                         defaultValue = true
                                                     }
                                                 )) { backStackEntry ->
-                                                    val shouldNavigateToMap = backStackEntry.arguments?.getBoolean("navigateToNext")
-                                                    ChargerTypeSelectionComposable(proceedToNextScreen = {
+                                                    val shouldNavigateToMap = backStackEntry.arguments?.getBoolean(ARGUMENT_NAVIGATE_TO_NEXT)
+                                                    FilteringOptionsComposable(proceedToNextScreen = {
                                                         if (shouldNavigateToMap == true) navController.navigate(
                                                             NAVIGATE_TO_MAP_SCREEN
                                                         ) else navController.popBackStack()
@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
                                                 composable(NAVIGATE_TO_FILTER_SCREEN) {
                                                     StationsFilterComposable(navigateToChargerType = {
                                                         navController.navigate(
-                                                            "$NAVIGATE_TO_CHARGER_SELECTION?navigateToNext=false")
+                                                            "$NAVIGATE_TO_CHARGER_SELECTION?$ARGUMENT_NAVIGATE_TO_NEXT=false")
                                                     })
                                                 }
                                             }
@@ -136,5 +136,7 @@ class MainActivity : ComponentActivity() {
         private const val NAVIGATE_TO_CHARGER_SELECTION = "chargerSelectionScreen"
         private const val NAVIGATE_TO_MAP_SCREEN = "mapScreen"
         private const val NAVIGATE_TO_FILTER_SCREEN = "filterScreen"
+
+        private const val ARGUMENT_NAVIGATE_TO_NEXT = "navigateToNext"
     }
 }

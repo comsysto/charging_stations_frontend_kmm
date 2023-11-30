@@ -38,10 +38,10 @@ fun StationsFilterComposable(viewModel: StationsViewModel = getActivityViewModel
             .fillMaxSize()) {
             ChargingTypeFilterComposable(userInfo?.filterProperties?.chargingType)
             Button(onClick = { navigateToChargerType() }) {
-                Text(text = "Change Charger Type")
+                Text(stringResource(id = R.string.android_change_charging_type))
             }
             Button(onClick = { Toast.makeText(context, "Not yet implemented", Toast.LENGTH_SHORT).show() }) {
-                Text(text = "Edit Favorites")
+                Text(text = stringResource(id = R.string.android_edit_favorites))
             }
         }
     }
@@ -64,7 +64,7 @@ fun ChargingTypeFilterComposable(chargingTypeEnum: ChargingTypeEnum?) {
 
 @Composable
 fun ChargingTypeButtonsComposable(socketTypeButtons: SnapshotStateList<ChargingTypeToggleInfo>, viewModel: StationsViewModel = getActivityViewModel()) {
-    socketTypeButtons.forEachIndexed { index, toggleInfo ->
+    socketTypeButtons.forEach { toggleInfo ->
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
             RadioButton(selected = toggleInfo.isChecked, onClick = {
                 viewModel.setChargingType(toggleInfo.chargingType)
@@ -72,7 +72,7 @@ fun ChargingTypeButtonsComposable(socketTypeButtons: SnapshotStateList<ChargingT
                     it.copy(isChecked = it.chargingType == toggleInfo.chargingType)
                 }
             })
-            Text( stringResource(toggleInfo.chargingType.getStringIdFromChargingType()))
+            Text(stringResource(toggleInfo.chargingType.getStringIdFromChargingType()))
         }
     }
 }

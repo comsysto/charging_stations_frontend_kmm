@@ -33,6 +33,7 @@ kotlin {
         val ktorVersion = "2.3.4"
         val sqlDelightVersion = "2.0.0"
         val koinVersion = "3.5.0"
+        val arrowVersion = "1.2.0"
 
         val commonMain by getting {
             resources.srcDirs("resources")
@@ -48,6 +49,8 @@ kotlin {
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.insert-koin:koin-core:$koinVersion")
                 implementation("io.insert-koin:koin-test:$koinVersion")
+                implementation("io.arrow-kt:arrow-core:$arrowVersion")
+                implementation("io.arrow-kt:arrow-fx-coroutines:$arrowVersion")
             }
         }
         val commonTest by getting {

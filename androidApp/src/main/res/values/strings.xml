@@ -35,5 +35,7 @@
     <string name="android_charging_type_rapid">Rapid charging</string>
     <string name="android_charging_type_all">All charging types</string>
     <string name="android_charging_type_unknown">Unknown charging type</string>
+    <string name="android_change_charging_type">Change charger type</string>
+    <string name="android_edit_favorites">Edit Favorites</string>
 
 </resources>
