@@ -15,9 +15,9 @@ struct iOSApp: App {
     
     func getStations()  {
         Task {
-            do {try await debugPrint(UseCasesProvider().stationsUseCase().getStationsLocal())}
-            catch {debugPrint(error)}
+            for await it in UseCasesProvider().stationsUseCase().startRepeatingRequest(initialLocation: UserLocation(latitude: 48.1395388, longitude: 11.5567907)) {
+                debugPrint(it?.first)
+            }
         }
-                
     }
 }
