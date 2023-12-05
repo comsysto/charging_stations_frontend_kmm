@@ -11,7 +11,7 @@ import com.example.emobilitychargingstations.android.models.ToggleInfo
 
 @Composable
 fun RadioButtonsComposable(socketTypeButtons: SnapshotStateList<ToggleInfo>) {
-    socketTypeButtons.forEachIndexed { index, toggleInfo ->
+    socketTypeButtons.forEach { toggleInfo ->
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
             RadioButton(selected = toggleInfo.isChecked, onClick = {
                 socketTypeButtons.replaceAll {

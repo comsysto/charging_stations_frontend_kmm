@@ -15,9 +15,11 @@ import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.stringWithContentsOfFile
 import platform.darwin.NSObject
 import platform.darwin.NSObjectMeta
+import kotlin.experimental.ExperimentalNativeApi
 
-actual class SharedFunctions {
-    @OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
+actual class PlatformSpecificFunctions {
+
     actual fun getStationsFromJson(): Stations? {
         var stations: Stations? = null
         val bundle = NSBundle.bundleForClass(BundleMarker)

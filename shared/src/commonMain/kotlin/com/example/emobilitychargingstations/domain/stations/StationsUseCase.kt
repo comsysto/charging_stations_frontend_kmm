@@ -3,7 +3,7 @@ package com.example.emobilitychargingstations.domain.stations
 import com.example.emobilitychargingstations.SHOULD_TRY_API_REQUEST
 import com.example.emobilitychargingstations.STATION_REQUEST_REPEAT_TIME_MS
 import com.example.emobilitychargingstations.data.extensions.getStationsClosestToUserLocation
-import com.example.emobilitychargingstations.SharedFunctions
+import com.example.emobilitychargingstations.PlatformSpecificFunctions
 import com.example.emobilitychargingstations.data.extensions.filterByChargerType
 import com.example.emobilitychargingstations.data.extensions.filterByChargingType
 import com.example.emobilitychargingstations.data.stations.StationsRepository
@@ -13,8 +13,6 @@ import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.models.UserInfo
 import com.example.emobilitychargingstations.models.UserLocation
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
@@ -34,7 +32,7 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
     suspend fun getStationsLocal(): Stations? {
         var localStations = stationsRepository.getStationsLocal()
         if (localStations == null) {
-            localStations = SharedFunctions().getStationsFromJson()
+            localStations = PlatformSpecificFunctions().getStationsFromJson()
             localStations?.let {
                 insertStations(it)
             }
@@ -42,9 +40,9 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
         return localStations
     }
 
-    suspend fun getStationsRemote(userLocation: UserLocation?): List<Station>? {
-        return stationsRepository.getStationsRemote(userLocation)?.toStationList()
-    }
+//    suspend fun getStationsRemote(userLocation: UserLocation?): List<Station>? {
+//        return stationsRepository.getStationsRemote(userLocation)?.toStationList()
+//    }
 
     fun setTemporaryLocation(newLocation: UserLocation?) {
         userLocation = newLocation
@@ -53,15 +51,14 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
     fun startRepeatingRequest(initialLocation: UserLocation?) = channelFlow {
         val localStations = getStationsLocal()
         var userInfo = userUseCase.getUserInfo()
-        var localStationsWithUserFilters = localStations?.copy()?.features
-        localStationsWithUserFilters?.let {
-            localStationsWithUserFilters = applyUserFiltersToStations(it, userInfo)
+        val localStationsWithUserFilters = localStations?.copy()?.features?.let {
+            applyUserFiltersToStations(it, userInfo)
         }
         userLocation = initialLocation
         if (userLocation != null) send(localStationsWithUserFilters?.getStationsClosestToUserLocation(userLocation!!.latitude, userLocation!!.longitude))
         else send(localStationsWithUserFilters)
         var resultingList = listOf<Station>()
-        CoroutineScope(currentCoroutineContext()).launch {
+        launch {
             userUseCase.getUserInfoAsFlow().onEach {
                 if ((userInfo?.filterProperties?.chargingType != it?.filterProperties?.chargingType
                             || userInfo?.filterProperties?.chargerType != it?.filterProperties?.chargerType)) {
@@ -73,23 +70,14 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
         }
         while (true) {
             var remoteStations: List<Station>? = null
-            if (SharedFunctions().isDebug && SHOULD_TRY_API_REQUEST)  {
-                try {
-                    remoteStations = stationsRepository.getStationsRemote(userLocation)?.toStationList()
-                } catch (e: Exception) {
+            if (PlatformSpecificFunctions().isDebug && SHOULD_TRY_API_REQUEST) {
+                stationsRepository.getStationsRemote(userLocation).onRight {
+                        remoteStations = it.toStationList()
+                }.onLeft {
+                    print(it.toString())
                 }
             }
-            val stationList = mutableListOf<Station>()
-            localStations?.features?.let {
-                it.forEach { station ->
-                    station.properties.availableChargingStations = (0..(station.properties.capacity?.toInt() ?: 1)).random()
-                }
-                stationList.addAll(it)
-            }
-            remoteStations?.let {
-                stationList.addAll(it)
-            }
-            resultingList = stationList.toList()
+            resultingList = combineRemoteAndLocalStations(localStations?.features, remoteStations)
             userLocation?.let {
                 resultingList = resultingList.getStationsClosestToUserLocation(it.latitude, it.longitude)
             }
@@ -97,6 +85,20 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
             send(resultingList)
             delay(STATION_REQUEST_REPEAT_TIME_MS)
         }
+    }
+
+    private fun combineRemoteAndLocalStations(localStations: List<Station>?, remoteStations: List<Station>?): List<Station> {
+        val stationList = mutableListOf<Station>()
+        localStations?.let {
+            it.forEach { station ->
+                station.properties.availableChargingStations = (0..(station.properties.capacity?.toInt() ?: 1)).random()
+            }
+            stationList.addAll(it)
+        }
+        remoteStations?.let {
+            stationList.addAll(it)
+        }
+        return stationList.toList()
     }
 
     private fun applyUserFiltersToStations(stationList: List<Station>, userInfo: UserInfo?): List<Station> {

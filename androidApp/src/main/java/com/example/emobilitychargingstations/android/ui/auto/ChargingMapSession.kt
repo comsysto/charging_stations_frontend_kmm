@@ -7,11 +7,10 @@ import androidx.car.app.CarAppPermission
 import androidx.car.app.Screen
 import androidx.car.app.Session
 import com.example.emobilitychargingstations.android.ui.auto.screen.ChargingMapScreen
-import kotlinx.coroutines.runBlocking
 
 class ChargingMapSession(): Session() {
     override fun onCreateScreen(intent: Intent): Screen {
-        runBlocking {
+        //  TODO: implement proper permission handling
             try {
                 CarAppPermission.checkHasPermission(
                     carContext,
@@ -22,10 +21,8 @@ class ChargingMapSession(): Session() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             } catch (exception: SecurityException) {
-            //  TODO: implement permission handling
                 Log.v("TEST LOCATION Exception", exception.toString())
             }
-        }
         return  ChargingMapScreen(carContext)
     }
 }

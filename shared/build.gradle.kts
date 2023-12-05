@@ -1,26 +1,35 @@
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
-    kotlin("plugin.serialization") version "1.9.0"
+    kotlin("plugin.serialization")
     id("com.android.library")
     id("kotlinx-serialization")
-    id("app.cash.sqldelight") version "2.0.0"
+    id("app.cash.sqldelight")
+    id("co.touchlab.skie") version "0.5.6"
 }
 kotlin {
-    android {
-    }
-
-    
-    listOf(
-        iosX64(),
-        iosArm64{},
-        iosSimulatorArm64()
-    )
+    androidTarget()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+    applyDefaultHierarchyTemplate()
+//    ios()
+//    applyDefaultHierarchyTemplate {  }
+//    applyDefaultHierarchyTemplate()
+//    android {
+//    }
+//
+//
+//    listOf(
+//        iosX64(),
+//        iosArm64{},
+//        iosSimulatorArm64()
+//    )
     cocoapods {
         summary = "Some description for the Shared Module"
         homepage = "Link to the Shared Module homepage"
         version = "1.0"
-        ios.deploymentTarget = "14.1"
+        ios.deploymentTarget = "17.0.1"
         podfile = project.file("../iosApp/Podfile")
         extraSpecAttributes["resources"] = "['src/commonMain/resources/**', 'src/iosMain/resources/**']"
         framework {
@@ -33,6 +42,7 @@ kotlin {
         val ktorVersion = "2.3.4"
         val sqlDelightVersion = "2.0.0"
         val koinVersion = "3.5.0"
+        val arrowVersion = "1.2.0"
 
         val commonMain by getting {
             resources.srcDirs("resources")
@@ -48,6 +58,8 @@ kotlin {
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.insert-koin:koin-core:$koinVersion")
                 implementation("io.insert-koin:koin-test:$koinVersion")
+                implementation("io.arrow-kt:arrow-core:$arrowVersion")
+                implementation("io.arrow-kt:arrow-fx-coroutines:$arrowVersion")
             }
         }
         val commonTest by getting {
@@ -66,7 +78,7 @@ kotlin {
         val iosX64Main by getting
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
-        val iosMain by creating {
+        val iosMain by getting {
             dependsOn(commonMain)
             iosX64Main.dependsOn(this)
             iosArm64Main.dependsOn(this)
@@ -79,7 +91,7 @@ kotlin {
         val iosX64Test by getting
         val iosArm64Test by getting
         val iosSimulatorArm64Test by getting
-        val iosTest by creating {
+        val iosTest by getting {
             dependsOn(commonTest)
             iosX64Test.dependsOn(this)
             iosArm64Test.dependsOn(this)

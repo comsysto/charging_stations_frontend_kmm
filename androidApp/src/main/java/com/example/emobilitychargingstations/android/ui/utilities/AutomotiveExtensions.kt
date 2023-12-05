@@ -2,6 +2,7 @@ package com.example.emobilitychargingstations.android.ui.utilities
 
 import android.graphics.Bitmap
 import android.text.SpannableString
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
 import androidx.car.app.model.CarColor
@@ -12,19 +13,21 @@ import androidx.car.app.model.Metadata
 import androidx.car.app.model.Place
 import androidx.car.app.model.PlaceMarker
 import androidx.car.app.model.Row
+import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.IconCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.lifecycleScope
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.UserInfo
 import kotlinx.coroutines.launch
 
-fun getPlaceWithMarker(lat: Double, lng: Double, carColor: CarColor, bitmap: Bitmap? = null): Place = Place.Builder(
+fun getPlaceWithMarker(latitude: Double, longitude: Double, carColor: CarColor, markerIcon: Bitmap? = null): Place = Place.Builder(
     CarLocation.create(
-        lat, lng
+        latitude, longitude
     )
 ).setMarker(
-    if (bitmap == null) markerWithoutIcon(carColor) else markerWithIcon(carColor, bitmap)
+    if (markerIcon == null) markerWithoutIcon(carColor) else markerWithIcon(carColor, markerIcon)
 ).build()
 
 private fun markerWithIcon(carColor: CarColor, bitmap: Bitmap) = PlaceMarker.Builder()
@@ -100,6 +103,13 @@ fun Screen.getFavoritesAction(station: Station, userInfo: UserInfo?, onFavoriteC
         }
     }.build()
 }
+
+fun Screen.getTransparentCarColor() = CarColor.createCustom(
+    Color.Transparent.hashCode(),
+    Color.Transparent.hashCode()
+)
+
+fun Screen.getDrawableAsBitmap(resourceId: Int) = AppCompatResources.getDrawable(carContext, resourceId)?.toBitmap()
 
 fun Screen.getString(stringId: Int): String = this.carContext.getString(stringId)
 fun Screen.getString(stringId: Int, stringArgument: String): String = this.carContext.getString(stringId, stringArgument)

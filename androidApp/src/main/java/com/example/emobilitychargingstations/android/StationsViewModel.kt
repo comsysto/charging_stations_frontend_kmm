@@ -15,7 +15,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.osmdroid.util.GeoPoint
 
 
 class StationsViewModel(
@@ -26,17 +25,17 @@ class StationsViewModel(
     private val stationsData: MutableLiveData<List<Station>> = MutableLiveData()
     val _stationsData: LiveData<List<Station>> = stationsData
 
-    private val userLocation : MutableLiveData<GeoPoint> = MutableLiveData()
-    val _userLocation: LiveData<GeoPoint> = userLocation
+    private val userLocation : MutableLiveData<UserLocation> = MutableLiveData()
+    val _userLocation: LiveData<UserLocation> = userLocation
 
     private var stationsJob: Job? = null
 
-    fun setUserLocation(newUserLocation: GeoPoint) {
-        stationsUseCase.setTemporaryLocation(UserLocation(newUserLocation.latitude, newUserLocation.longitude))
+    fun setUserLocation(newUserLocation: UserLocation) {
+        stationsUseCase.setTemporaryLocation(newUserLocation)
         userLocation.value = newUserLocation
     }
     fun startRepeatingStationsRequest() {
-        if (stationsJob == null) stationsJob = stationsUseCase.startRepeatingRequest(UserLocation(userLocation.value?.latitude ?: 0.0, userLocation.value?.longitude ?: 0.0)).onEach {
+        if (stationsJob == null) stationsJob = stationsUseCase.startRepeatingRequest( userLocation.value).onEach {
             if (it != null && it != stationsData.value) {
                 stationsData.postValue(it)
             }

@@ -4,14 +4,11 @@ import android.annotation.SuppressLint
 import android.location.Location
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
-import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
 import androidx.car.app.model.*
 import androidx.car.app.model.Distance.UNIT_KILOMETERS_P1
 import androidx.car.app.model.Distance.create
-import androidx.compose.ui.graphics.Color
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.lifecycleScope
 import com.comsystoreply.emobilitychargingstations.android.BuildConfig
 import com.comsystoreply.emobilitychargingstations.android.R
@@ -23,6 +20,8 @@ import com.example.emobilitychargingstations.android.ui.utilities.getString
 import com.example.emobilitychargingstations.android.ui.utilities.AUTO_POI_MAP_SCREEN_MARKER
 import com.example.emobilitychargingstations.android.ui.utilities.LocationRequestStarter
 import com.example.emobilitychargingstations.android.ui.utilities.NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS
+import com.example.emobilitychargingstations.android.ui.utilities.getDrawableAsBitmap
+import com.example.emobilitychargingstations.android.ui.utilities.getTransparentCarColor
 import com.example.emobilitychargingstations.data.extensions.getTwoStationsClosestToUser
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.StationGeoData
@@ -37,15 +36,12 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
 
     private var initialUserLocation: UserLocation? = null
     private var closestStations: List<Station> = listOf()
-    private var stationToNavigateTo: Station? = null
     private var initialStationList: List<Station>? = null
-
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.locations.firstOrNull()?.let {
                 if (checkIsLocationMockDebug(it)) {
-                    Log.v("LocationChange", it.toString())
-                    if (stationToNavigateTo != null && getDistanceValue(it, stationToNavigateTo!!.geometry) < NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS) pushDestinationReachedScreen(stationToNavigateTo!!)
+                    if (closestStations.firstOrNull()?.isNavigatingTo == true && getDistanceValue(it, closestStations.first().geometry) < NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS) pushDestinationReachedScreen(closestStations.first())
                     else {
                         val userLocation = UserLocation(it.latitude, it.longitude)
                         if (initialUserLocation == null) startStationsRepeatingRequest(userLocation)
@@ -73,11 +69,9 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
         result?.let {stationResult ->
             val station = stationResult as Station
             if (station.isNavigatingTo) {
-                stationToNavigateTo = station
                 closestStations = listOf(station)
             }
             else {
-                stationToNavigateTo = null
                 closestStations.forEach { it.isNavigatingTo = false }
                 filterStations()
             }
@@ -89,7 +83,7 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
         stationsUseCase.startRepeatingRequest(
             userLocation
         ).onEach {
-            if (stationToNavigateTo == null && it != initialStationList) {
+            if (closestStations.firstOrNull()?.isNavigatingTo != true && it != initialStationList) {
                 initialStationList = it
                 filterStations()
                 invalidate()
@@ -98,8 +92,7 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
     }
 
     private fun pushDestinationReachedScreen(station: Station) {
-        closestStations[0].isNavigatingTo = false
-        stationToNavigateTo = null
+        closestStations.firstOrNull()?.isNavigatingTo = false
         screenManager.push(NavigationCompleteScreen(carContext, station))
     }
 
@@ -116,7 +109,7 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
     }
 
     private fun filterStations() {
-        if (stationToNavigateTo == null) {
+        if (closestStations.firstOrNull()?.isNavigatingTo != true) {
             closestStations = if (initialStationList.isNullOrEmpty() || initialUserLocation == null) listOf()
             else initialStationList!!.getTwoStationsClosestToUser(initialUserLocation!!.latitude, initialUserLocation!!.longitude)
         }
@@ -130,16 +123,14 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
     private fun fillMapTemplateBuilder(): PlaceListMapTemplate.Builder {
         val actionStrip = ActionStrip.Builder().addAction(createFavoritesAction()).build()
         val mapTemplateBuilder = PlaceListMapTemplate.Builder().setActionStrip(actionStrip)
-        val carIcon = carContext.getDrawable(R.drawable.electric_car_icon)?.toBitmap()
+        val carIcon = getDrawableAsBitmap(R.drawable.electric_car_icon)
         var firstStation: Station? = null
         var secondStation: Station? = null
         var firstItemIcon = carIcon
         var firstItemTitle: SpannableString? = null
         var secondItemTitle: SpannableString? = null
         mapTemplateBuilder.setTitle(getString(R.string.auto_map_title))
-        if (initialUserLocation == null || initialStationList == null) return mapTemplateBuilder.setLoading(
-            true
-        )
+        if (initialUserLocation == null || initialStationList == null) return mapTemplateBuilder.setLoading(true)
         mapTemplateBuilder.setAnchor(
             getPlaceWithMarker(
                 initialUserLocation!!.latitude,
@@ -148,15 +139,14 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
             )
         )
         if (closestStations.size == 1) {
-            firstStation = closestStations[0]
+            firstStation = closestStations.first()
             firstItemTitle = SpannableString("${firstStation.properties.street} - ")
-            if (stationToNavigateTo != null) {
-                firstStation = stationToNavigateTo!!
-                firstItemIcon = carContext.getDrawable(R.drawable.navigating_to_icon)?.toBitmap()
+            if (firstStation.isNavigatingTo) {
+                firstItemIcon = getDrawableAsBitmap(R.drawable.navigating_to_icon)
                 mapTemplateBuilder.setTitle(getString(R.string.auto_map_navigation_title))
             }
         } else if (closestStations.size > 1) {
-            firstStation = closestStations[0]
+            firstStation = closestStations.first()
             secondStation = closestStations[1]
             firstItemTitle = SpannableString("${firstStation.properties.street} - ")
             secondItemTitle = SpannableString("${secondStation.properties.street} - ")
@@ -171,10 +161,7 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
                                 firstItemTitle!!, getPlaceWithMarker(
                                     it.geometry.coordinates[1],
                                     it.geometry.coordinates[0],
-                                    if (stationToNavigateTo != null) CarColor.GREEN else CarColor.createCustom(
-                                        Color.Transparent.hashCode(),
-                                        Color.Transparent.hashCode()
-                                    ),
+                                    if (it.isNavigatingTo) CarColor.GREEN else getTransparentCarColor(),
                                     firstItemIcon
                                 )
                             ) {
@@ -187,10 +174,7 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
                                 secondItemTitle!!, getPlaceWithMarker(
                                     it.geometry.coordinates[1],
                                     it.geometry.coordinates[0],
-                                    CarColor.createCustom(
-                                        Color.Transparent.hashCode(),
-                                        Color.Transparent.hashCode()
-                                    ),
+                                    getTransparentCarColor(),
                                     carIcon
                                 )
                             ) {
@@ -210,7 +194,8 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
     private fun createFavoritesAction() = Action.Builder().apply {
         setIcon(
             createCarIconFromBitmap(
-                carContext.getDrawable(R.drawable.favorites_star_icon)!!.toBitmap())
+                getDrawableAsBitmap(R.drawable.favorites_star_icon)!!
+            )
         )
         setOnClickListener(ParkedOnlyOnClickListener.create {
             screenManager.push(FavoritesListScreen(carContext, this@ChargingMapScreen))
@@ -262,4 +247,3 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
     }
 
 }
-

@@ -7,15 +7,15 @@ import androidx.car.app.model.Action
 import androidx.car.app.model.ItemList
 import androidx.car.app.model.ListTemplate
 import androidx.car.app.model.Template
-import androidx.core.graphics.drawable.toBitmap
 import com.comsystoreply.emobilitychargingstations.android.R
 import com.example.emobilitychargingstations.android.ui.auto.BaseScreen
 import com.example.emobilitychargingstations.android.ui.utilities.BuildRowWithTextAndIcon
+import com.example.emobilitychargingstations.android.ui.utilities.getDrawableAsBitmap
 import com.example.emobilitychargingstations.android.ui.utilities.getMessageTemplateBuilderWithTitle
 import com.example.emobilitychargingstations.android.ui.utilities.getString
 import com.example.emobilitychargingstations.models.Station
 
-class FavoritesListScreen(carContext: CarContext, val onScreenResultListener: OnScreenResultListener? = null): BaseScreen(carContext) {
+class FavoritesListScreen(carContext: CarContext, private val onScreenResultListener: OnScreenResultListener? = null): BaseScreen(carContext) {
 
     override fun onGetTemplate(): Template {
         val userInfo = userUseCase.getUserInfo()
@@ -33,9 +33,9 @@ class FavoritesListScreen(carContext: CarContext, val onScreenResultListener: On
                             BuildRowWithTextAndIcon(
                                 SpannableString(it.properties.street),
                                 it.properties.operator ?: "",
-                                carContext.getDrawable(
+                                getDrawableAsBitmap(
                                     R.drawable.electric_car_icon_white
-                                )!!.toBitmap()
+                                )!!
                             ) {
                                 onItemClick(it)
                             }
