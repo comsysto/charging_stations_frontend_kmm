@@ -1,9 +1,12 @@
 package com.example.emobilitychargingstations.android.ui.auto.screen
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.location.Location
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
+import android.util.Log
+import androidx.car.app.CarAppPermission
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
 import androidx.car.app.model.*
@@ -31,7 +34,6 @@ import com.google.android.gms.location.LocationResult
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-@SuppressLint("MissingPermission")
 class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScreenResultListener {
 
     private var initialUserLocation: UserLocation? = null

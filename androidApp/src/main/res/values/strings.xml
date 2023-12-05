@@ -20,6 +20,9 @@
     <string name="auto_navigation_complete_remove_action">Remove Favorite</string>
     <string name="auto_favorites_list_title">Favorites List</string>
     <string name="auto_favorites_list_empty_message">There are currently no stations in favorite list</string>
+    <string name="auto_permissions_action_title">Grant location permission</string>
+    <string name="auto_permissions_message">Location permission is required for eCharm to find closest charging stations</string>
+    <string name="auto_permissions_toast_message">Permission dialog opened on phone</string>
 
     <!-- ANDROID  -->
     <string name="android_charger_type_selection">Please select charger type:</string>
