@@ -14,9 +14,9 @@ data class StationsResponseModel(
     val town: String?,
     val latitude: Double,
     val longitude: Double,
-    var totalChargingStations: Int,
-    var availableChargingStations: Int,
-    var liveDataAvailable: String,
+    val totalChargingStations: Int,
+    val availableChargingStations: Int,
+    val liveDataAvailable: String,
 //    var connections: List<String>,
 //    var chargingCapacities: List<String>
 )
