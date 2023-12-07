@@ -8,7 +8,7 @@ import androidx.car.app.Session
 import com.example.emobilitychargingstations.android.ui.auto.screen.ChargingMapScreen
 import com.example.emobilitychargingstations.android.ui.auto.screen.PermissionScreen
 
-class ChargingMapSession(): Session() {
+class ChargingMapSession: Session() {
     override fun onCreateScreen(intent: Intent): Screen {
         val showPermissions = try {
             CarAppPermission.checkHasPermission(

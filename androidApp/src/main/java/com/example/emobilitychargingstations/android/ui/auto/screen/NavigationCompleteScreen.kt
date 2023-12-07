@@ -12,7 +12,7 @@ import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.UserInfo
 import kotlinx.coroutines.launch
 
-class NavigationCompleteScreen(carContext: CarContext, val station: Station): BaseScreen(carContext) {
+class NavigationCompleteScreen(carContext: CarContext, private val station: Station): BaseScreen(carContext) {
 
     override fun onGetTemplate(): Template {
         val userInfo = userUseCase.getUserInfo()

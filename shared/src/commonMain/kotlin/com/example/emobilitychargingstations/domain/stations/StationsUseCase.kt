@@ -23,13 +23,13 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
 
     private var userLocation: UserLocation? = null
 
-    suspend fun insertStations(stations: Stations) {
+    private suspend fun insertStations(stations: Stations) {
         stationsRepository.insertStations(
             stations
         )
     }
 
-    suspend fun getStationsLocal(): Stations? {
+    private suspend fun getStationsLocal(): Stations? {
         var localStations = stationsRepository.getStationsLocal()
         if (localStations == null) {
             localStations = PlatformSpecificFunctions().getStationsFromJson()
@@ -51,20 +51,19 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
     fun startRepeatingRequest(initialLocation: UserLocation?) = channelFlow {
         val localStations = getStationsLocal()
         var userInfo = userUseCase.getUserInfo()
-        val localStationsWithUserFilters = localStations?.copy()?.features?.let {
-            applyUserFiltersToStations(it, userInfo)
-        }
+        val localStationsWithUserFilters = localStations?.copy()?.features?.applyUserFiltersToStations(userInfo)
         userLocation = initialLocation
-        if (userLocation != null) send(localStationsWithUserFilters?.getStationsClosestToUserLocation(userLocation!!.latitude, userLocation!!.longitude))
+        if (userLocation != null) send(localStationsWithUserFilters?.getStationsClosestToUserLocation(userLocation))
         else send(localStationsWithUserFilters)
-        var resultingList = listOf<Station>()
         launch {
-            userUseCase.getUserInfoAsFlow().onEach {
-                if ((userInfo?.filterProperties?.chargingType != it?.filterProperties?.chargingType
-                            || userInfo?.filterProperties?.chargerType != it?.filterProperties?.chargerType)) {
-                    userInfo = it
-                    resultingList = applyUserFiltersToStations(localStations!!.features!!, userInfo)
-                    send(resultingList)
+            userUseCase.getUserInfoAsFlow().onEach {userInfoChange ->
+                if ((userInfo?.filterProperties?.chargingType != userInfoChange?.filterProperties?.chargingType
+                            || userInfo?.filterProperties?.chargerType != userInfoChange?.filterProperties?.chargerType)) {
+                    userInfo = userInfoChange
+                    localStations?.features?.let { localStations ->
+                        val resultingList = localStations.applyUserFiltersToStations(userInfo)
+                        send(resultingList)
+                    }
                 }
             }.collect()
         }
@@ -77,11 +76,9 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
                     print(it.toString())
                 }
             }
-            resultingList = combineRemoteAndLocalStations(localStations?.features, remoteStations)
-            userLocation?.let {
-                resultingList = resultingList.getStationsClosestToUserLocation(it.latitude, it.longitude)
-            }
-            resultingList = applyUserFiltersToStations(resultingList, userInfo)
+            val resultingList = combineRemoteAndLocalStations(localStations?.features, remoteStations)
+                .getStationsClosestToUserLocation(userLocation)
+                .applyUserFiltersToStations(userInfo)
             send(resultingList)
             delay(STATION_REQUEST_REPEAT_TIME_MS)
         }
@@ -101,8 +98,8 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
         return stationList.toList()
     }
 
-    private fun applyUserFiltersToStations(stationList: List<Station>, userInfo: UserInfo?): List<Station> {
-        var resultingList = stationList
+    private fun List<Station>.applyUserFiltersToStations(userInfo: UserInfo?): List<Station> {
+        var resultingList = this
         userInfo?.filterProperties?.chargingType?.let {
             resultingList = resultingList.filterByChargingType(it)
         }

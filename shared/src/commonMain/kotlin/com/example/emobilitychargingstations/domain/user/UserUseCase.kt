@@ -7,7 +7,7 @@ import com.example.emobilitychargingstations.models.StationFilterProperties
 import com.example.emobilitychargingstations.models.UserInfo
 import kotlinx.coroutines.flow.Flow
 
-class UserUseCase(val usersRepository: UsersRepository) {
+class UserUseCase(private val usersRepository: UsersRepository) {
     fun getUserInfo(): UserInfo? {
         return usersRepository.getUserInfo()
     }

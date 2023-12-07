@@ -6,7 +6,7 @@ import androidx.car.app.Session
 import androidx.car.app.validation.HostValidator
 
 
-class StationsMapService (): CarAppService() {
+class StationsMapService: CarAppService() {
     override fun createHostValidator(): HostValidator {
         return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR
     }

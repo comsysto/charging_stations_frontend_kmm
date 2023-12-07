@@ -130,3 +130,6 @@ android {
         targetSdk = 33
     }
 }
+dependencies {
+    implementation("androidx.core:core-ktx:+")
+}

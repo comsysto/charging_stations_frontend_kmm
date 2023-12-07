@@ -18,6 +18,8 @@ import com.example.emobilitychargingstations.android.ui.utilities.getString
 import com.example.emobilitychargingstations.android.ui.utilities.AUTO_POI_MAP_SCREEN_MARKER
 import com.example.emobilitychargingstations.android.ui.utilities.getStringIdFromChargingType
 import com.example.emobilitychargingstations.data.extensions.getChargingTypeFromMaxKW
+import com.example.emobilitychargingstations.data.extensions.getLatitude
+import com.example.emobilitychargingstations.data.extensions.getLongitude
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.UserInfo
 import kotlinx.coroutines.launch
@@ -83,8 +85,8 @@ class StationDetailsScreen(carContext: CarContext, val station: Station, private
         else {
             station.isNavigatingTo = true
             setResult(station)
-            val latitude = station.geometry.coordinates[1]
-            val longitude = station.geometry.coordinates[0]
+            val latitude = station.geometry.getLatitude()
+            val longitude = station.geometry.getLongitude()
             val name = getString(R.string.auto_station_details_navigating_to, station.properties.street ?: "")
             val intent = Intent(CarContext.ACTION_NAVIGATE, Uri.parse("geo:0,0?q=${latitude},${longitude}(${name})"))
             carContext.startCarApp(intent)

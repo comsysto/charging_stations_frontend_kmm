@@ -1,13 +1,17 @@
 package com.example.emobilitychargingstations.android.ui.utilities
 
 import android.graphics.Bitmap
+import android.location.Location
 import android.text.SpannableString
+import android.text.Spanned
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarIcon
 import androidx.car.app.model.CarLocation
+import androidx.car.app.model.Distance
+import androidx.car.app.model.DistanceSpan
 import androidx.car.app.model.MessageTemplate
 import androidx.car.app.model.Metadata
 import androidx.car.app.model.Place
@@ -18,8 +22,11 @@ import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.lifecycleScope
 import com.comsystoreply.emobilitychargingstations.android.R
+import com.example.emobilitychargingstations.data.extensions.getLatitude
+import com.example.emobilitychargingstations.data.extensions.getLongitude
 import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.UserInfo
+import com.example.emobilitychargingstations.models.UserLocation
 import kotlinx.coroutines.launch
 
 fun getPlaceWithMarker(latitude: Double, longitude: Double, carColor: CarColor, markerIcon: Bitmap? = null): Place = Place.Builder(
@@ -58,7 +65,7 @@ fun buildRowWithText(title: SpannableString, text: String): Row = Row.Builder().
     addText(text)
 }.build()
 
-fun BuildRowWithTextAndIcon(title: SpannableString, text: String, carIcon: Bitmap, onClickListener: () -> Unit): Row = Row.Builder().apply {
+fun buildClickableRowWithTextAndIcon(title: SpannableString, text: String, carIcon: Bitmap, onClickListener: () -> Unit): Row = Row.Builder().apply {
     setBrowsable(false)
     setImage(CarIcon.Builder(IconCompat.createWithBitmap(carIcon)).build())
     setTitle(title)
@@ -73,8 +80,8 @@ fun buildMetadata(place: Place): Metadata =
     ).build()
 
 
-fun Screen.getMessageTemplateBuilderWithTitle(title: String, Message: String): MessageTemplate.Builder {
-    val messageTemplateBuilder = MessageTemplate.Builder(Message)
+fun Screen.getMessageTemplateBuilderWithTitle(title: String, message: String): MessageTemplate.Builder {
+    val messageTemplateBuilder = MessageTemplate.Builder(message)
     messageTemplateBuilder.apply {
         setTitle(title)
         setHeaderAction(Action.BACK)
@@ -113,3 +120,29 @@ fun Screen.getDrawableAsBitmap(resourceId: Int) = AppCompatResources.getDrawable
 
 fun Screen.getString(stringId: Int): String = this.carContext.getString(stringId)
 fun Screen.getString(stringId: Int, stringArgument: String): String = this.carContext.getString(stringId, stringArgument)
+
+fun Station.getTitleAsSpannableStringAndAddDistance(userLocation: UserLocation): SpannableString {
+    val title = SpannableString("${properties.street} - ")
+    val distanceResult: FloatArray = floatArrayOf(0.0f)
+    this.let {
+        Location.distanceBetween(
+            userLocation.latitude,
+            userLocation.longitude,
+            it.geometry.getLatitude(),
+            it.geometry.getLongitude(),
+            distanceResult
+        )
+        title.setSpan(
+            DistanceSpan.create(
+                Distance.create(
+                    distanceResult[0] / 1000.toDouble(),
+                    Distance.UNIT_KILOMETERS_P1
+                )
+            ),
+            title.length,
+            title.length,
+            Spanned.SPAN_INCLUSIVE_INCLUSIVE
+        )
+    }
+    return title
+}

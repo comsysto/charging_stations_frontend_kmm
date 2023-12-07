@@ -22,22 +22,22 @@ class StationsViewModel(
     private val stationsUseCase: StationsUseCase
 ) : ViewModel() {
 
-    private val stationsData: MutableLiveData<List<Station>> = MutableLiveData()
-    val _stationsData: LiveData<List<Station>> = stationsData
+    private val _stationsData: MutableLiveData<List<Station>> = MutableLiveData()
+    val stationsData: LiveData<List<Station>> = _stationsData
 
-    private val userLocation : MutableLiveData<UserLocation> = MutableLiveData()
-    val _userLocation: LiveData<UserLocation> = userLocation
+    private val _userLocation : MutableLiveData<UserLocation> = MutableLiveData()
+    val userLocation: LiveData<UserLocation> = _userLocation
 
     private var stationsJob: Job? = null
 
     fun setUserLocation(newUserLocation: UserLocation) {
         stationsUseCase.setTemporaryLocation(newUserLocation)
-        userLocation.value = newUserLocation
+        _userLocation.value = newUserLocation
     }
     fun startRepeatingStationsRequest() {
         if (stationsJob == null) stationsJob = stationsUseCase.startRepeatingRequest( userLocation.value).onEach {
-            if (it != null && it != stationsData.value) {
-                stationsData.postValue(it)
+            if (it != null && it != _stationsData.value) {
+                _stationsData.postValue(it)
             }
         }.launchIn(viewModelScope)
     }

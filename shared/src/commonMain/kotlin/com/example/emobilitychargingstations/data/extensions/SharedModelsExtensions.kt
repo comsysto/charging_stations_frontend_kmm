@@ -3,18 +3,23 @@ package com.example.emobilitychargingstations.data.extensions
 import com.example.emobilitychargingstations.models.ChargerTypesEnum
 import com.example.emobilitychargingstations.models.ChargingTypeEnum
 import com.example.emobilitychargingstations.models.Station
+import com.example.emobilitychargingstations.models.StationGeoData
+import com.example.emobilitychargingstations.models.UserLocation
 import kotlin.math.abs
 
-fun List<Station>.getStationsClosestToUserLocation(userLat: Double, userLng: Double): List<Station> {
-    val filteredList = mutableListOf<Station>()
-    this.forEach {
-        if (userLat in it.geometry.coordinates[1] - 1..it.geometry.coordinates[1] + 1
-            && userLng in it.geometry.coordinates[0] - 1..it.geometry.coordinates[0] + 1
-        ) {
-            filteredList.add(it)
+fun List<Station>.getStationsClosestToUserLocation(userLocation: UserLocation?): List<Station> {
+    userLocation?.let {
+        val filteredList = mutableListOf<Station>()
+        this.forEach {
+            if (userLocation.latitude in it.geometry.getLatitude() - 1..it.geometry.getLatitude() + 1
+                && userLocation.longitude in it.geometry.getLongitude() - 1..it.geometry.getLongitude() + 1
+            ) {
+                filteredList.add(it)
+            }
         }
+        return filteredList
     }
-    return filteredList
+    return this
 }
 
 fun List<Station>.getOneStationClosestToUser(userLat: Double, userLng: Double): Station {
@@ -23,8 +28,8 @@ fun List<Station>.getOneStationClosestToUser(userLat: Double, userLng: Double): 
 
     this.forEach {station ->
         station.properties.street?.let {
-            val latDiff = abs(userLat - station.geometry.coordinates[1])
-            val lngDiff = abs(userLng - station.geometry.coordinates[0])
+            val latDiff = abs(userLat - station.geometry.getLatitude())
+            val lngDiff = abs(userLng - station.geometry.getLongitude())
             val totalDiff = latDiff + lngDiff
             if (totalDiff < closestTotalDifference) {
                 closestTotalDifference = totalDiff
@@ -44,8 +49,8 @@ fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double):
             var secondClosestStation = currentClosestStation
             this.forEach {station ->
                 station.properties.street?.let {
-                    val latDiff = abs(userLat - station.geometry.coordinates[1])
-                    val lngDiff = abs(userLng - station.geometry.coordinates[0])
+                    val latDiff = abs(userLat - station.geometry.getLatitude())
+                    val lngDiff = abs(userLng - station.geometry.getLongitude())
                     val totalDiff = latDiff + lngDiff
                     if (totalDiff < closestTotalDifference) {
                         closestTotalDifference = totalDiff
@@ -126,3 +131,6 @@ fun Station.checkIsStationOfChargingType(chargingTypeEnum: ChargingTypeEnum): Bo
     }
     return result
 }
+
+fun StationGeoData.getLatitude() = coordinates[1]
+fun StationGeoData.getLongitude() = coordinates[0]
