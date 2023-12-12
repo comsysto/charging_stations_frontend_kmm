@@ -6,6 +6,7 @@ import com.example.emobilitychargingstations.data.extensions.getStationsClosestT
 import com.example.emobilitychargingstations.PlatformSpecificFunctions
 import com.example.emobilitychargingstations.data.extensions.filterByChargerType
 import com.example.emobilitychargingstations.data.extensions.filterByChargingType
+import com.example.emobilitychargingstations.data.extensions.randomizeAvailability
 import com.example.emobilitychargingstations.data.stations.StationsRepository
 import com.example.emobilitychargingstations.data.stations.toStationList
 import com.example.emobilitychargingstations.domain.user.UserUseCase
@@ -39,10 +40,6 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
         }
         return localStations
     }
-
-//    suspend fun getStationsRemote(userLocation: UserLocation?): List<Station>? {
-//        return stationsRepository.getStationsRemote(userLocation)?.toStationList()
-//    }
 
     fun setTemporaryLocation(newLocation: UserLocation?) {
         userLocation = newLocation
@@ -88,7 +85,7 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
         val stationList = mutableListOf<Station>()
         localStations?.let {
             it.forEach { station ->
-                station.properties.availableChargingStations = (0..(station.properties.capacity?.toInt() ?: 1)).random()
+                station.randomizeAvailability()
             }
             stationList.addAll(it)
         }

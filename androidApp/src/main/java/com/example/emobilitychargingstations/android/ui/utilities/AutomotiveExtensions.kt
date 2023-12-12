@@ -29,13 +29,17 @@ import com.example.emobilitychargingstations.models.UserInfo
 import com.example.emobilitychargingstations.models.UserLocation
 import kotlinx.coroutines.launch
 
-fun getPlaceWithMarker(latitude: Double, longitude: Double, carColor: CarColor, markerIcon: Bitmap? = null): Place = Place.Builder(
-    CarLocation.create(
-        latitude, longitude
-    )
-).setMarker(
-    if (markerIcon == null) markerWithoutIcon(carColor) else markerWithIcon(carColor, markerIcon)
-).build()
+fun getPlaceWithMarker(
+    latitude: Double,
+    longitude: Double,
+    carColor: CarColor,
+    markerIcon: Bitmap? = null): Place = Place.Builder (
+        CarLocation.create(
+            latitude, longitude
+        )
+    ).setMarker(
+        if (markerIcon == null) markerWithoutIcon(carColor) else markerWithIcon(carColor, markerIcon)
+    ).build()
 
 private fun markerWithIcon(carColor: CarColor, bitmap: Bitmap) = PlaceMarker.Builder()
     .setIcon(createCarIconFromBitmap(bitmap = bitmap), PlaceMarker.TYPE_ICON)

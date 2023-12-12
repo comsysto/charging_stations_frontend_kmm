@@ -27,9 +27,9 @@ import kotlinx.coroutines.launch
 class StationDetailsScreen(carContext: CarContext, val station: Station, private val showFavoritesAction: Boolean = false) : BaseScreen(carContext) {
 
     override fun onGetTemplate(): Template {
+        val userInfo = userUseCase.getUserInfo()
+        val actionTitle = if (station.isNavigatingTo) getString(R.string.auto_station_details_stop_navigation) else getString(R.string.auto_station_details_start_navigation)
         val stationsPane = Pane.Builder().apply {
-            val userInfo = userUseCase.getUserInfo()
-            val actionTitle = if (station.isNavigatingTo) getString(R.string.auto_station_details_stop_navigation) else getString(R.string.auto_station_details_start_navigation)
             addAction(
                 Action.Builder().apply{
                     setTitle(actionTitle)
@@ -53,7 +53,6 @@ class StationDetailsScreen(carContext: CarContext, val station: Station, private
             addRow(buildRowWithText(SpannableString(getString(R.string.auto_station_details_station_charger_type_list)), getSocketTypeString()))
 
         }.build()
-
         return PaneTemplate.Builder(stationsPane).setTitle(getPaneTitle())
             .setHeaderAction(Action.BACK)
             .build()

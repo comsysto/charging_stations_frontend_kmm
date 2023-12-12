@@ -74,6 +74,7 @@
 				7555FF7C242A565900829871 /* Products */,
 				B055D1591467D052A0C8E4B8 /* Pods */,
 				3EE0D0DA01CDAF190CADEB92 /* Frameworks */,
+				99F3BCA9083DC7790D427250 /* xcschemes */,
 			);
 			sourceTree = "<group>";
 		};
@@ -95,6 +96,14 @@
 				058557D7273AAEEB004C7B11 /* Preview Content */,
 			);
 			path = iosApp;
+			sourceTree = "<group>";
+		};
+		99F3BCA9083DC7790D427250 /* xcschemes */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = xcschemes;
+			path = iosApp.xcworkspace/xcuserdata/damirkrancpiler.xcuserdatad/xcschemes;
 			sourceTree = "<group>";
 		};
 		B055D1591467D052A0C8E4B8 /* Pods */ = {

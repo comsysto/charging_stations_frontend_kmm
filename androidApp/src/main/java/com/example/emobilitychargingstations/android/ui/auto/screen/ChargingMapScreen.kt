@@ -1,5 +1,6 @@
 package com.example.emobilitychargingstations.android.ui.auto.screen
 
+import android.graphics.Bitmap
 import android.location.Location
 import androidx.car.app.CarContext
 import androidx.car.app.OnScreenResultListener
@@ -122,7 +123,9 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
         val mapTemplateBuilder = PlaceListMapTemplate.Builder().setActionStrip(actionStrip)
         val carIcon = getDrawableAsBitmap(R.drawable.electric_car_icon)
         mapTemplateBuilder.setTitle(getString(R.string.auto_map_title))
-        if (initialUserLocation == null || initialStationList == null) return mapTemplateBuilder.setLoading(true)
+        if (initialUserLocation == null || initialStationList == null)
+            return mapTemplateBuilder.setLoading(true)
+
         mapTemplateBuilder.setAnchor(
             getPlaceWithMarker(
                 initialUserLocation!!.latitude,
@@ -130,12 +133,12 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
                 CarColor.PRIMARY
             )
         )
-        if (closestStations.isEmpty()) {
+        if (closestStations.isEmpty())
             return mapTemplateBuilder.setItemList(
                 ItemList.Builder().setNoItemsMessage(getString(R.string.auto_map_empty_list_message))
                     .build()
             )
-        }
+
         val firstStation: Station = closestStations.first()
         val secondStation = if (closestStations.size > 1) closestStations[1] else null
         val firstItemIcon = if (firstStation.isNavigatingTo) {
@@ -147,37 +150,34 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
                 ItemList.Builder().apply {
                     firstStation.let {
                         addItem(
-                            buildRowWithPlace(
-                                it.getTitleAsSpannableStringAndAddDistance(initialUserLocation!!),
-                                getPlaceWithMarker(
-                                    latitude = it.geometry.getLatitude(),
-                                    longitude = it.geometry.getLongitude(),
-                                    carColor = if (it.isNavigatingTo) CarColor.GREEN else getTransparentCarColor(),
-                                    markerIcon = firstItemIcon
-                                )
-                            ) {
-                                onItemClick(it)
-                            })
+                            getStationItem(firstItemIcon, if (it.isNavigatingTo) CarColor.GREEN else getTransparentCarColor(), it )
+                        )
                     }
                     secondStation?.let {
                         addItem(
-                            buildRowWithPlace(
-                                it.getTitleAsSpannableStringAndAddDistance(initialUserLocation!!),
-                                getPlaceWithMarker(
-                                    latitude = it.geometry.getLatitude(),
-                                    longitude = it.geometry.getLongitude(),
-                                    carColor = getTransparentCarColor(),
-                                    markerIcon = carIcon
-                                )
-                            ) {
-                                onItemClick(it)
-                            }
+                            getStationItem(carIcon, getTransparentCarColor(), it)
                         )
                     }
                 }.build()
             )
         }
         return mapTemplateBuilder
+    }
+
+    private fun getStationItem(itemIcon: Bitmap?, itemColor: CarColor, station: Station): Row {
+        station.let {
+            return buildRowWithPlace(
+                title = it.getTitleAsSpannableStringAndAddDistance(initialUserLocation!!),
+                place = getPlaceWithMarker(
+                    latitude = it.geometry.getLatitude(),
+                    longitude = it.geometry.getLongitude(),
+                    carColor = itemColor,
+                    markerIcon = itemIcon
+                )
+            ) {
+                onItemClick(it)
+            }
+        }
     }
 
     private fun createFavoritesAction() = Action.Builder().apply {

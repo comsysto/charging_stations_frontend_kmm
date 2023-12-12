@@ -111,6 +111,10 @@ fun List<Station>.filterByChargingType(chargingTypeEnum: ChargingTypeEnum): List
     return filter { it.checkIsStationOfChargingType(chargingTypeEnum) }
 }
 
+fun Station.randomizeAvailability() {
+    this.properties.availableChargingStations = (0..(this.properties.capacity?.toInt() ?: 1)).random()
+}
+
 fun Station.checkIsStationOfChargingType(chargingTypeEnum: ChargingTypeEnum): Boolean {
     var result = true
     this.properties.max_kw?.let {
