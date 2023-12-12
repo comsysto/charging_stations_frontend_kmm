@@ -19,7 +19,6 @@ buildscript {
         classpath("com.android.library:com.android.library.gradle.plugin:8.1.2")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20")
         classpath("com.android.tools.build:gradle:8.1.2")
-        classpath("com.squareup.sqldelight:gradle-plugin:1.5.5")
     }
 }
 
