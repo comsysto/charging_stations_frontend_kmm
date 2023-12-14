@@ -21,18 +21,15 @@ import kotlin.experimental.ExperimentalNativeApi
 actual class PlatformSpecificFunctions {
 
     actual fun getStationsFromJson(): Stations? {
-        var stations: Stations? = null
         val bundle = NSBundle.bundleForClass(BundleMarker)
         val munichStationsPath = bundle.pathForResource("munichStations", "json")
         val regensburgStationsPath = bundle.pathForResource("regensburgStations", "json")
+        val combinedStations = mutableListOf<Station>()
         memScoped {
-            var munichStations: Stations
-            var regensburgStations: Stations
-            val combinedStations = mutableListOf<Station>()
             munichStationsPath?.let {path ->
                 val errorPtr = alloc<ObjCObjectVar<NSError?>>()
                 val stationsString = NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, errorPtr.ptr)
-                munichStations = Json.decodeFromString<Stations>(stationsString!!)
+                val munichStations = Json.decodeFromString<Stations>(stationsString!!)
                 munichStations.features?.let {
                     combinedStations.addAll(it)
                 }
@@ -40,17 +37,16 @@ actual class PlatformSpecificFunctions {
             regensburgStationsPath?.let {path ->
                 val errorPtr = alloc<ObjCObjectVar<NSError?>>()
                 val stationsString = NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, errorPtr.ptr)
-                regensburgStations = Json.decodeFromString<Stations>(stationsString!!)
+                val regensburgStations = Json.decodeFromString<Stations>(stationsString!!)
                 regensburgStations.features?.let {
                     combinedStations.addAll(it)
                 }
             }
             if (combinedStations.isNotEmpty()) {
                 combinedStations.filter { it.properties.street != null }
-                stations = Stations(type = "FeatureCollection", features = combinedStations)
             }
         }
-        return stations
+        return Stations(type = "", features = combinedStations)
     }
 
     actual val isDebug = Platform.isDebugBinary

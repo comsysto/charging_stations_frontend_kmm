@@ -65,10 +65,10 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
             }.collect()
         }
         while (true) {
-            var remoteStations: List<Station>? = null
+            val remoteStations = mutableListOf<Station>()
             if (PlatformSpecificFunctions().isDebug && SHOULD_TRY_API_REQUEST) {
                 stationsRepository.getStationsRemote(userLocation).onRight {
-                        remoteStations = it.toStationList()
+                        remoteStations.addAll(it.toStationList())
                 }.onLeft {
                     print(it.toString())
                 }

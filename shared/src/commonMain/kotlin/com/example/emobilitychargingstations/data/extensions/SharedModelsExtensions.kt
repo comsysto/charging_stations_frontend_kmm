@@ -25,16 +25,13 @@ fun List<Station>.getStationsClosestToUserLocation(userLocation: UserLocation?):
 fun List<Station>.getOneStationClosestToUser(userLat: Double, userLng: Double): Station {
     var closestTotalDifference = 180.00
     var currentClosestStation = get(0)
-
-    this.forEach {station ->
-        station.properties.street?.let {
-            val latDiff = abs(userLat - station.geometry.getLatitude())
-            val lngDiff = abs(userLng - station.geometry.getLongitude())
-            val totalDiff = latDiff + lngDiff
-            if (totalDiff < closestTotalDifference) {
-                closestTotalDifference = totalDiff
-                currentClosestStation = station
-            }
+    this.forEach { station ->
+        val latDiff = abs(userLat - station.geometry.getLatitude())
+        val lngDiff = abs(userLng - station.geometry.getLongitude())
+        val totalDiff = latDiff + lngDiff
+        if (totalDiff < closestTotalDifference) {
+            closestTotalDifference = totalDiff
+            currentClosestStation = station
         }
     }
     return currentClosestStation
@@ -47,16 +44,14 @@ fun List<Station>.getTwoStationsClosestToUser(userLat: Double, userLng: Double):
         var currentClosestStation = this.getOneStationClosestToUser(userLat, userLng)
         if (this.size == 1) resultList.add(currentClosestStation) else {
             var secondClosestStation = currentClosestStation
-            this.forEach {station ->
-                station.properties.street?.let {
-                    val latDiff = abs(userLat - station.geometry.getLatitude())
-                    val lngDiff = abs(userLng - station.geometry.getLongitude())
-                    val totalDiff = latDiff + lngDiff
-                    if (totalDiff < closestTotalDifference) {
-                        closestTotalDifference = totalDiff
-                        secondClosestStation = currentClosestStation
-                        currentClosestStation = station
-                    }
+            this.forEach { station ->
+                val latDiff = abs(userLat - station.geometry.getLatitude())
+                val lngDiff = abs(userLng - station.geometry.getLongitude())
+                val totalDiff = latDiff + lngDiff
+                if (totalDiff < closestTotalDifference) {
+                    closestTotalDifference = totalDiff
+                    secondClosestStation = currentClosestStation
+                    currentClosestStation = station
                 }
             }
             resultList.add(currentClosestStation)

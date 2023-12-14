@@ -3,14 +3,14 @@ package com.example.emobilitychargingstations.android.ui.auto.screen
 import android.Manifest
 import androidx.car.app.CarContext
 import androidx.car.app.CarToast
+import androidx.car.app.Screen
 import androidx.car.app.model.Action
 import androidx.car.app.model.Template
 import com.comsystoreply.emobilitychargingstations.android.R
-import com.example.emobilitychargingstations.android.ui.auto.BaseScreen
 import com.example.emobilitychargingstations.android.ui.utilities.getMessageTemplateBuilderWithTitle
 import com.example.emobilitychargingstations.android.ui.utilities.getString
 
-class PermissionScreen(carContext: CarContext): BaseScreen(carContext) {
+class PermissionScreen(carContext: CarContext): Screen(carContext) {
     override fun onGetTemplate(): Template {
         val message = getString(R.string.auto_permissions_message)
         val messageTemplateBuilder = getMessageTemplateBuilderWithTitle("", message)

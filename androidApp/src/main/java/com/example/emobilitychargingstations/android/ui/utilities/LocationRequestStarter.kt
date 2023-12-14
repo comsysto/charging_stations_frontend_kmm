@@ -12,7 +12,7 @@ import com.google.android.gms.location.Priority
 
 @SuppressLint("MissingPermission")
 class LocationRequestStarter(context: Context, locationCallback : LocationCallback) {
-    private var fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+    private val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
     private val locationRequest =
         LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, LOCATION_REQUEST_REFRESH_VALUE_IN_MS).apply {
             setMinUpdateDistanceMeters(LOCATION_REQUEST_DISTANCE_DIFFERENCE_IN_METERS)

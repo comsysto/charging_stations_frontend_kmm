@@ -33,17 +33,15 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.FolderOverlay
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Overlay
 
-private var shouldZoomIn: Boolean = true
-private var stationListSize = 0
+private const val USER_OVERLAY_NAME = "userOverlay"
+private const val STATIONS_OVERLAY_NAME = "stationsOverlay"
 @Composable
 fun MapViewComposable(proceedToSocketSelection: () -> Unit, stationsViewModel: StationsViewModel = getActivityViewModel()) {
     val testStations = stationsViewModel.stationsData.observeAsState()
     val userLocation = stationsViewModel.userLocation.observeAsState()
-    testStations.value?.size?.let {
-        shouldZoomIn = stationListSize != it
-        stationListSize = it
-    }
+
     val mapViewState = mapViewWithLifecycle(testStations.value, userLocation.value)
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (map, button, progressBar) = createRefs()
@@ -102,41 +100,59 @@ private fun rememberMapObserver(mapView: MapView): LifecycleEventObserver = reme
         when (event) {
             Lifecycle.Event.ON_RESUME -> mapView.onResume()
             Lifecycle.Event.ON_PAUSE -> {
-                stationListSize = 0
                 mapView.onPause()
             }
             else -> {}
         }
     }
 }
-private fun addMarkersToMap(mapView: MapView, userLocation: GeoPoint, context: Context, stations: List<Station>) {
-    val folderOverlay = FolderOverlay()
+
+private fun addUserMarker (mapView: MapView, userLocation: GeoPoint, shouldZoomIn: Boolean) {
     val userLocationAsGeoPoint = GeoPoint(userLocation.latitude, userLocation.longitude)
-    val markerCluster = RadiusMarkerClusterer(context)
-    markerCluster.apply {
-        setIcon(BonusPackHelper.getBitmapFromVectorDrawable(context, org.osmdroid.bonuspack.R.drawable.marker_cluster))
-        items.removeAll(markerCluster.items.toSet())
-    }
-    stations.forEach {
-        val stationGeoPoint = GeoPoint(it.geometry.getLatitude(), it.geometry.getLongitude())
-        val stationMarker = Marker(mapView).apply {
-            position = stationGeoPoint
-            snippet = it.properties.street ?: it.properties.operator
-            icon = AppCompatResources.getDrawable(context,R.drawable.electric_car_icon)
-            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-        }
-        markerCluster.add(stationMarker)
-    }
-    if (shouldZoomIn) {
-        mapView.zoomToBoundingBox(BoundingBox.fromGeoPoints(listOf(userLocationAsGeoPoint)), false)
-        shouldZoomIn = false
-    }
+    val folderOverlay = FolderOverlay()
+    val previousUserOverlay = mapView.overlays.firstOrNull { it is FolderOverlay && it.name == USER_OVERLAY_NAME }
     val userMarker = Marker(mapView)
     userMarker.position = userLocationAsGeoPoint
-    folderOverlay.add(userMarker)
-    if (markerCluster.items.isNotEmpty()) folderOverlay.add(markerCluster)
+    folderOverlay.apply {
+        name = USER_OVERLAY_NAME
+        add(userMarker)
+    }
     mapView.overlays.apply {
-        clear()
+        remove(previousUserOverlay)
         add(folderOverlay)
+    }
+    if (shouldZoomIn) mapView.zoomToBoundingBox(BoundingBox.fromGeoPoints(listOf(userLocationAsGeoPoint)), false)
+
+}
+
+private fun Overlay.findNumberOfMarkersOnMap() = ((this as FolderOverlay?)?.items?.first() as RadiusMarkerClusterer?)?.items?.size
+private fun addMarkersToMap(mapView: MapView, userLocation: GeoPoint, context: Context, stations: List<Station>) {
+    val previousMarkerOverlay = mapView.overlays.firstOrNull { it is FolderOverlay && it.name == STATIONS_OVERLAY_NAME }
+    val didStationDataChange = previousMarkerOverlay?.findNumberOfMarkersOnMap() != stations.size
+    addUserMarker(mapView, userLocation, didStationDataChange)
+    if (didStationDataChange) {
+        val folderOverlay = FolderOverlay()
+        folderOverlay.name = STATIONS_OVERLAY_NAME
+        val markerCluster = RadiusMarkerClusterer(context)
+        markerCluster.apply {
+            setIcon(BonusPackHelper.getBitmapFromVectorDrawable(context, org.osmdroid.bonuspack.R.drawable.marker_cluster))
+            items.removeAll(markerCluster.items.toSet())
+        }
+        stations.forEach {
+            val stationGeoPoint = GeoPoint(it.geometry.getLatitude(), it.geometry.getLongitude())
+            val stationMarker = Marker(mapView).apply {
+                position = stationGeoPoint
+                snippet = it.properties.street ?: it.properties.operator
+                icon = AppCompatResources.getDrawable(context,R.drawable.electric_car_icon)
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+            }
+            markerCluster.add(stationMarker)
+        }
+
+        if (markerCluster.items.isNotEmpty()) folderOverlay.add(markerCluster)
+        mapView.overlays.apply {
+            remove(previousMarkerOverlay)
+            add(folderOverlay)
+        }
     }
 }
