@@ -19,7 +19,7 @@ kotlin {
         version = "1.0"
         ios.deploymentTarget = "17.0.1"
         podfile = project.file("../iosApp/Podfile")
-        extraSpecAttributes["resources"] = "['src/commonMain/resources/**', 'src/iosMain/resources/**']"
+        extraSpecAttributes["resources"] = "['src/commonMain/resources/**']"
         framework {
             baseName = "shared"
             binaryOption("bundleId", "com.example.emobilitychargingstations")
