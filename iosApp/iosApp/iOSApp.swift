@@ -12,10 +12,15 @@ struct iOSApp: App {
 			ContentView()
 		}
 	}
+    let userLng: Double = 11.5567907;
+    let userLat: Double = 48.1395388;
     
     func getStations()  {
         Task {
-            for await it in UseCasesProvider().stationsUseCase().startRepeatingRequest(initialLocation: UserLocation(latitude: 48.1395388, longitude: 11.5567907)) {
+            for await it in UseCasesProvider().stationsUseCase()
+                .startRepeatingRequest(initialLocation: UserLocation(
+                    latitude:userLat, longitude: userLng)
+                ) {
                 debugPrint(it?.first)
             }
         }

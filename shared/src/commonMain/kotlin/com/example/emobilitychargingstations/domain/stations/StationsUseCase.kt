@@ -14,6 +14,8 @@ import com.example.emobilitychargingstations.models.Station
 import com.example.emobilitychargingstations.models.Stations
 import com.example.emobilitychargingstations.models.UserInfo
 import com.example.emobilitychargingstations.models.UserLocation
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
@@ -46,38 +48,40 @@ class StationsUseCase(private val stationsRepository: StationsRepository, privat
     }
 
     fun startRepeatingRequest(initialLocation: UserLocation?) = channelFlow {
-        val localStations = getStationsLocal()
-        var userInfo = userUseCase.getUserInfo()
-        val localStationsWithUserFilters = localStations?.copy()?.features?.applyUserFiltersToStations(userInfo)
-        userLocation = initialLocation
-        if (userLocation != null) send(localStationsWithUserFilters?.getStationsClosestToUserLocation(userLocation))
-        else send(localStationsWithUserFilters)
-        launch {
-            userUseCase.getUserInfoAsFlow().onEach {userInfoChange ->
-                if ((userInfo?.filterProperties?.chargingType != userInfoChange?.filterProperties?.chargingType
-                            || userInfo?.filterProperties?.chargerType != userInfoChange?.filterProperties?.chargerType)) {
-                    userInfo = userInfoChange
-                    localStations?.features?.let { localStations ->
-                        val resultingList = localStations.applyUserFiltersToStations(userInfo)
-                        send(resultingList)
+        launch(Dispatchers.IO) {
+            val localStations = getStationsLocal()
+            var userInfo = userUseCase.getUserInfo()
+            val localStationsWithUserFilters = localStations?.copy()?.features?.applyUserFiltersToStations(userInfo)
+            userLocation = initialLocation
+            if (userLocation != null) send(localStationsWithUserFilters?.getStationsClosestToUserLocation(userLocation))
+            else send(localStationsWithUserFilters)
+            launch {
+                userUseCase.getUserInfoAsFlow().onEach {userInfoChange ->
+                    if ((userInfo?.filterProperties?.chargingType != userInfoChange?.filterProperties?.chargingType
+                                || userInfo?.filterProperties?.chargerType != userInfoChange?.filterProperties?.chargerType)) {
+                        userInfo = userInfoChange
+                        localStations?.features?.let { localStations ->
+                            val resultingList = localStations.applyUserFiltersToStations(userInfo)
+                            send(resultingList)
+                        }
+                    }
+                }.collect()
+            }
+            while (true) {
+                val remoteStations = mutableListOf<Station>()
+                if (PlatformSpecificFunctions().isDebug && SHOULD_TRY_API_REQUEST) {
+                    stationsRepository.getStationsRemote(userLocation).onRight {
+                        remoteStations.addAll(it.toStationList())
+                    }.onLeft {
+                        print(it.toString())
                     }
                 }
-            }.collect()
-        }
-        while (true) {
-            val remoteStations = mutableListOf<Station>()
-            if (PlatformSpecificFunctions().isDebug && SHOULD_TRY_API_REQUEST) {
-                stationsRepository.getStationsRemote(userLocation).onRight {
-                        remoteStations.addAll(it.toStationList())
-                }.onLeft {
-                    print(it.toString())
-                }
+                val resultingList = combineRemoteAndLocalStations(localStations?.features, remoteStations)
+                    .getStationsClosestToUserLocation(userLocation)
+                    .applyUserFiltersToStations(userInfo)
+                send(resultingList)
+                delay(STATION_REQUEST_REPEAT_TIME_MS)
             }
-            val resultingList = combineRemoteAndLocalStations(localStations?.features, remoteStations)
-                .getStationsClosestToUserLocation(userLocation)
-                .applyUserFiltersToStations(userInfo)
-            send(resultingList)
-            delay(STATION_REQUEST_REPEAT_TIME_MS)
         }
     }
 
