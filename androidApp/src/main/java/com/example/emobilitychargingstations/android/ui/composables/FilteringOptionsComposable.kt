@@ -44,7 +44,7 @@ fun FilteringOptionsComposable(proceedToNextScreen: () -> Unit, viewModel: Stati
             modifier = Modifier
                 .fillMaxSize()
                 .padding()
-                .background(Color.LightGray),
+                .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
