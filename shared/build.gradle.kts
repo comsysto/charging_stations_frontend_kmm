@@ -13,18 +13,6 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
     applyDefaultHierarchyTemplate()
-//    ios()
-//    applyDefaultHierarchyTemplate {  }
-//    applyDefaultHierarchyTemplate()
-//    android {
-//    }
-//
-//
-//    listOf(
-//        iosX64(),
-//        iosArm64{},
-//        iosSimulatorArm64()
-//    )
     cocoapods {
         summary = "Some description for the Shared Module"
         homepage = "Link to the Shared Module homepage"
@@ -39,7 +27,7 @@ kotlin {
     }
 
     sourceSets {
-        val ktorVersion = "2.3.4"
+        val ktorVersion = "2.3.9"
         val sqlDelightVersion = "2.0.0"
         val koinVersion = "3.5.0"
         val arrowVersion = "1.2.0"
@@ -47,12 +35,10 @@ kotlin {
         val commonMain by getting {
             resources.srcDirs("resources")
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
                 implementation(kotlin("stdlib-common"))
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
                 implementation("app.cash.sqldelight:coroutines-extensions:2.0.0-alpha05")
-                implementation("com.squareup.okio:okio:3.3.0")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -74,7 +60,6 @@ kotlin {
                 implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
             }
         }
-//        val androidUnitTest by getting
         val iosX64Main by getting
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
@@ -127,7 +112,6 @@ android {
     compileSdk = 34
     defaultConfig {
         minSdk = 31
-        targetSdk = 33
     }
 }
 dependencies {
