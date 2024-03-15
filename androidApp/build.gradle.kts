@@ -42,7 +42,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        isCoreLibraryDesugaringEnabled = true
     }
     java {
         toolchain {
@@ -57,7 +56,7 @@ android {
     }
 }
 
-val composeVersion = "1.5.4"
+val composeVersion = "1.6.3"
 
 dependencies {
     implementation(project(":shared"))
@@ -66,15 +65,14 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.compose.foundation:foundation:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.navigation:navigation-compose:2.7.5")
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
-    implementation("androidx.compose.material3:material3:1.1.2")
-    implementation("androidx.compose.material3:material3-window-size-class:1.1.2")
-    implementation("androidx.activity:activity-compose:1.8.1")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation ("androidx.compose.runtime:runtime-livedata:$composeVersion")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    implementation("androidx.compose.material3:material3:1.2.1")
+    implementation("androidx.compose.material3:material3-window-size-class:1.2.1")
+    implementation("androidx.activity:activity-compose:1.8.2")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+//    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
     implementation("org.osmdroid:osmdroid-android:6.1.16")
     implementation ("com.github.MKergall:osmbonuspack:6.9.0")
@@ -82,7 +80,7 @@ dependencies {
     implementation("androidx.car.app:app:1.2.0")
     implementation("androidx.car.app:app-projected:1.2.0")
 
-    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("io.insert-koin:koin-android:3.5.2-RC1")
     implementation("io.insert-koin:koin-androidx-compose:3.5.2-RC1")
 }

@@ -39,7 +39,9 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.locations.firstOrNull()?.let {
                 if (checkIsLocationMockDebug(it)) {
-                    if (closestStations.firstOrNull()?.isNavigatingTo == true && getDistanceValue(it, closestStations.first().geometry) < NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS) pushDestinationReachedScreen(closestStations.first())
+                    if (closestStations.firstOrNull()?.isNavigatingTo == true && getDistanceValue(it, closestStations.first().geometry) < NAVIGATION_DISTANCE_VALUE_FOR_COMPLETION_IN_METERS) {
+                        pushDestinationReachedScreen(closestStations.first())
+                    }
                     else {
                         val userLocation = UserLocation(it.latitude, it.longitude)
                         if (initialUserLocation == null) startStationsRepeatingRequest(userLocation)
@@ -92,6 +94,8 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
     private fun pushDestinationReachedScreen(station: Station) {
         closestStations.firstOrNull()?.isNavigatingTo = false
         screenManager.push(NavigationCompleteScreen(carContext, station))
+        filterStations()
+        invalidate()
     }
 
     private fun getDistanceValue(location: Location, stationLocation: StationGeoData): Float {
