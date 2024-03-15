@@ -29,7 +29,8 @@
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc"/>
-        <service android:name="com.example.emobilitychargingstations.android.ui.auto.StationsMapService"
+        <service
+            android:name="com.example.emobilitychargingstations.android.ui.auto.StationsMapService"
             android:label="eCharm"
             android:exported="true">
             <intent-filter>

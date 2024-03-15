@@ -10,7 +10,7 @@ import com.example.emobilitychargingstations.android.ui.auto.screen.PermissionSc
 
 class ChargingMapSession: Session() {
     override fun onCreateScreen(intent: Intent): Screen {
-        val showPermissions = try {
+        val showPermissionsScreen = try {
             CarAppPermission.checkHasPermission(
                 carContext,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -23,6 +23,6 @@ class ChargingMapSession: Session() {
         } catch (exception: SecurityException) {
             true
         }
-        return if (showPermissions) PermissionScreen(carContext) else ChargingMapScreen(carContext)
+        return if (showPermissionsScreen) PermissionScreen(carContext) else ChargingMapScreen(carContext)
     }
 }
