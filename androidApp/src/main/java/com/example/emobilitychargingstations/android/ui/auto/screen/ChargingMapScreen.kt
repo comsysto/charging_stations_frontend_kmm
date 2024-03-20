@@ -123,7 +123,7 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
     }
 
     private fun fillMapTemplateBuilder(): PlaceListMapTemplate.Builder {
-        val actionStrip = ActionStrip.Builder().addAction(createFavoritesAction()).build()
+        val actionStrip = ActionStrip.Builder().addAction(openFavoritesListScreenAction()).build()
         val mapTemplateBuilder = PlaceListMapTemplate.Builder().setActionStrip(actionStrip)
         val carIcon = getDrawableAsBitmap(R.drawable.electric_car_icon)
         mapTemplateBuilder.setTitle(getString(R.string.auto_map_title))
@@ -184,7 +184,7 @@ class ChargingMapScreen(carContext: CarContext) : BaseScreen(carContext), OnScre
         }
     }
 
-    private fun createFavoritesAction() = Action.Builder().apply {
+    private fun openFavoritesListScreenAction() = Action.Builder().apply {
         setIcon(createCarIconFromBitmap(
                 getDrawableAsBitmap(R.drawable.favorites_star_icon)!!
             ))
